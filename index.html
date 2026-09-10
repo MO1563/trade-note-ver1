@@ -466,7 +466,7 @@
             background-color: var(--card-bg) !important;
             border: none !important;
             font-size: 0.875rem;
-            min-width: 2370px !important;
+            min-width: 2410px !important;
         }
 
         .tabulator-header {
@@ -654,14 +654,38 @@
 
         .mk-badge {
             display: inline-block;
-            padding: 2px 9px;
+            padding: 3px 12px;
             border-radius: 999px;
             font-size: 0.75rem;
             font-weight: 700;
+            letter-spacing: 0.02em;
+            backdrop-filter: blur(8px) saturate(160%);
+            -webkit-backdrop-filter: blur(8px) saturate(160%);
         }
-        .mk-entry { background: rgba(6, 182, 212, 0.18); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4); }
-        .mk-miss { background: rgba(244, 63, 94, 0.16); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
-        .mk-notice { background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .mk-entry {
+            background: rgba(6, 182, 212, 0.12);
+            color: #67e8f9;
+            border: 1px solid rgba(34, 211, 238, 0.5);
+            text-shadow: 0 0 4px #22d3ee, 0 0 10px rgba(34, 211, 238, 0.75), 0 0 20px rgba(34, 211, 238, 0.4);
+        }
+        .mk-miss {
+            background: rgba(244, 63, 94, 0.1);
+            color: #fda4af;
+            border: 1px solid rgba(251, 113, 133, 0.5);
+            text-shadow: 0 0 4px #fb7185, 0 0 10px rgba(251, 113, 133, 0.75), 0 0 20px rgba(251, 113, 133, 0.4);
+        }
+        .mk-notice {
+            background: rgba(245, 158, 11, 0.1);
+            color: #fde68a;
+            border: 1px solid rgba(251, 191, 36, 0.5);
+            text-shadow: 0 0 4px #fbbf24, 0 0 10px rgba(251, 191, 36, 0.75), 0 0 20px rgba(251, 191, 36, 0.4);
+        }
+        .mk-settlement {
+            background: rgba(52, 211, 153, 0.1);
+            color: #6ee7b7;
+            border: 1px solid rgba(52, 211, 153, 0.5);
+            text-shadow: 0 0 4px #34d399, 0 0 10px rgba(52, 211, 153, 0.75), 0 0 20px rgba(52, 211, 153, 0.4);
+        }
 
         /* ===== Mieruka Style Trade Check (embedded log editor) ===== */
         .mieruka-overlay {
@@ -723,21 +747,49 @@
         }
         .mieruka-tab-btn {
             flex: 1;
-            background: var(--mk-panel);
-            border: 1px solid var(--mk-border);
-            color: #94a3b8;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px) saturate(160%);
+            -webkit-backdrop-filter: blur(10px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #8a93a6;
             padding: 10px 12px;
-            border-radius: 8px 8px 0 0;
+            border-radius: 10px 10px 0 0;
             font-weight: 700;
             font-size: 0.88rem;
             cursor: pointer;
             border-bottom: none;
-            transition: all 0.15s ease;
+            transition: all 0.2s ease;
+        }
+        .mieruka-tab-btn:hover {
+            background: rgba(255, 255, 255, 0.09);
+            color: #e2e8f0;
         }
         .mieruka-tab-btn.active {
-            color: var(--mk-cyan);
-            background: var(--mk-bg);
-            box-shadow: inset 0 2px 0 var(--mk-cyan);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .mieruka-tab-btn[data-tab="entry"].active {
+            color: #67e8f9;
+            border-color: rgba(34, 211, 238, 0.55);
+            text-shadow: 0 0 4px #22d3ee, 0 0 12px rgba(34, 211, 238, 0.8), 0 0 24px rgba(34, 211, 238, 0.45);
+            box-shadow: inset 0 -2px 0 #22d3ee;
+        }
+        .mieruka-tab-btn[data-tab="miss"].active {
+            color: #fda4af;
+            border-color: rgba(251, 113, 133, 0.55);
+            text-shadow: 0 0 4px #fb7185, 0 0 12px rgba(251, 113, 133, 0.8), 0 0 24px rgba(251, 113, 133, 0.45);
+            box-shadow: inset 0 -2px 0 #fb7185;
+        }
+        .mieruka-tab-btn[data-tab="notice"].active {
+            color: #fde68a;
+            border-color: rgba(251, 191, 36, 0.55);
+            text-shadow: 0 0 4px #fbbf24, 0 0 12px rgba(251, 191, 36, 0.8), 0 0 24px rgba(251, 191, 36, 0.45);
+            box-shadow: inset 0 -2px 0 #fbbf24;
+        }
+        .mieruka-tab-btn[data-tab="settlement"].active {
+            color: #6ee7b7;
+            border-color: rgba(52, 211, 153, 0.55);
+            text-shadow: 0 0 4px #34d399, 0 0 12px rgba(52, 211, 153, 0.8), 0 0 24px rgba(52, 211, 153, 0.45);
+            box-shadow: inset 0 -2px 0 #34d399;
         }
 
         .mieruka-purpose-bar {
@@ -790,13 +842,21 @@
         }
 
         .mieruka-mini-btn {
-            background: rgba(148,163,184,0.12);
-            color: #cbd5e1;
-            border: 1px solid var(--mk-border);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(6px) saturate(160%);
+            -webkit-backdrop-filter: blur(6px) saturate(160%);
+            color: #9aa4b8;
+            border: 1px solid rgba(255, 255, 255, 0.14);
             border-radius: 6px;
             font-size: 0.72rem;
             padding: 3px 8px;
             cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .mieruka-mini-btn:hover {
+            color: #67e8f9;
+            border-color: rgba(34, 211, 238, 0.55);
+            text-shadow: 0 0 4px #22d3ee, 0 0 10px rgba(34, 211, 238, 0.7);
         }
 
         .mieruka-field-label {
@@ -853,27 +913,37 @@
         }
 
         .chip-btn {
-            background: var(--mk-bg);
-            border: 1px solid var(--mk-border);
-            color: #cbd5e1;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px) saturate(160%);
+            -webkit-backdrop-filter: blur(8px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #9aa4b8;
             font-size: 0.72rem;
             padding: 5px 10px;
             border-radius: 6px;
             cursor: pointer;
             white-space: nowrap;
-            transition: all 0.12s ease;
+            transition: all 0.15s ease;
         }
-        .chip-btn:hover { border-color: var(--mk-cyan); }
+        .chip-btn:hover {
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(34, 211, 238, 0.5);
+            color: #e2e8f0;
+        }
         .chip-btn.active {
-            background: var(--mk-cyan);
-            border-color: var(--mk-cyan);
-            color: #04141a;
+            background: rgba(34, 211, 238, 0.12);
+            border-color: rgba(34, 211, 238, 0.7);
+            color: #67e8f9;
             font-weight: 700;
+            text-shadow: 0 0 4px #22d3ee, 0 0 10px rgba(34, 211, 238, 0.8), 0 0 20px rgba(34, 211, 238, 0.4);
+            box-shadow: 0 0 12px rgba(34, 211, 238, 0.25);
         }
         .chip-group[data-kind="pink"] .chip-btn.active {
-            background: var(--mk-pink);
-            border-color: var(--mk-pink);
-            color: #fff;
+            background: rgba(244, 63, 94, 0.12);
+            border-color: rgba(251, 113, 133, 0.7);
+            color: #fda4af;
+            text-shadow: 0 0 4px #fb7185, 0 0 10px rgba(251, 113, 133, 0.8), 0 0 20px rgba(251, 113, 133, 0.4);
+            box-shadow: 0 0 12px rgba(251, 113, 133, 0.25);
         }
 
         .score-row {
@@ -930,25 +1000,41 @@
         }
         .mieruka-btn-save {
             flex: 1;
-            background: linear-gradient(90deg, var(--mk-cyan), #34d399);
-            color: #04141a;
-            border: none;
+            background: rgba(52, 211, 153, 0.1);
+            backdrop-filter: blur(10px) saturate(160%);
+            -webkit-backdrop-filter: blur(10px) saturate(160%);
+            border: 1px solid rgba(52, 211, 153, 0.55);
+            color: #6ee7b7;
             font-weight: 800;
             padding: 12px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 0.9rem;
+            text-shadow: 0 0 4px #34d399, 0 0 12px rgba(52, 211, 153, 0.8), 0 0 24px rgba(52, 211, 153, 0.45);
+            transition: all 0.2s ease;
+        }
+        .mieruka-btn-save:hover {
+            background: rgba(52, 211, 153, 0.18);
+            box-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
         }
         .mieruka-btn-clear {
             flex: 1;
-            background: rgba(244,63,94,0.14);
-            color: #fb7185;
-            border: 1px solid rgba(244,63,94,0.4);
+            background: rgba(244, 63, 94, 0.1);
+            backdrop-filter: blur(10px) saturate(160%);
+            -webkit-backdrop-filter: blur(10px) saturate(160%);
+            border: 1px solid rgba(251, 113, 133, 0.5);
+            color: #fda4af;
             font-weight: 800;
             padding: 12px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 0.9rem;
+            text-shadow: 0 0 4px #fb7185, 0 0 12px rgba(251, 113, 133, 0.8), 0 0 24px rgba(251, 113, 133, 0.45);
+            transition: all 0.2s ease;
+        }
+        .mieruka-btn-clear:hover {
+            background: rgba(244, 63, 94, 0.18);
+            box-shadow: 0 0 20px rgba(251, 113, 133, 0.3);
         }
 
         /* Chart attachment slots */
@@ -1285,6 +1371,7 @@
                 <button type="button" class="mieruka-tab-btn active" data-tab="entry">エントリーログ</button>
                 <button type="button" class="mieruka-tab-btn" data-tab="miss">見送りログ</button>
                 <button type="button" class="mieruka-tab-btn" data-tab="notice">気づき漏れログ</button>
+                <button type="button" class="mieruka-tab-btn" data-tab="settlement">決済ログ</button>
             </div>
             <div class="mieruka-body">
                 <div class="mieruka-purpose-bar">目的と使い方</div>
@@ -1296,7 +1383,6 @@
                         <div class="mieruka-col" id="mk-entry-market"></div>
                         <div class="mieruka-col" id="mk-entry-risk"></div>
                     </div>
-                    <div class="mieruka-fullwidth" id="mk-entry-review" style="margin-top:14px;"></div>
                     <div class="mieruka-actions">
                         <button type="button" class="mieruka-btn-save" data-save="entry">保存する</button>
                         <button type="button" class="mieruka-btn-clear" data-clear="entry">入力内容をクリア</button>
@@ -1331,23 +1417,14 @@
                         <button type="button" class="mieruka-btn-clear" data-clear="notice">入力内容をクリア</button>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Simple text field modal (post-exit review, etc.) -->
-    <div class="mieruka-overlay" id="text-field-overlay">
-        <div class="mieruka-card" style="max-width: 640px;">
-            <div class="mieruka-titlebar">
-                <h3 id="text-field-title">決済後の感情＆振り返り</h3>
-                <button class="mieruka-close" id="text-field-close">&times;</button>
-            </div>
-            <div class="mieruka-body">
-                <textarea class="mieruka-textarea" id="text-field-textarea" style="min-height: 220px;" placeholder="決済後の感情や振り返りを入力"></textarea>
-                <div class="mieruka-charcount" id="text-field-charcount">0</div>
-                <div class="mieruka-actions">
-                    <button type="button" class="mieruka-btn-save" id="text-field-save">保存する</button>
-                    <button type="button" class="mieruka-btn-clear" id="text-field-clear">クリア</button>
+                <!-- 決済ログ -->
+                <div class="mieruka-panel" id="mk-panel-settlement" data-panel="settlement">
+                    <div class="mieruka-fullwidth" id="mk-settlement-review" style="margin-top:14px;"></div>
+                    <div class="mieruka-actions">
+                        <button type="button" class="mieruka-btn-save" data-save="settlement">保存する</button>
+                        <button type="button" class="mieruka-btn-clear" data-clear="settlement">入力内容をクリア</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1434,23 +1511,13 @@
         }
 
         // Auto-Format Date Input: Converts "202609120315" -> "2026-09-12 03:15"
-        function formatDateTimeInput(val) {
+        function formatDateInput(val) {
             if (!val) return "";
             let str = String(val).trim();
 
-            const regex12 = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})$/;
-            if (regex12.test(str)) {
-                return str.replace(regex12, "$1-$2-$3 $4:$5");
-            }
-
-            const regex14 = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/;
-            if (regex14.test(str)) {
-                return str.replace(regex14, "$1-$2-$3 $4:$5");
-            }
-
             const regex8 = /^(\d{4})(\d{2})(\d{2})$/;
             if (regex8.test(str)) {
-                return str.replace(regex8, "$1-$2-$3 00:00");
+                return str.replace(regex8, "$1-$2-$3");
             }
 
             if (str.includes("/")) {
@@ -1460,8 +1527,75 @@
             return str;
         }
 
+        function formatTimeInput(val) {
+            if (!val) return "";
+            let str = String(val).trim();
+
+            const regex4 = /^(\d{2})(\d{2})$/;
+            if (regex4.test(str)) {
+                return str.replace(regex4, "$1:$2");
+            }
+
+            return str;
+        }
+
+        // Split any legacy combined "datetime" ("YYYY-MM-DD HH:mm") rows into separate date/time fields
+        function migrateRowDateTime(row) {
+            if ((!row.date || row.date === "") && row.datetime) {
+                const parts = String(row.datetime).trim().split(/\s+/);
+                row.date = parts[0] || "";
+                row.time = parts[1] || "";
+            }
+            if (row.date === undefined) row.date = "";
+            if (row.time === undefined) row.time = "";
+            if (!row.settlementLog && row.postReview) {
+                row.settlementLog = {
+                    data: { entry_review_feeling: row.postReview },
+                    savedAt: new Date().toISOString()
+                };
+            }
+            return row;
+        }
+        function migrateLegacyDateTime(rows) {
+            return (rows || []).map(migrateRowDateTime);
+        }
+
         // Select Editors Instances
-        const pairSelectEditor = createSelectEditor(["", "USD/JPY", "EUR/USD", "GBP/JPY", "EUR/JPY", "AUD/USD", "GBP/USD", "XAU/USD", "その他"]);
+        const pairSelectEditor = createSelectEditor([
+            "",
+            "USDJPY",
+            "EURUSD",
+            "GBPUSD",
+            "AUDUSD",
+            "USDCHF",
+            "NZDUSD",
+            "EURJPY",
+            "GBPJPY",
+            "CADJPY",
+            "AUDJPY",
+            "NZDJPY",
+            "EURGBP",
+            "CHFJPY",
+            "XAUUSD",
+            "XAGUSD",
+            "GBPAUD",
+            "EURAUD",
+            "GBPNZD",
+            "EURNZD",
+            "AUDNZD",
+            "AUDCAD",
+            "GBPCAD",
+            "EURCAD",
+            "NZDCAD",
+            "GBPCHF",
+            "EURCHF",
+            "AUDCHF",
+            "CADCHF",
+            "NZDCHF",
+            "NI225",
+            "US500",
+            "USOIL"
+        ]);
         const posSelectEditor = createSelectEditor(["", "Buy", "Sell"]);
         const evalSelectEditor = createSelectEditor(["", "勝ち", "勝ち黄", "負け", "負け黄", "建値", "未決済"]);
         const tagSelectEditor = createSelectEditor([
@@ -1562,7 +1696,7 @@
         const sampleDataMain = [
             {
                 id: 1,
-                datetime: "2026-09-08 14:30",
+                date: "2026-09-08", time: "14:30",
                 pair: "USD/JPY",
                 position: "Buy",
                 evaluation: "勝ち黄",
@@ -1584,7 +1718,7 @@
             },
             {
                 id: 2,
-                datetime: "2026-09-08 21:15",
+                date: "2026-09-08", time: "21:15",
                 pair: "EUR/USD",
                 position: "Sell",
                 evaluation: "負け黄",
@@ -1606,7 +1740,7 @@
             },
             {
                 id: 3,
-                datetime: "2026-09-09 09:45",
+                date: "2026-09-09", time: "09:45",
                 pair: "GBP/JPY",
                 position: "Buy",
                 evaluation: "勝ち",
@@ -1631,7 +1765,7 @@
         const sampleDataGold = [
             {
                 id: 101,
-                datetime: "2026-09-09 11:00",
+                date: "2026-09-09", time: "11:00",
                 pair: "XAU/USD",
                 position: "Buy",
                 evaluation: "勝ち黄",
@@ -1720,6 +1854,7 @@
         // Save current table state to LocalStorage
         function saveAppState() {
             if (!table) return;
+            recalcOptimalSizing();
             const activeNb = appState.notebooks[appState.activeNotebookId];
             if (activeNb) {
                 activeNb.data = table.getData();
@@ -1765,7 +1900,7 @@
             document.getElementById("input-whatif-capital").value = targetNb.whatIfCapital !== undefined ? targetNb.whatIfCapital : "";
             document.getElementById("input-whatif-capital").disabled = !targetNb.whatIfEnabled;
 
-            const targetData = targetNb.data || [];
+            const targetData = migrateLegacyDateTime(targetNb.data || []);
             table.setData(targetData).then(() => {
                 renderNotebookDropdown();
                 saveAppState();
@@ -1773,19 +1908,17 @@
             });
         }
 
-        // Pips & Profit & Optimal Profit Realtime Calculation
+        // Pips & Profit Realtime Calculation
         function updateCalculations(row) {
             const data = row.getData();
             const entry = parseFloat(data.entry);
             const exit = parseFloat(data.exit);
             const lot = parseFloat(data.lot);
-            const optimalLot = parseFloat(data.optimalLot);
             const pos = data.position;
             const pair = (data.pair || "").toUpperCase();
 
             let pips = null;
             let profit = null;
-            let optimalProfit = null;
 
             if (!isNaN(entry) && !isNaN(exit)) {
                 let diff = (pos === "Sell") ? (entry - exit) : (exit - entry);
@@ -1794,8 +1927,14 @@
                     multiplier = 100;
                 } else if (pair.includes("XAU")) {
                     multiplier = 10;
+                } else if (pair.includes("XAG")) {
+                    multiplier = 1000;
                 } else if (pair.includes("BTC")) {
                     multiplier = 1;
+                } else if (pair === "NI225" || pair === "US500") {
+                    multiplier = 1;
+                } else if (pair === "USOIL") {
+                    multiplier = 100;
                 } else {
                     multiplier = 10000;
                 }
@@ -1806,16 +1945,46 @@
                 if (!isNaN(lot) && lot > 0) {
                     profit = Math.round(pips * lot * ratePerPip);
                 }
-
-                if (!isNaN(optimalLot) && optimalLot > 0) {
-                    optimalProfit = Math.round(pips * optimalLot * ratePerPip);
-                }
             }
 
             row.update({
                 pips: pips,
-                profit: profit,
-                optimalProfit: optimalProfit
+                profit: profit
+            });
+        }
+
+        // 適正ロット・適正収益の自動計算：現在の口座残高 × 許容損失率（強数が2未満なら1%、2以上なら2%）を
+        // その行の実現pips幅で割ることで、リスク管理上「適正」な枚数を逆算する
+        function recalcOptimalSizing() {
+            if (!table) return;
+            const capValInput = parseFloat(document.getElementById("input-initial-capital").value);
+            const initialCapital = !isNaN(capValInput) ? capValInput : 0;
+            let totalProfit = 0;
+            table.getData().forEach(function(d) {
+                const p = parseFloat(d.profit);
+                if (!isNaN(p)) totalProfit += p;
+            });
+            const currentBalance = initialCapital + totalProfit;
+
+            table.getRows().forEach(function(row) {
+                const data = row.getData();
+                const pips = parseFloat(data.pips);
+                let optimalLot = null;
+                let optimalProfit = null;
+
+                if (!isNaN(pips) && pips !== 0 && currentBalance > 0) {
+                    const pair = (data.pair || "").toUpperCase();
+                    const ratePerPip = pair.includes("JPY") ? 1000 : 1500;
+                    const ns = data.netStrength;
+                    const riskRate = (typeof ns === "number" && ns >= 2) ? 0.02 : 0.01;
+                    const riskAmount = currentBalance * riskRate;
+                    optimalLot = Math.round((riskAmount / (Math.abs(pips) * ratePerPip)) * 100) / 100;
+                    optimalProfit = Math.round(pips * optimalLot * ratePerPip);
+                }
+
+                if (data.optimalLot !== optimalLot || data.optimalProfit !== optimalProfit) {
+                    row.update({ optimalLot: optimalLot, optimalProfit: optimalProfit });
+                }
             });
         }
 
@@ -1867,10 +2036,12 @@
             return `<div class="emotion-cell" title="クリックで詳細を表示・編集"><i class="fa-solid fa-expand"></i> <span class="${cls}">${escapeHtml(label)}</span></div>`;
         }
 
-        function postReviewFormatter(cell) {
-            const val = cell.getValue() || "";
-            if (!val) return '<div class="emotion-cell mieruka-empty" title="クリックで入力"><i class="fa-solid fa-pen"></i> <span>入力する</span></div>';
-            return `<div class="emotion-cell" title="クリックで全文を表示・編集"><i class="fa-solid fa-expand"></i> <span>${escapeHtml(val)}</span></div>`;
+        function settlementLogFormatter(cell) {
+            const val = cell.getValue();
+            if (!val || !val.data) {
+                return '<div class="emotion-cell mieruka-empty" title="クリックで入力"><i class="fa-solid fa-pen"></i> <span>入力する</span></div>';
+            }
+            return '<div class="emotion-cell" title="クリックで詳細を表示・編集"><i class="fa-solid fa-expand"></i> <span class="mk-badge mk-settlement">決済ログ</span></div>';
         }
 
         const CHART_SLOTS = [
@@ -1899,11 +2070,11 @@
         loadAppState();
 
         // Get Active Notebook Initial Data
-        const activeData = appState.notebooks[appState.activeNotebookId] ? appState.notebooks[appState.activeNotebookId].data : [];
+        const activeData = migrateLegacyDateTime(appState.notebooks[appState.activeNotebookId] ? appState.notebooks[appState.activeNotebookId].data : []);
 
         // Tabulator Grid Setup
         // ===== Mieruka Style Trade Check (embedded log editor) =====
-        const MIERUKA_TAB_LABELS = { entry: "エントリーログ", miss: "見送りログ", notice: "気づき漏れログ" };
+        const MIERUKA_TAB_LABELS = { entry: "エントリーログ", miss: "見送りログ", notice: "気づき漏れログ", settlement: "決済ログ" };
         const MK_PAIR_BY_CATEGORY = {
             USD: ["USDJPY", "EURUSD", "GBPUSD", "AUDUSD", "USDCAD", "USDCHF", "NZDUSD", "GOLD", "SILVER"],
             JPY: ["USDJPY", "EURJPY", "GBPJPY", "AUDJPY", "CADJPY", "CHFJPY", "NZDJPY", "BTCJPY"],
@@ -2162,7 +2333,8 @@
             document.getElementById("mk-entry-basic").innerHTML = entryBasicHtml();
             document.getElementById("mk-entry-market").innerHTML = marketBlockHtml("entry", { entryTrigger: true, timePass: true });
             document.getElementById("mk-entry-risk").innerHTML = entryRiskHtml();
-            document.getElementById("mk-entry-review").innerHTML = entryReviewHtml();
+
+            document.getElementById("mk-settlement-review").innerHTML = entryReviewHtml();
 
             document.getElementById("mk-miss-basic").innerHTML = missBasicHtml();
             document.getElementById("mk-miss-market").innerHTML = marketBlockHtml("miss", { entryTrigger: true, timePass: true });
@@ -2243,9 +2415,9 @@
             });
         }
 
-        function toDatetimeLocal(str) {
-            if (!str) return "";
-            return String(str).replace(" ", "T");
+        function toDatetimeLocal(dateStr, timeStr) {
+            if (!dateStr) return "";
+            return `${dateStr}T${timeStr || "00:00"}`;
         }
 
         function setMierukaFieldValue(id, val) {
@@ -2271,22 +2443,23 @@
                 }
             }
             if (tab === "entry") {
-                setMierukaFieldValue("entry_entry_dt", toDatetimeLocal(tradeData.datetime));
+                setMierukaFieldValue("entry_entry_dt", toDatetimeLocal(tradeData.date, tradeData.time));
                 setMierukaFieldValue("entry_entry_price", tradeData.entry);
                 setMierukaFieldValue("entry_exit_price", tradeData.exit);
             } else {
-                setMierukaFieldValue(tab + "_dt", toDatetimeLocal(tradeData.datetime));
+                setMierukaFieldValue(tab + "_dt", toDatetimeLocal(tradeData.date, tradeData.time));
                 setMierukaFieldValue(tab + "_price", tradeData.entry);
             }
         }
 
         let mkCurrentRow = null;
 
-        function openMierukaModal(row) {
+        function openMierukaModal(row, forceTab) {
             mkCurrentRow = row;
             const data = row.getData();
             const mk = data.mieruka;
-            const activeTab = (mk && mk.type) || "entry";
+            const sl = data.settlementLog;
+            const activeTab = forceTab || (mk && mk.type) || "entry";
             ["entry", "miss", "notice"].forEach(t => {
                 if (mk && mk.type === t) {
                     populateMierukaPanel(t, mk.data);
@@ -2295,6 +2468,7 @@
                     prefillBasicFromTrade(t, data);
                 }
             });
+            populateMierukaPanel("settlement", sl ? sl.data : null);
             switchMierukaTab(activeTab);
             document.getElementById("mieruka-overlay").classList.add("active");
         }
@@ -2307,24 +2481,32 @@
         function saveMierukaLog(tab) {
             if (!mkCurrentRow) return;
             const data = collectMierukaData(tab);
-            mkCurrentRow.update({ mieruka: { type: tab, data: data, savedAt: new Date().toISOString() } }).then(function() {
+            const payload = { data: data, savedAt: new Date().toISOString() };
+            const update = (tab === "settlement") ? { settlementLog: payload } : { mieruka: Object.assign({ type: tab }, payload) };
+            mkCurrentRow.update(update).then(function() {
                 saveAppState();
                 closeMierukaModal();
                 showToast(MIERUKA_TAB_LABELS[tab] + "を保存しました");
             });
         }
 
+        // Shared single/multi-select toggle behavior for chip buttons, reused across all Mieruka-style modals
+        function handleChipToggle(chip) {
+            const group = chip.closest(".chip-group");
+            const multi = group.getAttribute("data-multi") === "1";
+            if (!multi) {
+                group.querySelectorAll(".chip-btn").forEach(b => b.classList.remove("active"));
+                chip.classList.add("active");
+            } else {
+                chip.classList.toggle("active");
+            }
+            return group;
+        }
+
         document.getElementById("mieruka-overlay").addEventListener("click", function(e) {
             const chip = e.target.closest(".chip-btn");
             if (chip) {
-                const group = chip.closest(".chip-group");
-                const multi = group.getAttribute("data-multi") === "1";
-                if (!multi) {
-                    group.querySelectorAll(".chip-btn").forEach(b => b.classList.remove("active"));
-                    chip.classList.add("active");
-                } else {
-                    chip.classList.toggle("active");
-                }
+                const group = handleChipToggle(chip);
                 const groupId = group.getAttribute("data-group") || "";
                 if (groupId.endsWith("_category")) {
                     const prefix = groupId.slice(0, -"_category".length);
@@ -2344,53 +2526,6 @@
             if (e.target.id === "mk-close-btn" || e.target.id === "mieruka-overlay") {
                 closeMierukaModal();
             }
-        });
-
-        // ===== Simple text field modal (post-exit review, etc.) =====
-        let tfCurrentRow = null, tfCurrentField = null, tfMaxlen = null;
-
-        function updateTextFieldCount() {
-            const ta = document.getElementById("text-field-textarea");
-            document.getElementById("text-field-charcount").textContent = ta.value.length + (tfMaxlen ? ` / ${tfMaxlen}文字` : "");
-        }
-
-        function openTextFieldModal(row, field, title, maxlen) {
-            tfCurrentRow = row;
-            tfCurrentField = field;
-            tfMaxlen = maxlen || null;
-            document.getElementById("text-field-title").textContent = title;
-            const ta = document.getElementById("text-field-textarea");
-            ta.value = row.getData()[field] || "";
-            if (maxlen) ta.setAttribute("maxlength", maxlen); else ta.removeAttribute("maxlength");
-            updateTextFieldCount();
-            document.getElementById("text-field-overlay").classList.add("active");
-        }
-
-        function closeTextFieldModal() {
-            document.getElementById("text-field-overlay").classList.remove("active");
-            tfCurrentRow = null;
-        }
-
-        document.getElementById("text-field-textarea").addEventListener("input", updateTextFieldCount);
-        document.getElementById("text-field-save").addEventListener("click", function() {
-            if (!tfCurrentRow) return;
-            const val = document.getElementById("text-field-textarea").value;
-            const field = tfCurrentField;
-            const update = {};
-            update[field] = val;
-            tfCurrentRow.update(update).then(function() {
-                saveAppState();
-                closeTextFieldModal();
-                showToast("保存しました");
-            });
-        });
-        document.getElementById("text-field-clear").addEventListener("click", function() {
-            document.getElementById("text-field-textarea").value = "";
-            updateTextFieldCount();
-        });
-        document.getElementById("text-field-close").addEventListener("click", closeTextFieldModal);
-        document.getElementById("text-field-overlay").addEventListener("click", function(e) {
-            if (e.target.id === "text-field-overlay") closeTextFieldModal();
         });
 
         // ===== Chart attachment modal (before-entry / after-exit charts) =====
@@ -2638,12 +2773,22 @@
             columns: [
                 {
                     title: "日付 (JST)",
-                    field: "datetime",
+                    field: "date",
                     editor: "input",
                     mutator: function(value) {
-                        return formatDateTimeInput(value);
+                        return formatDateInput(value);
                     },
-                    width: 150,
+                    width: 110,
+                    sorter: "string"
+                },
+                {
+                    title: "時間",
+                    field: "time",
+                    editor: "input",
+                    mutator: function(value) {
+                        return formatTimeInput(value);
+                    },
+                    width: 80,
                     sorter: "string"
                 },
                 {
@@ -2717,8 +2862,11 @@
                 {
                     title: "適正ロット",
                     field: "optimalLot",
-                    editor: "number",
-                    editorParams: { step: "0.01", min: 0 },
+                    editor: false,
+                    formatter: function(cell) {
+                        const val = cell.getValue();
+                        return (val === null || val === undefined || val === "") ? "" : Number(val).toFixed(2);
+                    },
                     hozAlign: "right",
                     width: 95
                 },
@@ -2726,7 +2874,7 @@
                     title: "適正収益(円)",
                     field: "optimalProfit",
                     formatter: profitFormatter,
-                    editor: "number",
+                    editor: false,
                     hozAlign: "right",
                     width: 125,
                     headerSort: true
@@ -2786,11 +2934,11 @@
                 },
                 {
                     title: "決済後の感情＆振り返り",
-                    field: "postReview",
+                    field: "settlementLog",
                     editor: false,
-                    formatter: postReviewFormatter,
+                    formatter: settlementLogFormatter,
                     cellClick: function(e, cell) {
-                        openTextFieldModal(cell.getRow(), "postReview", "決済後の感情＆振り返り", 500);
+                        openMierukaModal(cell.getRow(), "settlement");
                     },
                     width: 220
                 },
@@ -2835,7 +2983,7 @@
         // Event listeners for cell edits
         table.on("cellEdited", function(cell) {
             const field = cell.getField();
-            if (["entry", "exit", "position", "pair", "lot", "optimalLot", "swap"].includes(field)) {
+            if (["entry", "exit", "position", "pair", "lot", "swap"].includes(field)) {
                 updateCalculations(cell.getRow());
             }
             if (["tfTag", "weakTag"].includes(field)) {
@@ -2983,13 +3131,16 @@
             profitEl.className = `stat-value ${totalProfit >= 0 ? "val-profit-pos" : "val-profit-neg"}`;
         }
 
-        table.on("tableBuilt", updateStats);
+        table.on("tableBuilt", function() {
+            recalcOptimalSizing();
+            updateStats();
+        });
 
         // Add Row Handler
         document.getElementById("btn-add-row").addEventListener("click", function() {
             table.addRow({
                 id: Date.now(),
-                datetime: "",
+                date: "", time: "",
                 pair: "",
                 position: "",
                 evaluation: "",
