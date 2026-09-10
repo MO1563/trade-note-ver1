@@ -1,0 +1,3113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('trade_note_theme') || 'dark';
+                document.documentElement.setAttribute('data-theme', t);
+            } catch (e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>見える化Labo＋</title>
+    <!-- Tabulator CSS (Midnight Dark Theme) -->
+    <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator_midnight.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0a0d;
+            --bg-color-alt: #0d0d12;
+            --card-bg: #17171d;
+            --card-bg-alt: #1c1c23;
+            --input-bg: #101014;
+            --border-color: #2a2a33;
+            --border-soft: rgba(255, 255, 255, 0.06);
+            --accent-blue: #3b82f6;
+            --accent-blue-hover: #2563eb;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --accent-cyan: #06b6d4;
+            --accent-gold: #d4af6a;
+            --accent-gold-soft: rgba(212, 175, 106, 0.16);
+            --text-primary: #f5f4f0;
+            --text-secondary: #9a99a6;
+            --text-muted: #6b6a76;
+            --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.35);
+            --shadow-md: 0 10px 24px -6px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+            --scrollbar-thumb: #35353f;
+            color-scheme: dark;
+        }
+
+        :root[data-theme="light"] {
+            --bg-color: #f7f6f2;
+            --bg-color-alt: #f1efe8;
+            --card-bg: #ffffff;
+            --card-bg-alt: #faf9f5;
+            --input-bg: #f4f3ee;
+            --border-color: #e7e3d8;
+            --border-soft: rgba(20, 20, 25, 0.06);
+            --accent-blue: #2563eb;
+            --accent-blue-hover: #1d4ed8;
+            --accent-green: #059669;
+            --accent-red: #dc2626;
+            --accent-yellow: #d97706;
+            --accent-cyan: #0891b2;
+            --accent-gold: #a8791f;
+            --accent-gold-soft: rgba(168, 121, 31, 0.12);
+            --text-primary: #1a1a1f;
+            --text-secondary: #5c5b64;
+            --text-muted: #8b8a93;
+            --shadow-sm: 0 2px 6px rgba(20, 20, 25, 0.06);
+            --shadow-md: 0 10px 24px -8px rgba(20, 20, 25, 0.12);
+            --shadow-lg: 0 24px 48px -16px rgba(20, 20, 25, 0.16);
+            --scrollbar-thumb: #ddd9cc;
+            color-scheme: light;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 15% 0%, var(--accent-gold-soft) 0%, transparent 45%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            padding: 20px;
+            min-height: 100vh;
+            transition: background-color 0.35s ease, color 0.35s ease;
+            letter-spacing: 0.01em;
+        }
+
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb); border-radius: 8px; }
+
+        .container {
+            max-width: 1750px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+
+        }
+
+        /* Header & Notebook Selector */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .header-bar::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -1px;
+            width: 180px;
+            height: 1px;
+            background: linear-gradient(90deg, var(--accent-gold) 0%, transparent 100%);
+        }
+
+        .app-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .app-title i.main-icon {
+            font-size: 1.9rem;
+            color: var(--accent-gold);
+            filter: drop-shadow(0 0 10px var(--accent-gold-soft));
+        }
+
+        .notebook-selector-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .notebook-select {
+            font-family: 'Cormorant Garamond', 'Noto Sans JP', serif !important;
+            font-size: 1.3rem !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.02em;
+            background-color: var(--card-bg) !important;
+            color: var(--text-primary) !important;
+            border: 1px solid var(--accent-gold) !important;
+            border-radius: 8px !important;
+            padding: 6px 14px !important;
+            cursor: pointer;
+            outline: none;
+            min-width: 220px;
+            box-shadow: var(--shadow-sm);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .notebook-select:hover {
+            border-color: var(--accent-blue-hover) !important;
+            box-shadow: 0 0 0 3px var(--accent-gold-soft);
+        }
+
+        .app-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.03em;
+            margin-top: 3px;
+        }
+
+        .theme-toggle {
+            background-color: var(--card-bg);
+            color: var(--accent-gold);
+            border: 1px solid var(--border-color);
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.95rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 3px var(--accent-gold-soft);
+        }
+
+        .btn-icon {
+            background-color: var(--card-bg-alt);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-icon:hover {
+            border-color: var(--accent-gold);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-icon-success {
+            background-color: rgba(16, 185, 129, 0.14);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+        .btn-icon-success:hover {
+            background-color: rgba(16, 185, 129, 0.24);
+        }
+
+        .btn-icon-danger {
+            background-color: rgba(239, 68, 68, 0.12);
+            color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .btn-icon-danger:hover {
+            background-color: rgba(239, 68, 68, 0.24);
+        }
+
+        /* Stats Cards Bar */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            position: relative;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 17px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-gold) 0%, transparent 75%);
+            opacity: 0.7;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-gold);
+        }
+
+        .stat-card.whatif-active {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 3px var(--accent-gold-soft), var(--shadow-md);
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            background-color: var(--border-soft);
+        }
+
+        .val-profit-pos { color: var(--accent-green); }
+        .val-profit-neg { color: var(--accent-red); }
+
+        /* Toolbar Controls */
+        .control-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filters-group {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .actions-group {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-control {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 3px var(--accent-gold-soft);
+        }
+
+        /* Always-white input style (initial capital, what-if capital, etc.) — stays legible in both dark and light themes */
+        .mk-white-input {
+            background-color: #ffffff !important;
+            color: #14151a !important;
+            border: 1px solid var(--accent-gold) !important;
+        }
+        .mk-white-input::placeholder { color: #9a9990; }
+        .mk-white-input:disabled {
+            background-color: #f0efe9 !important;
+            color: #9a9990 !important;
+            border-color: var(--border-color) !important;
+            cursor: not-allowed;
+        }
+
+        /* Toggle switch (used for the "what-if" capital simulation mode) */
+        .switch-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .switch-input { display: none; }
+        .switch-track {
+            width: 38px;
+            height: 21px;
+            background: var(--border-color);
+            border-radius: 999px;
+            position: relative;
+            display: inline-block;
+            transition: background 0.2s ease;
+        }
+        .switch-thumb {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 17px;
+            height: 17px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        .switch-input:checked + .switch-track { background: var(--accent-gold); }
+        .switch-input:checked + .switch-track .switch-thumb { transform: translateX(17px); }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-blue-hover) 100%);
+            color: #ffffff;
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-primary:hover {
+            box-shadow: 0 6px 16px -4px rgba(59, 130, 246, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: var(--card-bg-alt);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover {
+            border-color: var(--accent-gold);
+        }
+
+        .btn-danger {
+            background-color: rgba(239, 68, 68, 0.12);
+            color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .btn-danger:hover {
+            background-color: rgba(239, 68, 68, 0.24);
+        }
+
+        /* Tabulator Custom Styling & Spreadsheet Grid Horizontal Scroll */
+        #trade-table-container {
+            border-radius: 12px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            background-color: var(--card-bg);
+        }
+
+        .tabulator {
+            background-color: var(--card-bg) !important;
+            border: none !important;
+            font-size: 0.875rem;
+            min-width: 2370px !important;
+        }
+
+        .tabulator-header {
+            background-color: var(--card-bg-alt) !important;
+            border-bottom: 2px solid var(--border-color) !important;
+            color: var(--text-secondary) !important;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .tabulator-header .tabulator-col {
+            background-color: var(--card-bg-alt) !important;
+            border-right: 1px solid var(--border-color) !important;
+            padding: 10px 10px !important;
+            vertical-align: middle;
+            white-space: nowrap !important;
+        }
+
+        .tabulator-row {
+            border-bottom: 1px solid var(--border-color) !important;
+            color: var(--text-primary);
+            transition: background-color 0.15s ease;
+            height: 46px !important;
+        }
+
+        .tabulator-row .tabulator-cell {
+            padding: 8px 10px !important;
+            border-right: 1px solid var(--border-soft) !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            height: 46px !important;
+            line-height: 28px !important;
+            vertical-align: middle !important;
+            box-sizing: border-box !important;
+            cursor: pointer;
+        }
+
+        /* Active Editor Styling */
+        .tabulator-cell.tabulator-editing {
+            padding: 0 !important;
+            overflow: visible !important;
+        }
+
+        .tabulator-cell.tabulator-editing input,
+        .tabulator-cell.tabulator-editing select,
+        .tabulator-cell.tabulator-editing textarea {
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 44px !important;
+            box-sizing: border-box !important;
+            background-color: #ffffff !important;
+            color: #14151a !important;
+            border: 2px solid var(--accent-gold) !important;
+            border-radius: 4px !important;
+            padding: 6px 10px !important;
+            font-family: inherit !important;
+            font-size: 0.875rem !important;
+            outline: none !important;
+            margin: 0 !important;
+            display: block !important;
+            white-space: nowrap !important;
+            cursor: pointer !important;
+        }
+
+        .tabulator-cell.tabulator-editing select option {
+            background-color: #ffffff !important;
+            color: #14151a !important;
+            padding: 8px !important;
+        }
+
+        /* Highlight Row Colors based on Evaluation */
+        .tabulator-row.row-win {
+            background-color: rgba(16, 185, 129, 0.12) !important;
+        }
+        .tabulator-row.row-win:hover {
+            background-color: rgba(16, 185, 129, 0.22) !important;
+        }
+
+        .tabulator-row.row-win-yellow {
+            background-color: rgba(6, 182, 212, 0.18) !important;
+            box-shadow: inset 4px 0 0 var(--accent-cyan);
+        }
+        .tabulator-row.row-win-yellow:hover {
+            background-color: rgba(6, 182, 212, 0.28) !important;
+        }
+
+        .tabulator-row.row-loss {
+            background-color: rgba(239, 68, 68, 0.12) !important;
+        }
+        .tabulator-row.row-loss:hover {
+            background-color: rgba(239, 68, 68, 0.22) !important;
+        }
+
+        .tabulator-row.row-loss-yellow {
+            background-color: rgba(245, 158, 11, 0.18) !important;
+            box-shadow: inset 4px 0 0 var(--accent-yellow);
+        }
+        .tabulator-row.row-loss-yellow:hover {
+            background-color: rgba(245, 158, 11, 0.28) !important;
+        }
+
+        .tabulator-row.row-even {
+            background-color: rgba(148, 163, 184, 0.08) !important;
+        }
+
+        /* Cell Badge Styling */
+        .badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .badge-buy {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .badge-sell {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .badge-eval {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .badge-eval-win { background-color: rgba(16, 185, 129, 0.25); color: #34d399; }
+        .badge-eval-win-yellow { background-color: rgba(6, 182, 212, 0.25); color: #22d3ee; }
+        .badge-eval-loss { background-color: rgba(239, 68, 68, 0.25); color: #f87171; }
+        .badge-eval-loss-yellow { background-color: rgba(245, 158, 11, 0.25); color: #fbbf24; }
+        .badge-eval-even { background-color: rgba(148, 163, 184, 0.25); color: #cbd5e1; }
+
+        .profit-pos { color: #34d399; font-weight: 700; }
+        .profit-neg { color: #f87171; font-weight: 700; }
+        .pips-pos { color: #38bdf8; font-weight: 600; }
+        .pips-neg { color: #fb7185; font-weight: 600; }
+
+        /* Delete Button */
+        .btn-del-row {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-del-row:hover {
+            color: var(--accent-red);
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Emotion & Rationale Text Cell preview */
+        .emotion-cell {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .emotion-cell i {
+            color: var(--accent-blue);
+            font-size: 0.8rem;
+        }
+
+        .emotion-cell.mieruka-empty span {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .mk-badge {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .mk-entry { background: rgba(6, 182, 212, 0.18); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4); }
+        .mk-miss { background: rgba(244, 63, 94, 0.16); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
+        .mk-notice { background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+
+        /* ===== Mieruka Style Trade Check (embedded log editor) ===== */
+        .mieruka-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            z-index: 10500;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            padding: 24px 12px;
+            overflow-y: auto;
+        }
+        .mieruka-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .mieruka-card {
+            --mk-bg: #0b0f19;
+            --mk-panel: #101627;
+            --mk-border: #1f2b45;
+            --mk-cyan: #22d3ee;
+            --mk-pink: #f43f6e;
+            background: var(--mk-bg);
+            color: #e2e8f0;
+            width: 100%;
+            max-width: 1180px;
+            border-radius: 14px;
+            border: 1px solid var(--mk-border);
+            box-shadow: 0 30px 60px -12px rgba(0,0,0,0.7);
+            overflow: hidden;
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+        }
+
+        .mieruka-titlebar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--mk-border);
+        }
+        .mieruka-titlebar h3 {
+            color: var(--mk-cyan);
+            font-size: 1.15rem;
+            letter-spacing: 0.03em;
+        }
+        .mieruka-close {
+            background: transparent; border: none; color: #94a3b8;
+            font-size: 1.3rem; cursor: pointer; line-height: 1;
+        }
+        .mieruka-close:hover { color: #f1f5f9; }
+
+        .mieruka-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px 0 20px;
+        }
+        .mieruka-tab-btn {
+            flex: 1;
+            background: var(--mk-panel);
+            border: 1px solid var(--mk-border);
+            color: #94a3b8;
+            padding: 10px 12px;
+            border-radius: 8px 8px 0 0;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            border-bottom: none;
+            transition: all 0.15s ease;
+        }
+        .mieruka-tab-btn.active {
+            color: var(--mk-cyan);
+            background: var(--mk-bg);
+            box-shadow: inset 0 2px 0 var(--mk-cyan);
+        }
+
+        .mieruka-purpose-bar {
+            margin: 0 20px;
+            background: linear-gradient(90deg, var(--mk-pink), #ec4899);
+            color: #fff;
+            text-align: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 6px;
+            border-radius: 6px;
+        }
+
+        .mieruka-body {
+            padding: 16px 20px 20px 20px;
+            max-height: 78vh;
+            overflow-y: auto;
+        }
+
+        .mieruka-panel { display: none; }
+        .mieruka-panel.active { display: block; }
+
+        .mieruka-columns {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            align-items: start;
+        }
+        @media (max-width: 980px) {
+            .mieruka-columns { grid-template-columns: 1fr; }
+        }
+
+        .mieruka-col {
+            background: var(--mk-panel);
+            border: 1px solid var(--mk-border);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mieruka-col-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mieruka-mini-btn {
+            background: rgba(148,163,184,0.12);
+            color: #cbd5e1;
+            border: 1px solid var(--mk-border);
+            border-radius: 6px;
+            font-size: 0.72rem;
+            padding: 3px 8px;
+            cursor: pointer;
+        }
+
+        .mieruka-field-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .mieruka-input {
+            width: 100%;
+            background: var(--mk-bg);
+            border: 1px solid var(--mk-border);
+            color: #e2e8f0;
+            border-radius: 6px;
+            padding: 7px 10px;
+            font-size: 0.82rem;
+            outline: none;
+        }
+        .mieruka-input:focus { border-color: var(--mk-cyan); }
+
+        .mieruka-row2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .mieruka-textarea {
+            width: 100%;
+            min-height: 70px;
+            background: var(--mk-bg);
+            border: 1px solid var(--mk-border);
+            color: #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 0.82rem;
+            resize: vertical;
+            outline: none;
+        }
+        .mieruka-textarea:focus { border-color: var(--mk-cyan); }
+
+        .mieruka-charcount {
+            text-align: right;
+            font-size: 0.68rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .chip-btn {
+            background: var(--mk-bg);
+            border: 1px solid var(--mk-border);
+            color: #cbd5e1;
+            font-size: 0.72rem;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.12s ease;
+        }
+        .chip-btn:hover { border-color: var(--mk-cyan); }
+        .chip-btn.active {
+            background: var(--mk-cyan);
+            border-color: var(--mk-cyan);
+            color: #04141a;
+            font-weight: 700;
+        }
+        .chip-group[data-kind="pink"] .chip-btn.active {
+            background: var(--mk-pink);
+            border-color: var(--mk-pink);
+            color: #fff;
+        }
+
+        .score-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            background: rgba(148,163,184,0.05);
+            border-radius: 6px;
+            padding: 6px 8px;
+        }
+        .score-row-label {
+            font-size: 0.75rem;
+            color: #e2e8f0;
+            flex: 1;
+        }
+        .score-row .chip-group { flex: 0 0 auto; }
+        .score-row .chip-btn { padding: 3px 8px; font-size: 0.68rem; }
+
+        .mieruka-subsection {
+            border-top: 1px dashed var(--mk-border);
+            padding-top: 10px;
+            margin-top: 2px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .mieruka-subsection-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--mk-cyan);
+        }
+        .mieruka-mini-label {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .mieruka-fullwidth {
+            grid-column: 1 / -1;
+            background: var(--mk-panel);
+            border: 1px solid var(--mk-border);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .mieruka-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .mieruka-btn-save {
+            flex: 1;
+            background: linear-gradient(90deg, var(--mk-cyan), #34d399);
+            color: #04141a;
+            border: none;
+            font-weight: 800;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .mieruka-btn-clear {
+            flex: 1;
+            background: rgba(244,63,94,0.14);
+            color: #fb7185;
+            border: 1px solid rgba(244,63,94,0.4);
+            font-weight: 800;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* Chart attachment slots */
+        .chart-slots-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+        @media (min-width: 700px) {
+            .chart-slots-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        .chart-slot {
+            background: var(--mk-panel);
+            border: 1px solid var(--mk-border);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .chart-slot-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+        .chart-slot-box {
+            position: relative;
+            aspect-ratio: 4 / 3;
+            background: var(--mk-bg);
+            border: 1px dashed var(--mk-border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .chart-slot-box:hover { border-color: var(--mk-cyan); }
+        .chart-slot-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .chart-slot-placeholder {
+            color: #64748b;
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 6px;
+            line-height: 1.5;
+        }
+        .chart-slot-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+        .chart-slot-box.has-img .chart-slot-remove { display: flex; }
+        .chart-slot-hint {
+            font-size: 0.68rem;
+            color: #64748b;
+        }
+
+        /* Modal styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            width: 90%;
+            max-width: 600px;
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .modal-close:hover { color: var(--text-primary); }
+
+        .modal-body {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: var(--input-bg);
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-soft);
+        }
+
+        /* Status Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-gold);
+            color: var(--text-primary);
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 10000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header & Multi-Notebook Manager -->
+        <div class="header-bar">
+            <div class="app-title">
+                <i class="fa-solid fa-book-journal-whills main-icon"></i>
+                <div>
+                    <div class="notebook-selector-wrap">
+                        <select id="notebook-select" class="notebook-select" title="ノート切り替え"></select>
+                        <button class="btn-icon" id="btn-rename-notebook" title="現在のノート名を変更">
+                            <i class="fa-solid fa-pen-to-square"></i> 名前変更
+                        </button>
+                        <button class="btn-icon btn-icon-success" id="btn-new-notebook" title="新規ノートを作成">
+                            <i class="fa-solid fa-plus"></i> 新規ノート
+                        </button>
+                        <button class="btn-icon btn-icon-danger" id="btn-delete-notebook" title="現在のノートを削除">
+                            <i class="fa-solid fa-trash"></i> 削除
+                        </button>
+                    </div>
+                    <div class="app-subtitle">スプレッドシート風 マルチトレードノート＆自動保存</div>
+                </div>
+            </div>
+
+            <div class="actions-group">
+                <button class="theme-toggle" id="btn-theme-toggle" title="背景テーマ切り替え">
+                    <i class="fa-solid fa-moon" id="theme-toggle-icon"></i>
+                </button>
+                <button class="btn btn-primary" id="btn-add-row">
+                    <i class="fa-solid fa-plus"></i> 新規トレード追加
+                </button>
+                <button class="btn btn-secondary" id="btn-export-csv">
+                    <i class="fa-solid fa-file-csv"></i> CSV出力
+                </button>
+                <button class="btn btn-danger" id="btn-clear-all">
+                    <i class="fa-solid fa-rotate-left"></i> リセット
+                </button>
+            </div>
+        </div>
+
+        <!-- Stat Cards Bar -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-info" style="width: 100%;">
+                    <span class="stat-label">初期資金 (円)</span>
+                    <input type="number" id="input-initial-capital" class="form-control mk-white-input" style="font-size: 1.15rem; font-weight: 700; width: 100%; margin-top: 4px;" placeholder="例: 1000000" value="1000000">
+                </div>
+                <div class="stat-icon" style="color: var(--accent-blue); margin-left: 8px;">
+                    <i class="fa-solid fa-piggy-bank"></i>
+                </div>
+            </div>
+            <div class="stat-card" id="whatif-card">
+                <div class="stat-info" style="width: 100%;">
+                    <span class="stat-label" style="display: flex; align-items: center; justify-content: space-between;">
+                        もしも資金シミュレーション
+                        <label class="switch-wrap" title="ON/OFF">
+                            <input type="checkbox" id="whatif-toggle" class="switch-input">
+                            <span class="switch-track"><span class="switch-thumb"></span></span>
+                        </label>
+                    </span>
+                    <input type="number" id="input-whatif-capital" class="form-control mk-white-input" style="font-size: 1.05rem; font-weight: 700; width: 100%; margin-top: 6px;" placeholder="もしも初期資金 例: 500000" disabled>
+                </div>
+                <div class="stat-icon" style="color: var(--accent-gold); margin-left: 8px;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+            </div>
+            <div class="stat-card" id="stat-current-balance-card">
+                <div class="stat-info">
+                    <span class="stat-label" id="stat-current-balance-label">現在の口座残高</span>
+                    <span class="stat-value" id="stat-current-balance">¥1,000,000</span>
+                </div>
+                <div class="stat-icon" style="color: var(--accent-green);">
+                    <i class="fa-solid fa-vault"></i>
+                </div>
+            </div>
+            <div class="stat-card" id="stat-growth-rate-card">
+                <div class="stat-info">
+                    <span class="stat-label" id="stat-growth-rate-label">資金増減率 (ROI)</span>
+                    <span class="stat-value" id="stat-growth-rate">0.00 %</span>
+                </div>
+                <div class="stat-icon" style="color: var(--accent-cyan);">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <span class="stat-label">勝率</span>
+                    <span class="stat-value" id="stat-win-rate">0.0 %</span>
+                </div>
+                <div class="stat-icon" style="color: var(--accent-yellow);">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <span class="stat-label">獲得 Pips 合計</span>
+                    <span class="stat-value" id="stat-total-pips">0.0 pips</span>
+                </div>
+                <div class="stat-icon" style="color: var(--accent-cyan);">
+                    <i class="fa-solid fa-arrow-trend-up"></i>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <span class="stat-label">累積損益 (円)</span>
+                    <span class="stat-value" id="stat-total-profit">¥0</span>
+                </div>
+                <div class="stat-icon" style="color: var(--accent-green);">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="control-panel">
+            <div class="filters-group">
+                <i class="fa-solid fa-filter" style="color: var(--text-secondary);"></i>
+                <select id="filter-pair" class="form-control">
+                    <option value="">すべてのペア</option>
+                    <option value="USD/JPY">USD/JPY</option>
+                    <option value="EUR/USD">EUR/USD</option>
+                    <option value="GBP/JPY">GBP/JPY</option>
+                    <option value="EUR/JPY">EUR/JPY</option>
+                    <option value="AUD/USD">AUD/USD</option>
+                    <option value="GBP/USD">GBP/USD</option>
+                    <option value="XAU/USD">XAU/USD</option>
+                </select>
+
+                <select id="filter-eval" class="form-control">
+                    <option value="">すべての評価</option>
+                    <option value="勝ち">勝ち</option>
+                    <option value="勝ち黄">勝ち黄</option>
+                    <option value="負け">負け</option>
+                    <option value="負け黄">負け黄</option>
+                    <option value="建値">建値</option>
+                    <option value="未決済">未決済</option>
+                </select>
+
+                <input type="text" id="filter-search" class="form-control" placeholder="タグ・感情・フリーワード検索..." style="min-width: 220px;">
+                <button class="btn btn-secondary" id="btn-reset-filters" style="padding: 8px 12px;" title="フィルター解除">
+                    <i class="fa-solid fa-filter-circle-xmark"></i> 解除
+                </button>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary);">
+                <i class="fa-solid fa-floppy-disk"></i> 自動保存機能: <span style="color: var(--accent-green); font-weight: 600;">有効</span>
+            </div>
+        </div>
+
+        <!-- Tabulator Table Container -->
+        <div id="trade-table-container"></div>
+    </div>
+
+    <!-- Mieruka Style Trade Check (embedded log editor) -->
+    <div class="mieruka-overlay" id="mieruka-overlay">
+        <div class="mieruka-card">
+            <div class="mieruka-titlebar">
+                <h3>Mieruka Style Trade check</h3>
+                <button class="mieruka-close" id="mk-close-btn">&times;</button>
+            </div>
+            <div class="mieruka-tabs">
+                <button type="button" class="mieruka-tab-btn active" data-tab="entry">エントリーログ</button>
+                <button type="button" class="mieruka-tab-btn" data-tab="miss">見送りログ</button>
+                <button type="button" class="mieruka-tab-btn" data-tab="notice">気づき漏れログ</button>
+            </div>
+            <div class="mieruka-body">
+                <div class="mieruka-purpose-bar">目的と使い方</div>
+
+                <!-- エントリーログ -->
+                <div class="mieruka-panel active" id="mk-panel-entry" data-panel="entry">
+                    <div class="mieruka-columns" style="margin-top:14px;">
+                        <div class="mieruka-col" id="mk-entry-basic"></div>
+                        <div class="mieruka-col" id="mk-entry-market"></div>
+                        <div class="mieruka-col" id="mk-entry-risk"></div>
+                    </div>
+                    <div class="mieruka-fullwidth" id="mk-entry-review" style="margin-top:14px;"></div>
+                    <div class="mieruka-actions">
+                        <button type="button" class="mieruka-btn-save" data-save="entry">保存する</button>
+                        <button type="button" class="mieruka-btn-clear" data-clear="entry">入力内容をクリア</button>
+                    </div>
+                </div>
+
+                <!-- 見送りログ -->
+                <div class="mieruka-panel" id="mk-panel-miss" data-panel="miss">
+                    <div class="mieruka-columns" style="margin-top:14px;">
+                        <div class="mieruka-col" id="mk-miss-basic"></div>
+                        <div class="mieruka-col" id="mk-miss-market"></div>
+                        <div class="mieruka-col" id="mk-miss-reason"></div>
+                    </div>
+                    <div class="mieruka-fullwidth" id="mk-miss-result" style="margin-top:14px;"></div>
+                    <div class="mieruka-fullwidth" id="mk-miss-correct" style="margin-top:14px;"></div>
+                    <div class="mieruka-fullwidth" id="mk-miss-incorrect" style="margin-top:14px;"></div>
+                    <div class="mieruka-actions">
+                        <button type="button" class="mieruka-btn-save" data-save="miss">保存する</button>
+                        <button type="button" class="mieruka-btn-clear" data-clear="miss">入力内容をクリア</button>
+                    </div>
+                </div>
+
+                <!-- 気づき漏れログ -->
+                <div class="mieruka-panel" id="mk-panel-notice" data-panel="notice">
+                    <div class="mieruka-columns" style="margin-top:14px;">
+                        <div class="mieruka-col" id="mk-notice-basic"></div>
+                        <div class="mieruka-col" id="mk-notice-market"></div>
+                        <div class="mieruka-col" id="mk-notice-situation"></div>
+                    </div>
+                    <div class="mieruka-actions">
+                        <button type="button" class="mieruka-btn-save" data-save="notice">保存する</button>
+                        <button type="button" class="mieruka-btn-clear" data-clear="notice">入力内容をクリア</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simple text field modal (post-exit review, etc.) -->
+    <div class="mieruka-overlay" id="text-field-overlay">
+        <div class="mieruka-card" style="max-width: 640px;">
+            <div class="mieruka-titlebar">
+                <h3 id="text-field-title">決済後の感情＆振り返り</h3>
+                <button class="mieruka-close" id="text-field-close">&times;</button>
+            </div>
+            <div class="mieruka-body">
+                <textarea class="mieruka-textarea" id="text-field-textarea" style="min-height: 220px;" placeholder="決済後の感情や振り返りを入力"></textarea>
+                <div class="mieruka-charcount" id="text-field-charcount">0</div>
+                <div class="mieruka-actions">
+                    <button type="button" class="mieruka-btn-save" id="text-field-save">保存する</button>
+                    <button type="button" class="mieruka-btn-clear" id="text-field-clear">クリア</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart attachment modal (before-entry / after-exit charts) -->
+    <div class="mieruka-overlay" id="chart-overlay">
+        <div class="mieruka-card" style="max-width: 900px;">
+            <div class="mieruka-titlebar">
+                <h3 id="chart-modal-title">チャート添付</h3>
+                <button class="mieruka-close" id="chart-close-btn">&times;</button>
+            </div>
+            <div class="mieruka-body">
+                <div class="chart-slot-hint">画像をクリックして選択、または画像をコピーしてから枠内をクリックし Ctrl+V（⌘+V）で貼り付けできます。</div>
+                <div class="chart-slots-grid" id="chart-slots-grid" style="margin-top: 10px;"></div>
+                <div class="mieruka-actions">
+                    <button type="button" class="mieruka-btn-save" id="chart-save-btn">保存する</button>
+                    <button type="button" class="mieruka-btn-clear" id="chart-clear-all-btn">すべてクリア</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fa-solid fa-circle-check" style="color: var(--accent-green);"></i>
+        <span id="toast-message">データが更新されました</span>
+
+    </div>
+
+    <!-- Tabulator JS CDN -->
+    <script src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
+
+    <script>
+        // Custom Fail-Proof Dropdown Editor Component for Tabulator
+        function createSelectEditor(optionsList) {
+            return function(cell, onRendered, success, cancel) {
+                const select = document.createElement("select");
+                select.style.width = "100%";
+                select.style.height = "100%";
+                select.style.backgroundColor = "#ffffff";
+                select.style.color = "#14151a";
+                select.style.border = "2px solid var(--accent-gold)";
+                select.style.borderRadius = "4px";
+                select.style.padding = "4px 8px";
+                select.style.fontFamily = "inherit";
+                select.style.fontSize = "0.875rem";
+                select.style.outline = "none";
+                select.style.boxSizing = "border-box";
+                select.style.cursor = "pointer";
+
+                const currentVal = cell.getValue();
+
+                optionsList.forEach(item => {
+                    const opt = document.createElement("option");
+                    opt.value = item;
+                    opt.textContent = item || "-- 未選択 --";
+                    if (item === currentVal) {
+                        opt.selected = true;
+                    }
+                    select.appendChild(opt);
+                });
+
+                onRendered(() => {
+                    select.focus();
+                    if (typeof select.showPicker === "function") {
+                        try { select.showPicker(); } catch (e) {}
+                    }
+                });
+
+                function commit() {
+                    success(select.value);
+                }
+
+                select.addEventListener("change", commit);
+                select.addEventListener("blur", commit);
+                select.addEventListener("keydown", (e) => {
+                    if (e.key === "Escape") cancel();
+                    if (e.key === "Enter") commit();
+                });
+
+                return select;
+            };
+        }
+
+        // Auto-Format Date Input: Converts "202609120315" -> "2026-09-12 03:15"
+        function formatDateTimeInput(val) {
+            if (!val) return "";
+            let str = String(val).trim();
+
+            const regex12 = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})$/;
+            if (regex12.test(str)) {
+                return str.replace(regex12, "$1-$2-$3 $4:$5");
+            }
+
+            const regex14 = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/;
+            if (regex14.test(str)) {
+                return str.replace(regex14, "$1-$2-$3 $4:$5");
+            }
+
+            const regex8 = /^(\d{4})(\d{2})(\d{2})$/;
+            if (regex8.test(str)) {
+                return str.replace(regex8, "$1-$2-$3 00:00");
+            }
+
+            if (str.includes("/")) {
+                str = str.replace(/\//g, "-");
+            }
+
+            return str;
+        }
+
+        // Select Editors Instances
+        const pairSelectEditor = createSelectEditor(["", "USD/JPY", "EUR/USD", "GBP/JPY", "EUR/JPY", "AUD/USD", "GBP/USD", "XAU/USD", "その他"]);
+        const posSelectEditor = createSelectEditor(["", "Buy", "Sell"]);
+        const evalSelectEditor = createSelectEditor(["", "勝ち", "勝ち黄", "負け", "負け黄", "建値", "未決済"]);
+        const tagSelectEditor = createSelectEditor([
+            "",
+            "ナイストレード！",
+            "黄色未エントリー（気づいてなかった）",
+            "黄色未エントリー（入ろうと思っていた）",
+            "黄色未エントリー（気づいてて入れなかった）",
+            "黄色未エントリー（あえて見送った）",
+            "テールイベント",
+            "ダメトレ",
+            "環境足弱い",
+            "アリエン",
+            "損切り貧乏判定",
+            "上位足リスク",
+            "相関リスク",
+            "ビビリ決済",
+            "損切り設定ミス",
+            "資金管理ミス",
+            "レイトエントリ・決済",
+            "3大指標",
+            "戻りすぎ",
+            "7波以降対処ミス",
+            "その他"
+        ]);
+        const strengthSelectEditor = createSelectEditor([
+            "",
+            "根拠あいまい",
+            "根拠1強",
+            "根拠1.25強",
+            "根拠1.5強",
+            "根拠1.75強",
+            "根拠2強",
+            "根拠2.25強",
+            "根拠2.5強",
+            "根拠2.75強",
+            "根拠3強",
+            "根拠3.25強",
+            "根拠3.5強",
+            "根拠3.75強",
+            "根拠4強以上"
+        ]);
+
+        const weaknessSelectEditor = createSelectEditor([
+            "",
+            "リスク無し",
+            "リスク0.25弱",
+            "リスク0.50弱",
+            "リスク0.75弱",
+            "リスク1.00弱",
+            "リスク1.25弱",
+            "リスク1.50弱",
+            "リスク1.75弱",
+            "リスク2.00弱",
+            "リスク2.25弱",
+            "リスク2.50弱",
+            "リスク2.75弱",
+            "リスク3.00弱以上"
+        ]);
+
+        const axisSelectEditor = createSelectEditor([
+            "",
+            "軸足1H足",
+            "軸足4H足（通常）",
+            "軸足日足/週足",
+            "軸足日足",
+            "軸足週足"
+        ]);
+
+        // Parse a numeric value out of the strength/weakness tag labels for the 強数 auto-calculation
+        function parseStrengthNum(tfTag) {
+            if (!tfTag) return null;
+            if (tfTag === "根拠あいまい") return 0;
+            const m = tfTag.match(/根拠([\d.]+)強/);
+            return m ? parseFloat(m[1]) : null;
+        }
+        function parseWeaknessNum(weakTag) {
+            if (!weakTag) return 0;
+            if (weakTag === "リスク無し") return 0;
+            const m = weakTag.match(/リスク([\d.]+)弱/);
+            return m ? parseFloat(m[1]) : 0;
+        }
+        function updateNetStrength(row) {
+            const data = row.getData();
+            const strengthNum = parseStrengthNum(data.tfTag);
+            const weaknessNum = parseWeaknessNum(data.weakTag);
+            const netStrength = strengthNum !== null ? Math.round((strengthNum - weaknessNum) * 100) / 100 : null;
+            row.update({ netStrength: netStrength });
+        }
+        function netStrengthFormatter(cell) {
+            const val = cell.getValue();
+            if (val === null || val === undefined || val === "") return "";
+            const cls = val > 0 ? "val-profit-pos" : (val < 0 ? "val-profit-neg" : "");
+            return `<span class="${cls}">${val}</span>`;
+        }
+
+        // Default Sample Data Collections
+        const sampleDataMain = [
+            {
+                id: 1,
+                datetime: "2026-09-08 14:30",
+                pair: "USD/JPY",
+                position: "Buy",
+                evaluation: "勝ち黄",
+                tag: "ナイストレード！",
+                entry: 154.200,
+                exit: 154.650,
+                pips: 45.0,
+                lot: 1.0,
+                profit: 45000,
+                optimalLot: 1.5,
+                optimalProfit: 67500,
+                riskPips: 15.0,
+                swap: 150,
+                tfTag: "根拠2強",
+                weakTag: "リスク0.25弱",
+                netStrength: 1.75,
+                axisTag: "軸足4H足（通常）",
+                emotion: "4時間足の上昇トレンド沿い。15分足でダブルボトム形成を確認してエントリー。黄色点灯ルールに沿って執行できた。"
+            },
+            {
+                id: 2,
+                datetime: "2026-09-08 21:15",
+                pair: "EUR/USD",
+                position: "Sell",
+                evaluation: "負け黄",
+                tag: "黄色未エントリー（気づいてなかった）",
+                entry: 1.08500,
+                exit: 1.08750,
+                pips: -25.0,
+                lot: 0.5,
+                profit: -18750,
+                optimalLot: 0.5,
+                optimalProfit: -18750,
+                riskPips: 15.0,
+                swap: -50,
+                tfTag: "根拠1.25強",
+                weakTag: "リスク1.00弱",
+                netStrength: 0.25,
+                axisTag: "軸足1H足",
+                emotion: "指標前の揉み合いで焦ってエントリー。根拠のラインを抜けたのに黄色サイン前に微損で切れず、SLまで引っ張ってしまった。"
+            },
+            {
+                id: 3,
+                datetime: "2026-09-09 09:45",
+                pair: "GBP/JPY",
+                position: "Buy",
+                evaluation: "勝ち",
+                tag: "ナイストレード！",
+                entry: 198.500,
+                exit: 199.100,
+                pips: 60.0,
+                lot: 0.8,
+                profit: 48000,
+                optimalLot: 1.0,
+                optimalProfit: 60000,
+                riskPips: 20.0,
+                swap: 200,
+                tfTag: "根拠3強",
+                weakTag: "リスク無し",
+                netStrength: 3,
+                axisTag: "軸足日足",
+                emotion: "東京時間のブレイクアウト手法。狙い通りのボラティリティ増加でスムーズに目標利確ポイントに到達。"
+            }
+        ];
+
+        const sampleDataGold = [
+            {
+                id: 101,
+                datetime: "2026-09-09 11:00",
+                pair: "XAU/USD",
+                position: "Buy",
+                evaluation: "勝ち黄",
+                tag: "ゴールド検証",
+                entry: 2500.00,
+                exit: 2515.00,
+                pips: 150.0,
+                lot: 0.2,
+                profit: 45000,
+                optimalLot: 0.3,
+                optimalProfit: 67500,
+                riskPips: 30.0,
+                swap: 0,
+                tfTag: "根拠2.5強",
+                weakTag: "リスク0.50弱",
+                netStrength: 2,
+                axisTag: "軸足4H足（通常）",
+                emotion: "ゴールドの強力ブレイクアウト。15分足で急騰後の押し目を狙ってエントリー成功。"
+            }
+        ];
+
+        // Storage Key for Multi-Notebook Manager
+        const STORAGE_KEY_MULTI = "trade_note_multi_v4";
+
+        // Initial App State Schema
+        let appState = {
+            activeNotebookId: "nb_main",
+            notebooks: {
+                "nb_main": {
+                    id: "nb_main",
+                    name: "メイン口座ノート",
+                    initialCapital: 1000000,
+                    data: sampleDataMain
+                },
+                "nb_gold": {
+                    id: "nb_gold",
+                    name: "XAU/USD ゴールド検証ノート",
+                    initialCapital: 500000,
+                    data: sampleDataGold
+                }
+            }
+        };
+
+        // Load multi-notebook state from LocalStorage
+        function loadAppState() {
+            const raw = localStorage.getItem(STORAGE_KEY_MULTI);
+            if (raw) {
+                try {
+                    appState = JSON.parse(raw);
+                } catch (e) {
+                    console.error("Failed to parse multi-notebook storage data", e);
+                }
+            } else {
+                const oldRaw = localStorage.getItem("trade_note_multi_v3") || localStorage.getItem("trade_note_multi_v2") || localStorage.getItem("trade_note_data_v1");
+                if (oldRaw) {
+                    try {
+                        const parsedOld = JSON.parse(oldRaw);
+                        if (parsedOld.notebooks) {
+                            appState.notebooks = parsedOld.notebooks;
+                            appState.activeNotebookId = parsedOld.activeNotebookId || "nb_main";
+                        } else if (Array.isArray(parsedOld)) {
+                            appState.notebooks["nb_main"].data = parsedOld;
+                        }
+                    } catch (e) {}
+                }
+            }
+
+            if (!appState.notebooks[appState.activeNotebookId]) {
+                const keys = Object.keys(appState.notebooks);
+                if (keys.length > 0) {
+                    appState.activeNotebookId = keys[0];
+                }
+            }
+
+            const activeNb = appState.notebooks[appState.activeNotebookId];
+            if (activeNb) {
+                document.getElementById("input-initial-capital").value = activeNb.initialCapital !== undefined ? activeNb.initialCapital : 1000000;
+                document.getElementById("whatif-toggle").checked = !!activeNb.whatIfEnabled;
+                document.getElementById("input-whatif-capital").value = activeNb.whatIfCapital !== undefined ? activeNb.whatIfCapital : "";
+                document.getElementById("input-whatif-capital").disabled = !activeNb.whatIfEnabled;
+            }
+
+            renderNotebookDropdown();
+        }
+
+        // Save current table state to LocalStorage
+        function saveAppState() {
+            if (!table) return;
+            const activeNb = appState.notebooks[appState.activeNotebookId];
+            if (activeNb) {
+                activeNb.data = table.getData();
+                const capVal = parseFloat(document.getElementById("input-initial-capital").value);
+                activeNb.initialCapital = !isNaN(capVal) ? capVal : 0;
+                activeNb.whatIfEnabled = document.getElementById("whatif-toggle").checked;
+                const whatIfVal = parseFloat(document.getElementById("input-whatif-capital").value);
+                activeNb.whatIfCapital = !isNaN(whatIfVal) ? whatIfVal : 0;
+            }
+            localStorage.setItem(STORAGE_KEY_MULTI, JSON.stringify(appState));
+            showToast("自動保存しました");
+            updateStats();
+        }
+
+        // Render the notebook selector dropdown options
+        function renderNotebookDropdown() {
+            const select = document.getElementById("notebook-select");
+            select.innerHTML = "";
+            Object.values(appState.notebooks).forEach(nb => {
+                const opt = document.createElement("option");
+                opt.value = nb.id;
+                opt.textContent = nb.name;
+                if (nb.id === appState.activeNotebookId) {
+                    opt.selected = true;
+                }
+                select.appendChild(opt);
+            });
+        }
+
+        // Switch Active Notebook
+        function switchNotebook(targetId) {
+            if (!appState.notebooks[targetId]) return;
+
+            if (table && appState.notebooks[appState.activeNotebookId]) {
+                appState.notebooks[appState.activeNotebookId].data = table.getData();
+            }
+
+            appState.activeNotebookId = targetId;
+            const targetNb = appState.notebooks[targetId];
+
+            document.getElementById("input-initial-capital").value = targetNb.initialCapital !== undefined ? targetNb.initialCapital : 1000000;
+            document.getElementById("whatif-toggle").checked = !!targetNb.whatIfEnabled;
+            document.getElementById("input-whatif-capital").value = targetNb.whatIfCapital !== undefined ? targetNb.whatIfCapital : "";
+            document.getElementById("input-whatif-capital").disabled = !targetNb.whatIfEnabled;
+
+            const targetData = targetNb.data || [];
+            table.setData(targetData).then(() => {
+                renderNotebookDropdown();
+                saveAppState();
+                showToast(`「${targetNb.name}」に切り替えました`);
+            });
+        }
+
+        // Pips & Profit & Optimal Profit Realtime Calculation
+        function updateCalculations(row) {
+            const data = row.getData();
+            const entry = parseFloat(data.entry);
+            const exit = parseFloat(data.exit);
+            const lot = parseFloat(data.lot);
+            const optimalLot = parseFloat(data.optimalLot);
+            const pos = data.position;
+            const pair = (data.pair || "").toUpperCase();
+
+            let pips = null;
+            let profit = null;
+            let optimalProfit = null;
+
+            if (!isNaN(entry) && !isNaN(exit)) {
+                let diff = (pos === "Sell") ? (entry - exit) : (exit - entry);
+                let multiplier = 100;
+                if (pair.includes("JPY")) {
+                    multiplier = 100;
+                } else if (pair.includes("XAU")) {
+                    multiplier = 10;
+                } else if (pair.includes("BTC")) {
+                    multiplier = 1;
+                } else {
+                    multiplier = 10000;
+                }
+                pips = Math.round(diff * multiplier * 10) / 10;
+
+                let ratePerPip = pair.includes("JPY") ? 1000 : 1500;
+
+                if (!isNaN(lot) && lot > 0) {
+                    profit = Math.round(pips * lot * ratePerPip);
+                }
+
+                if (!isNaN(optimalLot) && optimalLot > 0) {
+                    optimalProfit = Math.round(pips * optimalLot * ratePerPip);
+                }
+            }
+
+            row.update({
+                pips: pips,
+                profit: profit,
+                optimalProfit: optimalProfit
+            });
+        }
+
+        // Custom Formatters
+        function positionFormatter(cell) {
+            const val = cell.getValue();
+            if (val === "Buy") return '<span class="badge badge-buy"><i class="fa-solid fa-up-long"></i> Buy</span>';
+            if (val === "Sell") return '<span class="badge badge-sell"><i class="fa-solid fa-down-long"></i> Sell</span>';
+            return val || "";
+        }
+
+        function evalFormatter(cell) {
+            const val = cell.getValue();
+            if (val === "勝ち") return '<span class="badge badge-eval badge-eval-win">勝ち</span>';
+            if (val === "勝ち黄") return '<span class="badge badge-eval badge-eval-win-yellow">勝ち黄</span>';
+            if (val === "負け") return '<span class="badge badge-eval badge-eval-loss">負け</span>';
+            if (val === "負け黄") return '<span class="badge badge-eval badge-eval-loss-yellow">負け黄</span>';
+            if (val === "建値") return '<span class="badge badge-eval badge-eval-even">建値</span>';
+            return val || '<span style="color: var(--text-muted); font-size: 0.75rem;">未入力</span>';
+        }
+
+        function pipsFormatter(cell) {
+            const val = cell.getValue();
+            if (val === null || val === undefined || isNaN(val) || val === "") return "-";
+            const num = parseFloat(val);
+            const prefix = num > 0 ? "+" : "";
+            const cls = num >= 0 ? "pips-pos" : "pips-neg";
+            return `<span class="${cls}">${prefix}${num.toFixed(1)}</span>`;
+        }
+
+        function profitFormatter(cell) {
+            const val = cell.getValue();
+            if (val === null || val === undefined || isNaN(val) || val === "") return "-";
+            const num = parseInt(val, 10);
+            const formatted = num.toLocaleString("ja-JP");
+            const prefix = num > 0 ? "+¥" : "¥";
+            const cls = num >= 0 ? "profit-pos" : "profit-neg";
+            return `<span class="${cls}">${prefix}${formatted}</span>`;
+        }
+
+        function emotionFormatter(cell) {
+            const data = cell.getRow().getData();
+            const mk = data.mieruka;
+            if (!mk || !mk.type) {
+                return '<div class="emotion-cell mieruka-empty" title="クリックで入力"><i class="fa-solid fa-pen"></i> <span>入力する</span></div>';
+            }
+            const label = MIERUKA_TAB_LABELS[mk.type] || mk.type;
+            const cls = "mk-badge mk-" + mk.type;
+            return `<div class="emotion-cell" title="クリックで詳細を表示・編集"><i class="fa-solid fa-expand"></i> <span class="${cls}">${escapeHtml(label)}</span></div>`;
+        }
+
+        function postReviewFormatter(cell) {
+            const val = cell.getValue() || "";
+            if (!val) return '<div class="emotion-cell mieruka-empty" title="クリックで入力"><i class="fa-solid fa-pen"></i> <span>入力する</span></div>';
+            return `<div class="emotion-cell" title="クリックで全文を表示・編集"><i class="fa-solid fa-expand"></i> <span>${escapeHtml(val)}</span></div>`;
+        }
+
+        const CHART_SLOTS = [
+            { key: "entry", label: "エントリー足" },
+            { key: "trade", label: "トレード足" },
+            { key: "env", label: "環境足" },
+            { key: "risk", label: "リスク把握足" }
+        ];
+
+        function chartsFormatter(cell) {
+            const val = cell.getValue() || {};
+            const filled = CHART_SLOTS.filter(s => val[s.key]).length;
+            if (!filled) return '<div class="emotion-cell mieruka-empty" title="クリックで画像を追加"><i class="fa-solid fa-image"></i> <span>添付する</span></div>';
+            return `<div class="emotion-cell" title="クリックで確認・編集"><i class="fa-solid fa-images" style="color: var(--accent-cyan);"></i> <span>${filled}/4枚</span></div>`;
+        }
+
+        function escapeHtml(text) {
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        // Initialize App State
+        loadAppState();
+
+        // Get Active Notebook Initial Data
+        const activeData = appState.notebooks[appState.activeNotebookId] ? appState.notebooks[appState.activeNotebookId].data : [];
+
+        // Tabulator Grid Setup
+        // ===== Mieruka Style Trade Check (embedded log editor) =====
+        const MIERUKA_TAB_LABELS = { entry: "エントリーログ", miss: "見送りログ", notice: "気づき漏れログ" };
+        const MK_PAIR_BY_CATEGORY = {
+            USD: ["USDJPY", "EURUSD", "GBPUSD", "AUDUSD", "USDCAD", "USDCHF", "NZDUSD", "GOLD", "SILVER"],
+            JPY: ["USDJPY", "EURJPY", "GBPJPY", "AUDJPY", "CADJPY", "CHFJPY", "NZDJPY", "BTCJPY"],
+            EUR: ["EURUSD", "EURJPY", "EURGBP", "EURAUD", "EURCAD", "EURCHF", "EURNZD"],
+            GBP: ["GBPUSD", "GBPJPY", "EURGBP", "GBPAUD", "GBPCAD", "GBPCHF", "GBPNZD"],
+            AUD: ["AUDUSD", "AUDJPY", "EURAUD", "GBPAUD", "AUDCAD", "AUDCHF", "AUDNZD"],
+            CAD: ["USDCAD", "CADJPY", "EURCAD", "GBPCAD", "AUDCAD", "CADCHF", "NZDCAD"],
+            CHF: ["USDCHF", "CHFJPY", "EURCHF", "GBPCHF", "AUDCHF", "CADCHF", "NZDCHF"],
+            NZD: ["NZDUSD", "NZDJPY", "EURNZD", "GBPNZD", "AUDNZD", "NZDCAD", "NZDCHF"]
+        };
+        const MK_ALL_PAIRS = (function() {
+            const catOrder = ["USD", "JPY", "EUR", "GBP", "AUD", "CAD", "CHF", "NZD"];
+            const seen = [];
+            catOrder.forEach(function(cat) {
+                (MK_PAIR_BY_CATEGORY[cat] || []).forEach(function(p) {
+                    if (seen.indexOf(p) === -1) seen.push(p);
+                });
+            });
+            return seen;
+        })();
+        function pairsForCategory(category) {
+            return MK_PAIR_BY_CATEGORY[category] || MK_ALL_PAIRS;
+        }
+        function regeneratePairGroup(prefix, category, keepActiveValue) {
+            const group = document.querySelector(`#mk-panel-${prefix} .chip-group[data-group="${prefix}_pair"]`);
+            if (!group) return;
+            const list = pairsForCategory(category);
+            group.innerHTML = list.map(o => `<button type="button" class="chip-btn" data-value="${escAttr(o)}">${escapeHtml(o)}</button>`).join("");
+            if (keepActiveValue) {
+                const btn = Array.from(group.querySelectorAll(".chip-btn")).find(b => b.getAttribute("data-value") === keepActiveValue);
+                if (btn) btn.classList.add("active");
+            }
+        }
+        const MK_CATEGORY_OPTIONS = ["USD", "JPY", "EUR", "GBP", "AUD", "CAD", "CHF", "NZD"];
+        const MK_SIDE_OPTIONS = ["Buy", "Sell"];
+        const MK_TF_OPTIONS = ["1時間足", "4時間足", "日足"];
+        const MK_TREND_STAGE_OPTIONS = ["先行期", "追随期", "利食い期", "7波以降"];
+        const MK_TIME_PASS_OPTIONS = ["自国時間", "直近波"];
+        const MK_SELF_STATE_OPTIONS = ["疲れ", "焦り", "集中不十分", "時間なし", "増販不足", "ストレス大", "不安", "自信過剰", "ナチュラル", "負け認められない", "取り返したい", "安心", "自信あり", "恐怖", "怒り", "侮辱", "その他"];
+
+        function escAttr(s) { return String(s == null ? "" : s).replace(/"/g, "&quot;"); }
+
+        function chipGroupHtml(groupId, options, multi, kind) {
+            return `<div class="chip-group" data-group="${groupId}" data-multi="${multi ? "1" : "0"}"${kind ? ` data-kind="${kind}"` : ""}>` +
+                options.map(o => `<button type="button" class="chip-btn" data-value="${escAttr(o)}">${escapeHtml(o)}</button>`).join("") +
+                `</div>`;
+        }
+        function scoreRowHtml(groupId, label) {
+            return `<div class="score-row"><span class="score-row-label">${escapeHtml(label)}</span>${chipGroupHtml(groupId, ["1.0", "0.75", "0.5"], false)}</div>`;
+        }
+        function fieldLabel(text) { return `<span class="mieruka-field-label">${escapeHtml(text)}</span>`; }
+        function textInputHtml(id, placeholder) { return `<input type="text" class="mieruka-input" data-field="${id}" placeholder="${escAttr(placeholder)}">`; }
+        function dateInputHtml(id) { return `<input type="datetime-local" class="mieruka-input" data-field="${id}">`; }
+        function numberInputHtml(id, placeholder) { return `<input type="number" step="0.001" class="mieruka-input" data-field="${id}" placeholder="${escAttr(placeholder)}">`; }
+        function textareaHtml(id, placeholder, maxlen) {
+            return `<textarea class="mieruka-textarea" data-field="${id}" data-maxlen="${maxlen || ""}" placeholder="${escAttr(placeholder)}"></textarea><div class="mieruka-charcount" data-count-for="${id}">0${maxlen ? " / " + maxlen + "文字" : ""}</div>`;
+        }
+
+        function pairBlockHtml(prefix) {
+            return `
+                ${fieldLabel("通貨カテゴリ")}
+                ${chipGroupHtml(prefix + "_category", MK_CATEGORY_OPTIONS, false)}
+                ${fieldLabel("通貨ペア")}
+                ${chipGroupHtml(prefix + "_pair", MK_ALL_PAIRS, false)}
+                ${textInputHtml(prefix + "_pair_custom", "その他のペアを入力...")}
+                ${fieldLabel("Buy/Sell")}
+                ${chipGroupHtml(prefix + "_side", MK_SIDE_OPTIONS, false, "pink")}
+            `;
+        }
+
+        function marketBlockHtml(prefix, opts) {
+            opts = opts || {};
+            let html = `
+                <div class="mieruka-col-title">相場環境・トリガー</div>
+                ${fieldLabel("環境足")}
+                ${chipGroupHtml(prefix + "_tf", MK_TF_OPTIONS, true)}
+                ${fieldLabel("トレンド段階")}
+                ${chipGroupHtml(prefix + "_trend_stage", MK_TREND_STAGE_OPTIONS, false)}
+                ${fieldLabel("相関確認")}
+                ${textInputHtml(prefix + "_correlation", "例: 0.35 (-1.00〜1.00)")}
+                <div class="mieruka-subsection">
+                    <div class="mieruka-subsection-title">${escapeHtml(opts.kamiTitle || "環境足認識3種の神器")}</div>
+                    ${scoreRowHtml(prefix + "_trendline", "トレンドライン")}
+                    ${scoreRowHtml(prefix + "_zone", "意識エリア")}
+                    ${scoreRowHtml(prefix + "_cloud", "表雲確認")}
+                </div>
+            `;
+            if (opts.entryTrigger) {
+                html += `
+                <div class="mieruka-subsection">
+                    <div class="mieruka-subsection-title">エントリートリガー</div>
+                    ${scoreRowHtml(prefix + "_trig_diag", "斜めの吸収4点ブレイク")}
+                    ${scoreRowHtml(prefix + "_trig_horiz", "水平の吸収3点ブレイク")}
+                    ${scoreRowHtml(prefix + "_trig_line", "攻防ライン表裏確認")}
+                    ${scoreRowHtml(prefix + "_trig_dispersion", "分割パターン2")}
+                    ${chipGroupHtml(prefix + "_trig_none", ["未到達"], false, "pink")}
+                </div>`;
+            }
+            if (opts.timePass) {
+                html += `
+                ${fieldLabel("時間経過")}
+                ${chipGroupHtml(prefix + "_time_pass", MK_TIME_PASS_OPTIONS, false)}
+                `;
+            }
+            return html;
+        }
+
+        function entryBasicHtml() {
+            return `
+                <div class="mieruka-col-title">基本情報 <button type="button" class="mieruka-mini-btn" data-clear="entry">入力内容をクリア</button></div>
+                ${pairBlockHtml("entry")}
+                <div class="mieruka-row2">
+                    <div>${fieldLabel("エントリー日時")}${dateInputHtml("entry_entry_dt")}</div>
+                    <div>${fieldLabel("エントリー価格")}${numberInputHtml("entry_entry_price", "例: 150.250")}</div>
+                </div>
+                <div class="mieruka-row2">
+                    <div>${fieldLabel("決済日時")}${dateInputHtml("entry_exit_dt")}</div>
+                    <div>${fieldLabel("決済価格")}${numberInputHtml("entry_exit_price", "例: 150.500")}</div>
+                </div>
+                <div class="mieruka-subsection">
+                    <div class="mieruka-subsection-title">監視状況</div>
+                    ${fieldLabel("状況選択")}
+                    ${chipGroupHtml("entry_watch_state", ["仕事中", "就寝直前", "移動中", "遊び", "その他"], false)}
+                </div>
+                <div class="mieruka-subsection">
+                    <div class="mieruka-mini-label">対処法 <button type="button" class="mieruka-mini-btn">対処法シート</button></div>
+                    ${textareaHtml("entry_coping", "対処法を入力（削除任意）")}
+                </div>
+            `;
+        }
+
+        function entryRiskHtml() {
+            return `
+                <div class="mieruka-col-title">リスク</div>
+                ${fieldLabel("環境")}
+                ${chipGroupHtml("entry_risk_env", ["上位足逆張り気味っ全て無視", "上位足3種の神器近いorエリア内"], true)}
+                ${fieldLabel("構造")}
+                ${chipGroupHtml("entry_risk_structure", ["ダウカウント小さい", "開閉じ時", "戻しすぎor全て無視", "TL裂け?"], true)}
+                ${fieldLabel("時間")}
+                ${chipGroupHtml("entry_risk_time", ["自国サイクル外", "重要指標前"], true)}
+                ${fieldLabel("その他懸念")}
+                ${textInputHtml("entry_risk_other", "相関リスクなど")}
+                <div class="mieruka-subsection">
+                    <div class="mieruka-subsection-title">エントリー前の感情（ここ一番重要）</div>
+                    ${textareaHtml("entry_feeling", "エントリー前に考えていたことを感情を入力", 200)}
+                </div>
+                ${fieldLabel("自分状態")}
+                ${chipGroupHtml("entry_self_state", MK_SELF_STATE_OPTIONS, true)}
+            `;
+        }
+
+        function entryReviewHtml() {
+            return `
+                <div class="mieruka-col-title">決済後振り返り項目</div>
+                ${fieldLabel("あなたはどんなトレードだったと思いますか？")}
+                ${chipGroupHtml("entry_review_type", ["環境認識甘さ", "アリエン", "ビビり決済", "損切り見送りミス", "資金管理ミス", "上振足リスク", "7波以降リスク", "レイトエントリー", "レイト決済", "細切りミス", "3大治療ゴリ押し", "テールイベント"], true)}
+                ${chipGroupHtml("entry_review_nice", ["ナイストレード"], false, "pink")}
+                <div>${fieldLabel("トレード終了後の感想")}${textareaHtml("entry_review_feeling", "ここは「未入力」を埋める目的です。正解を書く必要はありません。", 300)}</div>
+                <div>${fieldLabel("一番後悔したこと（必須）")}${textareaHtml("entry_review_regret", "例：「ここを逃したら今日はチャンスがない」と思って飛びついた", 150)}</div>
+                <div>${fieldLabel("次回どうする？（必須）")}${textareaHtml("entry_review_next", "例：荒れたら入らない、一度離を持つ、逆指値を置く", 100)}</div>
+                <div>${fieldLabel("AI壁打ち結果（書ける人だけでOK！）")}${textareaHtml("entry_review_ai", "", 300)}</div>
+            `;
+        }
+
+        function missBasicHtml() {
+            return `
+                <div class="mieruka-col-title">基本情報</div>
+                ${fieldLabel("日時")}${dateInputHtml("miss_dt")}
+                ${pairBlockHtml("miss")}
+                ${fieldLabel("価格")}${numberInputHtml("miss_price", "例: 150.250")}
+                <div class="mieruka-subsection">
+                    <div class="mieruka-subsection-title">監視状況・コメント</div>
+                    ${fieldLabel("監視状況")}
+                    ${chipGroupHtml("miss_watch_state", ["見れてた", "一部だけ", "ほぼ見れなかった"], false)}
+                    ${chipGroupHtml("miss_watch_unneeded", ["査知して見る必要がないと思った"], false, "pink")}
+                    ${fieldLabel("コメント")}
+                    ${textareaHtml("miss_comment", "例：「攻防ライン4点目が甘かった、今日は見送って正解？」", 50)}
+                </div>
+                <div class="mieruka-subsection">
+                    <div class="mieruka-subsection-title">見送り結果</div>
+                    ${fieldLabel("見送りで正解")}
+                    ${chipGroupHtml("miss_result_correct", ["型が来なかった", "見送り理由が確認した"], true)}
+                    ${fieldLabel("見送りは不正解")}
+                    ${chipGroupHtml("miss_result_incorrect", ["型がきて、入るべき損切りだった"], true)}
+                    ${fieldLabel("どちらとも言えない")}
+                    ${chipGroupHtml("miss_result_neutral", ["微妙", "再現性なし"], true)}
+                </div>
+            `;
+        }
+
+        function missReasonHtml() {
+            return `
+                <div class="mieruka-col-title">見送り理由</div>
+                ${fieldLabel("環境")}
+                ${chipGroupHtml("miss_reason_env", ["上位足逆張り", "上位足3種の神器近いorエリア内", "カオス相場"], true)}
+                ${fieldLabel("構造")}
+                ${chipGroupHtml("miss_reason_structure", ["ダウカウント小さい", "開閉じ時", "戻しすぎor全て無視", "TL裂け?"], true)}
+                ${fieldLabel("時間")}
+                ${chipGroupHtml("miss_reason_time", ["自国サイクル外", "重要指標前など"], true)}
+                ${fieldLabel("その他懸念")}
+                ${textInputHtml("miss_reason_other", "相関リスクなど")}
+                ${fieldLabel("自分状態")}
+                ${chipGroupHtml("miss_self_state", MK_SELF_STATE_OPTIONS, true)}
+                ${fieldLabel("ルール違反")}
+                ${chipGroupHtml("miss_rule_violation", ["押機不足", "トリガー不一致"], true)}
+            `;
+        }
+
+        function missCorrectHtml() {
+            return `
+                <div class="mieruka-col-title">見送りが正解だった場合</div>
+                ${fieldLabel("見送りが機能した")}
+                ${chipGroupHtml("miss_worked", ["環境", "構造", "時間", "相関", "自分状態"], true)}
+                <div class="mieruka-row2">
+                    <div>${fieldLabel("トリガー")}${chipGroupHtml("miss_correct_trigger", ["未到達"], false)}</div>
+                    <div>${fieldLabel("神器")}${chipGroupHtml("miss_correct_kami", ["不足"], false)}</div>
+                </div>
+                ${fieldLabel("再検討し状況が来たら")}
+                ${chipGroupHtml("miss_recheck", ["GO", "変則型", "見送り"], false, "pink")}
+            `;
+        }
+
+        function missIncorrectHtml() {
+            return `
+                <div class="mieruka-col-title">見送りが不正解だった場合</div>
+                ${fieldLabel("何がズレてた？")}
+                ${chipGroupHtml("miss_wrong_reason", ["見送りの判定が遅すぎだった", "リスク評価が主観寄りだった（怖い等）", "監視が甘くて気づき遅れだった", "トリガー認識が曖昧だった", "時間感覚がずれなかった（自国時間・高波など）", "その他"], true)}
+                ${fieldLabel("プロセスの穴")}
+                ${chipGroupHtml("miss_process_gap", ["アラート不足", "監視時間が未設定", "見る徴量が減れた", "神様のラインが引けてなかった", "感情（迷い恐怖不安）で言葉できなかった", "自分ルール違反"], true)}
+                <div>${fieldLabel("If-Then（次回の修正を行動目標で2行程度で明確に）")}${textareaHtml("miss_ifthen", "例：「怖い時は『見送り』ではなく『損切り位置の把握』で判断する」", 100)}</div>
+            `;
+        }
+
+        function noticeBasicHtml() {
+            return `
+                <div class="mieruka-col-title">基本情報</div>
+                ${fieldLabel("日時")}${dateInputHtml("notice_dt")}
+                ${pairBlockHtml("notice")}
+                ${fieldLabel("価格")}${numberInputHtml("notice_price", "例: 150.250")}
+            `;
+        }
+
+        function noticeSituationHtml() {
+            return `
+                <div class="mieruka-col-title">当時の状況</div>
+                ${chipGroupHtml("notice_situation", ["仕事中", "就寝直前", "移動中", "遊び", "寝てた", "見れてたがスルー", "その他"], false)}
+                <div class="mieruka-subsection">
+                    <div class="mieruka-subsection-title">漏れた理由</div>
+                    ${chipGroupHtml("notice_reason", ["アラートなし", "監視時間が未設定", "見る徴量が減れた", "ラインが引けてなかった", "怖くて意識しなかった", "ダウカウントが遅った", "時間的に見ることができなかった", "その他"], true)}
+                </div>
+                <div>${fieldLabel("If-Then（次回の修正を行動目標で2行程度で明確に）")}${textareaHtml("notice_ifthen", "例：「ロンドン勢に水平ライン付近は必ずアラートを入れる」", 100)}</div>
+            `;
+        }
+
+        function initMierukaForms() {
+            document.getElementById("mk-entry-basic").innerHTML = entryBasicHtml();
+            document.getElementById("mk-entry-market").innerHTML = marketBlockHtml("entry", { entryTrigger: true, timePass: true });
+            document.getElementById("mk-entry-risk").innerHTML = entryRiskHtml();
+            document.getElementById("mk-entry-review").innerHTML = entryReviewHtml();
+
+            document.getElementById("mk-miss-basic").innerHTML = missBasicHtml();
+            document.getElementById("mk-miss-market").innerHTML = marketBlockHtml("miss", { entryTrigger: true, timePass: true });
+            document.getElementById("mk-miss-reason").innerHTML = missReasonHtml();
+            document.getElementById("mk-miss-correct").innerHTML = missCorrectHtml();
+            document.getElementById("mk-miss-incorrect").innerHTML = missIncorrectHtml();
+
+            document.getElementById("mk-notice-basic").innerHTML = noticeBasicHtml();
+            document.getElementById("mk-notice-market").innerHTML = marketBlockHtml("notice", { kamiTitle: "気づけなかった場合の環境認識3種の神器" });
+            document.getElementById("mk-notice-situation").innerHTML = noticeSituationHtml();
+
+            document.querySelectorAll(".mieruka-overlay .mieruka-textarea").forEach(ta => {
+                ta.addEventListener("input", function() {
+                    const id = this.getAttribute("data-field");
+                    const counter = document.querySelector(`.mieruka-charcount[data-count-for="${id}"]`);
+                    if (counter) {
+                        const maxlen = this.getAttribute("data-maxlen");
+                        counter.textContent = this.value.length + (maxlen ? ` / ${maxlen}文字` : "");
+                    }
+                });
+            });
+        }
+        initMierukaForms();
+
+        function switchMierukaTab(tab) {
+            document.querySelectorAll(".mieruka-tab-btn").forEach(b => b.classList.toggle("active", b.getAttribute("data-tab") === tab));
+            document.querySelectorAll(".mieruka-panel").forEach(p => p.classList.toggle("active", p.getAttribute("data-panel") === tab));
+        }
+
+        function clearMierukaPanel(tab) {
+            const panel = document.getElementById("mk-panel-" + tab);
+            if (!panel) return;
+            panel.querySelectorAll(".chip-btn").forEach(b => b.classList.remove("active"));
+            panel.querySelectorAll("input, textarea").forEach(el => { el.value = ""; });
+            panel.querySelectorAll(".mieruka-charcount").forEach(c => {
+                c.textContent = c.textContent.replace(/^\d+/, "0");
+            });
+            regeneratePairGroup(tab, "", null);
+        }
+
+        function collectMierukaData(tab) {
+            const panel = document.getElementById("mk-panel-" + tab);
+            const data = {};
+            panel.querySelectorAll(".chip-group").forEach(g => {
+                const id = g.getAttribute("data-group");
+                const multi = g.getAttribute("data-multi") === "1";
+                const active = Array.from(g.querySelectorAll(".chip-btn.active")).map(b => b.getAttribute("data-value"));
+                data[id] = multi ? active : (active[0] || "");
+            });
+            panel.querySelectorAll("input[data-field], textarea[data-field]").forEach(el => {
+                data[el.getAttribute("data-field")] = el.value;
+            });
+            return data;
+        }
+
+        function populateMierukaPanel(tab, data) {
+            clearMierukaPanel(tab);
+            if (!data) return;
+            const panel = document.getElementById("mk-panel-" + tab);
+            const pairGroupId = tab + "_pair";
+            panel.querySelectorAll(".chip-group").forEach(g => {
+                const id = g.getAttribute("data-group");
+                if (id === pairGroupId) return; // handled separately below
+                const val = data[id];
+                if (val === undefined) return;
+                const vals = Array.isArray(val) ? val : [val];
+                g.querySelectorAll(".chip-btn").forEach(b => {
+                    b.classList.toggle("active", vals.indexOf(b.getAttribute("data-value")) !== -1);
+                });
+            });
+            regeneratePairGroup(tab, data[tab + "_category"] || "", data[pairGroupId] || null);
+            panel.querySelectorAll("input[data-field], textarea[data-field]").forEach(el => {
+                const id = el.getAttribute("data-field");
+                if (data[id] !== undefined) {
+                    el.value = data[id];
+                    if (el.classList.contains("mieruka-textarea")) el.dispatchEvent(new Event("input"));
+                }
+            });
+        }
+
+        function toDatetimeLocal(str) {
+            if (!str) return "";
+            return String(str).replace(" ", "T");
+        }
+
+        function setMierukaFieldValue(id, val) {
+            if (val === undefined || val === null || val === "") return;
+            const el = document.querySelector(`.mieruka-overlay [data-field="${id}"]`);
+            if (el) el.value = val;
+        }
+
+        function prefillBasicFromTrade(tab, tradeData) {
+            if (tradeData.pair) {
+                const pairGroup = document.querySelector(`#mk-panel-${tab} .chip-group[data-group="${tab}_pair"]`);
+                if (pairGroup) {
+                    const clean = String(tradeData.pair).replace("/", "");
+                    const btn = Array.from(pairGroup.querySelectorAll(".chip-btn")).find(b => b.getAttribute("data-value") === clean);
+                    if (btn) btn.classList.add("active");
+                }
+            }
+            if (tradeData.position) {
+                const sideGroup = document.querySelector(`#mk-panel-${tab} .chip-group[data-group="${tab}_side"]`);
+                if (sideGroup) {
+                    const btn = Array.from(sideGroup.querySelectorAll(".chip-btn")).find(b => b.getAttribute("data-value") === tradeData.position);
+                    if (btn) btn.classList.add("active");
+                }
+            }
+            if (tab === "entry") {
+                setMierukaFieldValue("entry_entry_dt", toDatetimeLocal(tradeData.datetime));
+                setMierukaFieldValue("entry_entry_price", tradeData.entry);
+                setMierukaFieldValue("entry_exit_price", tradeData.exit);
+            } else {
+                setMierukaFieldValue(tab + "_dt", toDatetimeLocal(tradeData.datetime));
+                setMierukaFieldValue(tab + "_price", tradeData.entry);
+            }
+        }
+
+        let mkCurrentRow = null;
+
+        function openMierukaModal(row) {
+            mkCurrentRow = row;
+            const data = row.getData();
+            const mk = data.mieruka;
+            const activeTab = (mk && mk.type) || "entry";
+            ["entry", "miss", "notice"].forEach(t => {
+                if (mk && mk.type === t) {
+                    populateMierukaPanel(t, mk.data);
+                } else {
+                    clearMierukaPanel(t);
+                    prefillBasicFromTrade(t, data);
+                }
+            });
+            switchMierukaTab(activeTab);
+            document.getElementById("mieruka-overlay").classList.add("active");
+        }
+
+        function closeMierukaModal() {
+            document.getElementById("mieruka-overlay").classList.remove("active");
+            mkCurrentRow = null;
+        }
+
+        function saveMierukaLog(tab) {
+            if (!mkCurrentRow) return;
+            const data = collectMierukaData(tab);
+            mkCurrentRow.update({ mieruka: { type: tab, data: data, savedAt: new Date().toISOString() } }).then(function() {
+                saveAppState();
+                closeMierukaModal();
+                showToast(MIERUKA_TAB_LABELS[tab] + "を保存しました");
+            });
+        }
+
+        document.getElementById("mieruka-overlay").addEventListener("click", function(e) {
+            const chip = e.target.closest(".chip-btn");
+            if (chip) {
+                const group = chip.closest(".chip-group");
+                const multi = group.getAttribute("data-multi") === "1";
+                if (!multi) {
+                    group.querySelectorAll(".chip-btn").forEach(b => b.classList.remove("active"));
+                    chip.classList.add("active");
+                } else {
+                    chip.classList.toggle("active");
+                }
+                const groupId = group.getAttribute("data-group") || "";
+                if (groupId.endsWith("_category")) {
+                    const prefix = groupId.slice(0, -"_category".length);
+                    regeneratePairGroup(prefix, chip.getAttribute("data-value"), null);
+                }
+                return;
+            }
+            const tabBtn = e.target.closest(".mieruka-tab-btn");
+            if (tabBtn) { switchMierukaTab(tabBtn.getAttribute("data-tab")); return; }
+
+            const saveBtn = e.target.closest("[data-save]");
+            if (saveBtn) { saveMierukaLog(saveBtn.getAttribute("data-save")); return; }
+
+            const clearBtn = e.target.closest("[data-clear]");
+            if (clearBtn) { clearMierukaPanel(clearBtn.getAttribute("data-clear")); return; }
+
+            if (e.target.id === "mk-close-btn" || e.target.id === "mieruka-overlay") {
+                closeMierukaModal();
+            }
+        });
+
+        // ===== Simple text field modal (post-exit review, etc.) =====
+        let tfCurrentRow = null, tfCurrentField = null, tfMaxlen = null;
+
+        function updateTextFieldCount() {
+            const ta = document.getElementById("text-field-textarea");
+            document.getElementById("text-field-charcount").textContent = ta.value.length + (tfMaxlen ? ` / ${tfMaxlen}文字` : "");
+        }
+
+        function openTextFieldModal(row, field, title, maxlen) {
+            tfCurrentRow = row;
+            tfCurrentField = field;
+            tfMaxlen = maxlen || null;
+            document.getElementById("text-field-title").textContent = title;
+            const ta = document.getElementById("text-field-textarea");
+            ta.value = row.getData()[field] || "";
+            if (maxlen) ta.setAttribute("maxlength", maxlen); else ta.removeAttribute("maxlength");
+            updateTextFieldCount();
+            document.getElementById("text-field-overlay").classList.add("active");
+        }
+
+        function closeTextFieldModal() {
+            document.getElementById("text-field-overlay").classList.remove("active");
+            tfCurrentRow = null;
+        }
+
+        document.getElementById("text-field-textarea").addEventListener("input", updateTextFieldCount);
+        document.getElementById("text-field-save").addEventListener("click", function() {
+            if (!tfCurrentRow) return;
+            const val = document.getElementById("text-field-textarea").value;
+            const field = tfCurrentField;
+            const update = {};
+            update[field] = val;
+            tfCurrentRow.update(update).then(function() {
+                saveAppState();
+                closeTextFieldModal();
+                showToast("保存しました");
+            });
+        });
+        document.getElementById("text-field-clear").addEventListener("click", function() {
+            document.getElementById("text-field-textarea").value = "";
+            updateTextFieldCount();
+        });
+        document.getElementById("text-field-close").addEventListener("click", closeTextFieldModal);
+        document.getElementById("text-field-overlay").addEventListener("click", function(e) {
+            if (e.target.id === "text-field-overlay") closeTextFieldModal();
+        });
+
+        // ===== Chart attachment modal (before-entry / after-exit charts) =====
+        // Image blobs are kept in IndexedDB (large quota) — the row only stores a small
+        // reference key per slot, so localStorage stays light regardless of chart volume.
+        const MK_IDB_NAME = "trade_note_images_db";
+        const MK_IDB_STORE = "images";
+        let mkIdbPromise = null;
+
+        function openMkIdb() {
+            if (mkIdbPromise) return mkIdbPromise;
+            mkIdbPromise = new Promise(function(resolve, reject) {
+                if (!window.indexedDB) { reject(new Error("indexedDB unavailable")); return; }
+                const req = indexedDB.open(MK_IDB_NAME, 1);
+                req.onupgradeneeded = function(e) {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(MK_IDB_STORE)) db.createObjectStore(MK_IDB_STORE);
+                };
+                req.onsuccess = function(e) { resolve(e.target.result); };
+                req.onerror = function(e) { reject(e.target.error); };
+            });
+            return mkIdbPromise;
+        }
+        function mkIdbPut(key, value) {
+            return openMkIdb().then(db => new Promise(function(resolve, reject) {
+                const tx = db.transaction(MK_IDB_STORE, "readwrite");
+                tx.objectStore(MK_IDB_STORE).put(value, key);
+                tx.oncomplete = () => resolve();
+                tx.onerror = (e) => reject(e.target.error);
+            }));
+        }
+        function mkIdbGet(key) {
+            return openMkIdb().then(db => new Promise(function(resolve, reject) {
+                const tx = db.transaction(MK_IDB_STORE, "readonly");
+                const req = tx.objectStore(MK_IDB_STORE).get(key);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = (e) => reject(e.target.error);
+            }));
+        }
+        function mkIdbDelete(key) {
+            return openMkIdb().then(db => new Promise(function(resolve, reject) {
+                const tx = db.transaction(MK_IDB_STORE, "readwrite");
+                tx.objectStore(MK_IDB_STORE).delete(key);
+                tx.oncomplete = () => resolve();
+                tx.onerror = (e) => reject(e.target.error);
+            }));
+        }
+        function mkGenKey() {
+            return "img_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 9);
+        }
+
+        // chartWorkingKeys: the IDB key currently saved for each slot (or null)
+        // chartWorkingData: the actual image data currently shown for each slot (loaded async from IDB, or a freshly picked/pasted image)
+        // chartSlotDirty: which slots the user actually touched this session (only these get written/deleted on save)
+        let chartCurrentRow = null, chartCurrentField = null, chartWorkingKeys = {}, chartWorkingData = {}, chartSlotDirty = {}, activeChartSlot = null;
+
+        function buildChartSlotsHtml() {
+            return CHART_SLOTS.map(s => `
+                <div class="chart-slot">
+                    <span class="chart-slot-label">${escapeHtml(s.label)}</span>
+                    <div class="chart-slot-box" data-slot="${s.key}">
+                        <span class="chart-slot-placeholder"><i class="fa-solid fa-image"></i><br>クリックまたは貼り付け</span>
+                        <button type="button" class="chart-slot-remove" data-remove="${s.key}" title="削除">&times;</button>
+                    </div>
+                    <input type="file" accept="image/*" class="chart-file-input" data-input="${s.key}" style="display:none;">
+                </div>
+            `).join("");
+        }
+        document.getElementById("chart-slots-grid").innerHTML = buildChartSlotsHtml();
+
+        function renderChartSlot(key) {
+            const box = document.querySelector(`.chart-slot-box[data-slot="${key}"]`);
+            if (!box) return;
+            const val = chartWorkingData[key];
+            const placeholder = box.querySelector(".chart-slot-placeholder");
+            let img = box.querySelector("img");
+            if (val) {
+                if (!img) {
+                    img = document.createElement("img");
+                    box.insertBefore(img, box.firstChild);
+                }
+                img.src = val;
+                if (placeholder) placeholder.style.display = "none";
+                box.classList.add("has-img");
+            } else {
+                if (img) img.remove();
+                if (placeholder) placeholder.style.display = "";
+                box.classList.remove("has-img");
+            }
+        }
+
+        document.getElementById("chart-slots-grid").addEventListener("click", function(e) {
+            const removeBtn = e.target.closest("[data-remove]");
+            if (removeBtn) {
+                const key = removeBtn.getAttribute("data-remove");
+                chartWorkingData[key] = null;
+                chartSlotDirty[key] = true;
+                renderChartSlot(key);
+                return;
+            }
+            const box = e.target.closest(".chart-slot-box");
+            if (box) {
+                const key = box.getAttribute("data-slot");
+                activeChartSlot = key;
+                const input = document.querySelector(`.chart-file-input[data-input="${key}"]`);
+                if (input) input.click();
+            }
+        });
+
+        document.getElementById("chart-slots-grid").addEventListener("change", function(e) {
+            const input = e.target.closest(".chart-file-input");
+            if (!input) return;
+            const key = input.getAttribute("data-input");
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                chartWorkingData[key] = ev.target.result;
+                chartSlotDirty[key] = true;
+                renderChartSlot(key);
+            };
+            reader.readAsDataURL(file);
+            input.value = "";
+        });
+
+        document.getElementById("chart-overlay").addEventListener("paste", function(e) {
+            if (!activeChartSlot) return;
+            const clipboardData = e.clipboardData || window.clipboardData;
+            if (!clipboardData) return;
+            const items = clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf("image") !== -1) {
+                    const file = items[i].getAsFile();
+                    const reader = new FileReader();
+                    const key = activeChartSlot;
+                    reader.onload = function(ev) {
+                        chartWorkingData[key] = ev.target.result;
+                        chartSlotDirty[key] = true;
+                        renderChartSlot(key);
+                    };
+                    reader.readAsDataURL(file);
+                    e.preventDefault();
+                    break;
+                }
+            }
+        });
+
+        function openChartModal(row, field, title) {
+            chartCurrentRow = row;
+            chartCurrentField = field;
+            document.getElementById("chart-modal-title").textContent = title;
+            const existingRefs = row.getData()[field] || {};
+            chartWorkingKeys = { entry: existingRefs.entry || null, trade: existingRefs.trade || null, env: existingRefs.env || null, risk: existingRefs.risk || null };
+            chartWorkingData = { entry: null, trade: null, env: null, risk: null };
+            chartSlotDirty = {};
+            activeChartSlot = null;
+            CHART_SLOTS.forEach(s => renderChartSlot(s.key));
+            document.getElementById("chart-overlay").classList.add("active");
+            CHART_SLOTS.forEach(s => {
+                const key = chartWorkingKeys[s.key];
+                if (!key) return;
+                mkIdbGet(key).then(function(val) {
+                    if (chartCurrentField !== field) return; // modal moved on to a different row/field
+                    chartWorkingData[s.key] = val || null;
+                    renderChartSlot(s.key);
+                }).catch(function() {});
+            });
+        }
+
+        function closeChartModal() {
+            document.getElementById("chart-overlay").classList.remove("active");
+            chartCurrentRow = null;
+            activeChartSlot = null;
+        }
+
+        document.getElementById("chart-save-btn").addEventListener("click", function() {
+            if (!chartCurrentRow) return;
+            const field = chartCurrentField;
+            const finalRefs = {};
+            const idbOps = [];
+            CHART_SLOTS.forEach(s => {
+                const key = s.key;
+                if (!chartSlotDirty[key]) {
+                    finalRefs[key] = chartWorkingKeys[key] || null;
+                    return;
+                }
+                const data = chartWorkingData[key];
+                const oldKey = chartWorkingKeys[key];
+                if (data) {
+                    const useKey = oldKey || mkGenKey();
+                    idbOps.push(mkIdbPut(useKey, data));
+                    finalRefs[key] = useKey;
+                } else {
+                    if (oldKey) idbOps.push(mkIdbDelete(oldKey));
+                    finalRefs[key] = null;
+                }
+            });
+            Promise.all(idbOps).then(function() {
+                const update = {};
+                update[field] = finalRefs;
+                return chartCurrentRow.update(update);
+            }).then(function() {
+                saveAppState();
+                closeChartModal();
+                showToast("チャートを保存しました");
+            }).catch(function(err) {
+                console.error(err);
+                showToast("画像の保存に失敗しました");
+            });
+        });
+        document.getElementById("chart-clear-all-btn").addEventListener("click", function() {
+            CHART_SLOTS.forEach(s => { chartWorkingData[s.key] = null; chartSlotDirty[s.key] = true; renderChartSlot(s.key); });
+        });
+        document.getElementById("chart-close-btn").addEventListener("click", closeChartModal);
+        document.getElementById("chart-overlay").addEventListener("click", function(e) {
+            if (e.target.id === "chart-overlay") closeChartModal();
+        });
+
+        const table = new Tabulator("#trade-table-container", {
+            data: activeData,
+            layout: "fitDataFill",
+            history: true,
+            movableColumns: true,
+            resizableRows: false,
+            placeholder: "このノートにトレードデータがありません。「新規トレード追加」ボタンで登録してください。",
+
+            rowFormatter: function(row) {
+                const data = row.getData();
+                const el = row.getElement();
+                el.classList.remove("row-win", "row-win-yellow", "row-loss", "row-loss-yellow", "row-even");
+
+                if (data.evaluation === "勝ち") {
+                    el.classList.add("row-win");
+                } else if (data.evaluation === "勝ち黄") {
+                    el.classList.add("row-win-yellow");
+                } else if (data.evaluation === "負け") {
+                    el.classList.add("row-loss");
+                } else if (data.evaluation === "負け黄") {
+                    el.classList.add("row-loss-yellow");
+                } else if (data.evaluation === "建値") {
+                    el.classList.add("row-even");
+                }
+            },
+
+            columns: [
+                {
+                    title: "日付 (JST)",
+                    field: "datetime",
+                    editor: "input",
+                    mutator: function(value) {
+                        return formatDateTimeInput(value);
+                    },
+                    width: 150,
+                    sorter: "string"
+                },
+                {
+                    title: "ペア",
+                    field: "pair",
+                    editor: pairSelectEditor,
+                    width: 110
+                },
+                {
+                    title: "ポジ",
+                    field: "position",
+                    editor: posSelectEditor,
+                    formatter: positionFormatter,
+                    width: 90,
+                    hozAlign: "center"
+                },
+                {
+                    title: "評価",
+                    field: "evaluation",
+                    editor: evalSelectEditor,
+                    formatter: evalFormatter,
+                    width: 100,
+                    hozAlign: "center"
+                },
+                {
+                    title: "タグ",
+                    field: "tag",
+                    editor: tagSelectEditor,
+                    width: 140
+                },
+                {
+                    title: "エントリー",
+                    field: "entry",
+                    editor: "number",
+                    editorParams: { step: "any" },
+                    hozAlign: "right",
+                    width: 110
+                },
+                {
+                    title: "決済",
+                    field: "exit",
+                    editor: "number",
+                    editorParams: { step: "any" },
+                    hozAlign: "right",
+                    width: 110
+                },
+                {
+                    title: "Pips",
+                    field: "pips",
+                    formatter: pipsFormatter,
+                    hozAlign: "right",
+                    width: 95,
+                    headerSort: true
+                },
+                {
+                    title: "Lot",
+                    field: "lot",
+                    editor: "number",
+                    editorParams: { step: "0.01", min: 0 },
+                    hozAlign: "right",
+                    width: 85
+                },
+                {
+                    title: "収益(円)",
+                    field: "profit",
+                    formatter: profitFormatter,
+                    hozAlign: "right",
+                    width: 125,
+                    headerSort: true
+                },
+                {
+                    title: "適正ロット",
+                    field: "optimalLot",
+                    editor: "number",
+                    editorParams: { step: "0.01", min: 0 },
+                    hozAlign: "right",
+                    width: 95
+                },
+                {
+                    title: "適正収益(円)",
+                    field: "optimalProfit",
+                    formatter: profitFormatter,
+                    editor: "number",
+                    hozAlign: "right",
+                    width: 125,
+                    headerSort: true
+                },
+                {
+                    title: "リスク(p)",
+                    field: "riskPips",
+                    editor: "number",
+                    editorParams: { step: "0.1" },
+                    hozAlign: "right",
+                    width: 95
+                },
+                {
+                    title: "スワップ(円)",
+                    field: "swap",
+                    editor: "number",
+                    editorParams: { step: "1" },
+                    formatter: profitFormatter,
+                    hozAlign: "right",
+                    width: 105
+                },
+                {
+                    title: "強さタグ",
+                    field: "tfTag",
+                    editor: strengthSelectEditor,
+                    width: 140
+                },
+                {
+                    title: "弱さタグ",
+                    field: "weakTag",
+                    editor: weaknessSelectEditor,
+                    width: 140
+                },
+                {
+                    title: "強数",
+                    field: "netStrength",
+                    editor: false,
+                    formatter: netStrengthFormatter,
+                    hozAlign: "right",
+                    width: 90
+                },
+                {
+                    title: "軸足タグ",
+                    field: "axisTag",
+                    editor: axisSelectEditor,
+                    width: 150
+                },
+                {
+                    title: "エントリー前の感情＆根拠",
+                    field: "emotion",
+                    editor: false,
+                    formatter: emotionFormatter,
+                    cellClick: function(e, cell) {
+                        openMierukaModal(cell.getRow());
+                    },
+                    width: 250
+                },
+                {
+                    title: "決済後の感情＆振り返り",
+                    field: "postReview",
+                    editor: false,
+                    formatter: postReviewFormatter,
+                    cellClick: function(e, cell) {
+                        openTextFieldModal(cell.getRow(), "postReview", "決済後の感情＆振り返り", 500);
+                    },
+                    width: 220
+                },
+                {
+                    title: "エントリー直前直後チャート",
+                    field: "chartsBefore",
+                    editor: false,
+                    formatter: chartsFormatter,
+                    cellClick: function(e, cell) {
+                        openChartModal(cell.getRow(), "chartsBefore", "エントリー直前直後チャート");
+                    },
+                    width: 190
+                },
+                {
+                    title: "決済後チャート",
+                    field: "chartsAfter",
+                    editor: false,
+                    formatter: chartsFormatter,
+                    cellClick: function(e, cell) {
+                        openChartModal(cell.getRow(), "chartsAfter", "決済後チャート");
+                    },
+                    width: 190
+                },
+                {
+                    title: "",
+                    formatter: function() {
+                        return '<button class="btn-del-row" title="削除"><i class="fa-solid fa-trash-can"></i></button>';
+                    },
+                    width: 50,
+                    hozAlign: "center",
+                    headerSort: false,
+                    cellClick: function(e, cell) {
+                        if (confirm("このトレード記録を削除しますか？")) {
+                            cell.getRow().delete();
+                            saveAppState();
+                        }
+                    }
+                }
+            ]
+        });
+
+        // Event listeners for cell edits
+        table.on("cellEdited", function(cell) {
+            const field = cell.getField();
+            if (["entry", "exit", "position", "pair", "lot", "optimalLot", "swap"].includes(field)) {
+                updateCalculations(cell.getRow());
+            }
+            if (["tfTag", "weakTag"].includes(field)) {
+                updateNetStrength(cell.getRow());
+            }
+            saveAppState();
+        });
+
+        table.on("rowAdded", saveAppState);
+        table.on("rowDeleted", saveAppState);
+
+        // Initial Capital Change Event Listener
+        document.getElementById("input-initial-capital").addEventListener("input", function() {
+            saveAppState();
+        });
+
+        // What-If Simulation Mode Listeners
+        document.getElementById("whatif-toggle").addEventListener("change", function() {
+            document.getElementById("input-whatif-capital").disabled = !this.checked;
+            saveAppState();
+        });
+        document.getElementById("input-whatif-capital").addEventListener("input", function() {
+            saveAppState();
+        });
+
+        // Notebook Dropdown Switch Listener
+        document.getElementById("notebook-select").addEventListener("change", function(e) {
+            switchNotebook(e.target.value);
+        });
+
+        // Rename Active Notebook Handler
+        document.getElementById("btn-rename-notebook").addEventListener("click", function() {
+            const currentNb = appState.notebooks[appState.activeNotebookId];
+            if (!currentNb) return;
+
+            const newName = prompt("新しいノート名を入力してください:", currentNb.name);
+            if (newName && newName.trim()) {
+                currentNb.name = newName.trim();
+                saveAppState();
+                renderNotebookDropdown();
+                showToast(`ノート名を「${newName.trim()}」に変更しました`);
+            }
+        });
+
+        // Create New Notebook Handler
+        document.getElementById("btn-new-notebook").addEventListener("click", function() {
+            const name = prompt("作成する新規トレードノートの名前を入力してください:", "検証用ノート");
+            if (!name || !name.trim()) return;
+
+            const newId = "nb_" + Date.now();
+            appState.notebooks[newId] = {
+                id: newId,
+                name: name.trim(),
+                initialCapital: 1000000,
+                data: []
+            };
+
+            switchNotebook(newId);
+            showToast(`新規ノート「${name.trim()}」を作成しました`);
+        });
+
+        // Delete Active Notebook Handler
+        document.getElementById("btn-delete-notebook").addEventListener("click", function() {
+            const keys = Object.keys(appState.notebooks);
+            if (keys.length <= 1) {
+                alert("これ以上ノートを削除できません（最低1冊のノートが必要です）。");
+                return;
+            }
+
+            const currentNb = appState.notebooks[appState.activeNotebookId];
+            if (confirm(`ノート「${currentNb.name}」および中に保存されているすべてのトレードデータを削除しますか？`)) {
+                delete appState.notebooks[appState.activeNotebookId];
+                const nextId = Object.keys(appState.notebooks)[0];
+                switchNotebook(nextId);
+                showToast("ノートを削除しました");
+            }
+        });
+
+        // Calculate and Update Statistics Cards
+        function updateStats() {
+            const data = table.getData();
+            const totalTrades = data.length;
+
+            let wins = 0;
+            let finishedTrades = 0;
+            let totalPips = 0;
+            let totalProfit = 0;
+
+            data.forEach(row => {
+                if (row.evaluation === "勝ち" || row.evaluation === "勝ち黄") {
+                    wins++;
+                    finishedTrades++;
+                } else if (row.evaluation === "負け" || row.evaluation === "負け黄") {
+                    finishedTrades++;
+                } else if (row.evaluation === "建値") {
+                    finishedTrades++;
+                }
+
+                if (typeof row.pips === "number" && !isNaN(row.pips)) {
+                    totalPips += row.pips;
+                }
+                
+                let rowProfit = (typeof row.profit === "number" && !isNaN(row.profit)) ? row.profit : 0;
+                let rowSwap = (typeof row.swap === "number" && !isNaN(row.swap)) ? row.swap : 0;
+                totalProfit += (rowProfit + rowSwap);
+            });
+
+            const winRate = finishedTrades > 0 ? ((wins / finishedTrades) * 100).toFixed(1) : "0.0";
+
+            // Initial Capital & Current Balance & ROI Calculations
+            const whatIfEnabled = document.getElementById("whatif-toggle").checked;
+            const capVal = parseFloat(document.getElementById("input-initial-capital").value);
+            const whatIfVal = parseFloat(document.getElementById("input-whatif-capital").value);
+            const initialCapital = whatIfEnabled
+                ? (!isNaN(whatIfVal) ? whatIfVal : 0)
+                : (!isNaN(capVal) ? capVal : 0);
+            const currentBalance = initialCapital + totalProfit;
+            const growthRate = initialCapital > 0 ? ((totalProfit / initialCapital) * 100).toFixed(2) : "0.00";
+
+            const balLabelEl = document.getElementById("stat-current-balance-label");
+            const roiLabelEl = document.getElementById("stat-growth-rate-label");
+            if (balLabelEl) balLabelEl.textContent = whatIfEnabled ? "もしもの口座残高" : "現在の口座残高";
+            if (roiLabelEl) roiLabelEl.textContent = whatIfEnabled ? "もしもの増減率 (ROI)" : "資金増減率 (ROI)";
+            document.getElementById("stat-current-balance-card").classList.toggle("whatif-active", whatIfEnabled);
+            document.getElementById("stat-growth-rate-card").classList.toggle("whatif-active", whatIfEnabled);
+
+            // Update DOM Elements
+            const balEl = document.getElementById("stat-current-balance");
+            balEl.textContent = `¥${currentBalance.toLocaleString("ja-JP")}`;
+            balEl.className = `stat-value ${currentBalance >= initialCapital ? "val-profit-pos" : "val-profit-neg"}`;
+
+            const roiEl = document.getElementById("stat-growth-rate");
+            roiEl.textContent = `${growthRate > 0 ? "+" : ""}${growthRate} %`;
+            roiEl.className = `stat-value ${growthRate >= 0 ? "val-profit-pos" : "val-profit-neg"}`;
+
+            document.getElementById("stat-win-rate").textContent = `${winRate} %`;
+            
+            const pipsEl = document.getElementById("stat-total-pips");
+            pipsEl.textContent = `${totalPips > 0 ? "+" : ""}${totalPips.toFixed(1)} pips`;
+            pipsEl.className = `stat-value ${totalPips >= 0 ? "val-profit-pos" : "val-profit-neg"}`;
+
+            const profitEl = document.getElementById("stat-total-profit");
+            const formattedProfit = totalProfit.toLocaleString("ja-JP");
+            profitEl.textContent = `${totalProfit > 0 ? "+¥" : "¥"}${formattedProfit}`;
+            profitEl.className = `stat-value ${totalProfit >= 0 ? "val-profit-pos" : "val-profit-neg"}`;
+        }
+
+        table.on("tableBuilt", updateStats);
+
+        // Add Row Handler
+        document.getElementById("btn-add-row").addEventListener("click", function() {
+            table.addRow({
+                id: Date.now(),
+                datetime: "",
+                pair: "",
+                position: "",
+                evaluation: "",
+                tag: "",
+                entry: null,
+                exit: null,
+                pips: null,
+                lot: null,
+                profit: null,
+                optimalLot: null,
+                optimalProfit: null,
+                riskPips: null,
+                swap: null,
+                tfTag: "",
+                weakTag: "",
+                netStrength: null,
+                axisTag: "",
+                emotion: ""
+            }, true).then(row => {
+                row.getElement().scrollIntoView({ behavior: "smooth" });
+            });
+        });
+
+        // Filter Handlers
+        function applyFilters() {
+            const pairVal = document.getElementById("filter-pair").value;
+            const evalVal = document.getElementById("filter-eval").value;
+            const searchVal = document.getElementById("filter-search").value.trim().toLowerCase();
+
+            table.clearFilter();
+
+            if (pairVal) {
+                table.addFilter("pair", "=", pairVal);
+            }
+            if (evalVal) {
+                table.addFilter("evaluation", "=", evalVal);
+            }
+            if (searchVal) {
+                table.addFilter(function(data) {
+                    const tagMatch = (data.tag || "").toLowerCase().includes(searchVal);
+                    const emotionMatch = (data.emotion || "").toLowerCase().includes(searchVal);
+                    const tfMatch = (data.tfTag || "").toLowerCase().includes(searchVal);
+                    const pairMatch = (data.pair || "").toLowerCase().includes(searchVal);
+                    return tagMatch || emotionMatch || tfMatch || pairMatch;
+                });
+            }
+        }
+
+        document.getElementById("filter-pair").addEventListener("change", applyFilters);
+        document.getElementById("filter-eval").addEventListener("change", applyFilters);
+        document.getElementById("filter-search").addEventListener("input", applyFilters);
+
+        document.getElementById("btn-reset-filters").addEventListener("click", function() {
+            document.getElementById("filter-pair").value = "";
+            document.getElementById("filter-eval").value = "";
+            document.getElementById("filter-search").value = "";
+            table.clearFilter();
+        });
+
+        // Export CSV Handler
+        document.getElementById("btn-export-csv").addEventListener("click", function() {
+            const activeNb = appState.notebooks[appState.activeNotebookId];
+            const nameStr = (activeNb ? activeNb.name : "trade_note").replace(/[\s\/]/g, "_");
+            table.download("csv", `${nameStr}_${new Date().toISOString().slice(0, 10)}.csv`);
+        });
+
+        // Reset Current Notebook Data Handler
+        document.getElementById("btn-clear-all").addEventListener("click", function() {
+            const activeNb = appState.notebooks[appState.activeNotebookId];
+            if (confirm(`「${activeNb.name}」のデータをクリアしますか？`)) {
+                table.setData([]).then(() => {
+                    saveAppState();
+                });
+            }
+        });
+
+        // Theme Toggle (黒ベース / 白ベース) Handler
+        const THEME_STORAGE_KEY = "trade_note_theme";
+        const themeToggleBtn = document.getElementById("btn-theme-toggle");
+        const themeToggleIcon = document.getElementById("theme-toggle-icon");
+
+        function applyThemeIcon(theme) {
+            if (themeToggleIcon) {
+                themeToggleIcon.className = theme === "light" ? "fa-solid fa-sun" : "fa-solid fa-moon";
+            }
+            if (themeToggleBtn) {
+                themeToggleBtn.title = theme === "light" ? "黒ベースに切り替え" : "白ベースに切り替え";
+            }
+        }
+
+        (function initTheme() {
+            const saved = localStorage.getItem(THEME_STORAGE_KEY) || "dark";
+            document.documentElement.setAttribute("data-theme", saved);
+            applyThemeIcon(saved);
+        })();
+
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener("click", function() {
+                const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+                const next = current === "light" ? "dark" : "light";
+                document.documentElement.setAttribute("data-theme", next);
+                localStorage.setItem(THEME_STORAGE_KEY, next);
+                applyThemeIcon(next);
+            });
+        }
+
+        // Toast Notification Helper
+        let toastTimeout;
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toast-message").textContent = msg;
+            toast.classList.add("show");
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove("show");
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
