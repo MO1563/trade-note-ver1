@@ -2113,7 +2113,7 @@
         const MK_TF_OPTIONS = ["1時間足", "4時間足", "日足"];
         const MK_TREND_STAGE_OPTIONS = ["先行期", "追随期", "利食い期", "7波以降"];
         const MK_TIME_PASS_OPTIONS = ["自国時間", "直近波"];
-        const MK_SELF_STATE_OPTIONS = ["疲れ", "焦り", "集中不十分", "時間なし", "増販不足", "ストレス大", "不安", "自信過剰", "ナチュラル", "負け認められない", "取り返したい", "安心", "自信あり", "恐怖", "怒り", "侮辱", "その他"];
+        const MK_SELF_STATE_OPTIONS = ["疲れ", "焦り", "集中不可", "時間なし", "睡眠不足", "ストレス大", "不安", "自信過剰", "ナチュラル", "負け認められない", "取り返したい", "安心", "欲張り", "恐怖", "怒り", "悔しさ", "その他"];
 
         function escAttr(s) { return String(s == null ? "" : s).replace(/"/g, "&quot;"); }
 
@@ -2150,7 +2150,7 @@
             let html = `
                 <div class="mieruka-col-title">相場環境・トリガー</div>
                 ${fieldLabel("環境足")}
-                ${chipGroupHtml(prefix + "_tf", MK_TF_OPTIONS, true)}
+                ${chipGroupHtml(prefix + "_tf", MK_TF_OPTIONS, false)}
                 ${fieldLabel("トレンド段階")}
                 ${chipGroupHtml(prefix + "_trend_stage", MK_TREND_STAGE_OPTIONS, false)}
                 ${fieldLabel("相関確認")}
@@ -2176,7 +2176,7 @@
             if (opts.timePass) {
                 html += `
                 ${fieldLabel("時間経過")}
-                ${chipGroupHtml(prefix + "_time_pass", MK_TIME_PASS_OPTIONS, false)}
+                ${chipGroupHtml(prefix + "_time_pass", MK_TIME_PASS_OPTIONS, true)}
                 `;
             }
             return html;
@@ -2190,14 +2190,11 @@
                     <div>${fieldLabel("エントリー日時")}${dateInputHtml("entry_entry_dt")}</div>
                     <div>${fieldLabel("エントリー価格")}${numberInputHtml("entry_entry_price", "例: 150.250")}</div>
                 </div>
-                <div class="mieruka-row2">
-                    <div>${fieldLabel("決済日時")}${dateInputHtml("entry_exit_dt")}</div>
-                    <div>${fieldLabel("決済価格")}${numberInputHtml("entry_exit_price", "例: 150.500")}</div>
-                </div>
                 <div class="mieruka-subsection">
                     <div class="mieruka-subsection-title">監視状況</div>
                     ${fieldLabel("状況選択")}
                     ${chipGroupHtml("entry_watch_state", ["仕事中", "就寝直前", "移動中", "遊び", "その他"], false)}
+                    <input type="text" class="mieruka-input" data-field="entry_watch_state_other" data-other-for="entry_watch_state" placeholder="その他の状況を入力" style="display:none; margin-top:6px;">
                 </div>
                 <div class="mieruka-subsection">
                     <div class="mieruka-mini-label">対処法 <button type="button" class="mieruka-mini-btn">対処法シート</button></div>
@@ -2210,25 +2207,29 @@
             return `
                 <div class="mieruka-col-title">リスク</div>
                 ${fieldLabel("環境")}
-                ${chipGroupHtml("entry_risk_env", ["上位足逆張り気味っ全て無視", "上位足3種の神器近いorエリア内"], true)}
+                ${chipGroupHtml("entry_risk_env", ["上位足逆張りor全戻し", "上位足3種の神器近いorエリア内"], true, "pink")}
                 ${fieldLabel("構造")}
-                ${chipGroupHtml("entry_risk_structure", ["ダウカウント小さい", "開閉じ時", "戻しすぎor全て無視", "TL裂け?"], true)}
+                ${chipGroupHtml("entry_risk_structure", ["ダウカウント小さい", "間延び感", "戻しすぎor全戻し", "TL抜け", "7波以降"], true, "pink")}
                 ${fieldLabel("時間")}
-                ${chipGroupHtml("entry_risk_time", ["自国サイクル外", "重要指標前"], true)}
-                ${fieldLabel("その他懸念")}
-                ${textInputHtml("entry_risk_other", "相関リスクなど")}
+                ${chipGroupHtml("entry_risk_time", ["自国サイクル外", "重要指標前"], true, "pink")}
+                ${fieldLabel("その他技術")}
+                ${chipGroupHtml("entry_risk_other", ["相関リスクなど"], true, "pink")}
                 <div class="mieruka-subsection">
                     <div class="mieruka-subsection-title">エントリー前の感情（ここ一番重要）</div>
                     ${textareaHtml("entry_feeling", "エントリー前に考えていたことを感情を入力", 200)}
                 </div>
                 ${fieldLabel("自分状態")}
-                ${chipGroupHtml("entry_self_state", MK_SELF_STATE_OPTIONS, true)}
+                ${chipGroupHtml("entry_self_state", MK_SELF_STATE_OPTIONS, true, "pink")}
             `;
         }
 
         function entryReviewHtml() {
             return `
                 <div class="mieruka-col-title">決済後振り返り項目</div>
+                <div class="mieruka-row2">
+                    <div>${fieldLabel("決済日時")}${dateInputHtml("entry_exit_dt")}</div>
+                    <div>${fieldLabel("決済価格")}${numberInputHtml("entry_exit_price", "例: 150.500")}</div>
+                </div>
                 ${fieldLabel("あなたはどんなトレードだったと思いますか？")}
                 ${chipGroupHtml("entry_review_type", ["環境認識甘さ", "アリエン", "ビビり決済", "損切り見送りミス", "資金管理ミス", "上振足リスク", "7波以降リスク", "レイトエントリー", "レイト決済", "細切りミス", "3大治療ゴリ押し", "テールイベント"], true)}
                 ${chipGroupHtml("entry_review_nice", ["ナイストレード"], false, "pink")}
@@ -2373,6 +2374,7 @@
                 c.textContent = c.textContent.replace(/^\d+/, "0");
             });
             regeneratePairGroup(tab, "", null);
+            syncOtherInputVisibility(panel);
         }
 
         function collectMierukaData(tab) {
@@ -2413,6 +2415,7 @@
                     if (el.classList.contains("mieruka-textarea")) el.dispatchEvent(new Event("input"));
                 }
             });
+            syncOtherInputVisibility(panel);
         }
 
         function toDatetimeLocal(dateStr, timeStr) {
@@ -2445,6 +2448,7 @@
             if (tab === "entry") {
                 setMierukaFieldValue("entry_entry_dt", toDatetimeLocal(tradeData.date, tradeData.time));
                 setMierukaFieldValue("entry_entry_price", tradeData.entry);
+            } else if (tab === "settlement") {
                 setMierukaFieldValue("entry_exit_price", tradeData.exit);
             } else {
                 setMierukaFieldValue(tab + "_dt", toDatetimeLocal(tradeData.date, tradeData.time));
@@ -2468,7 +2472,12 @@
                     prefillBasicFromTrade(t, data);
                 }
             });
-            populateMierukaPanel("settlement", sl ? sl.data : null);
+            if (sl) {
+                populateMierukaPanel("settlement", sl.data);
+            } else {
+                clearMierukaPanel("settlement");
+                prefillBasicFromTrade("settlement", data);
+            }
             switchMierukaTab(activeTab);
             document.getElementById("mieruka-overlay").classList.add("active");
         }
@@ -2491,14 +2500,35 @@
         }
 
         // Shared single/multi-select toggle behavior for chip buttons, reused across all Mieruka-style modals
+        // Show/hide a linked free-text input (data-other-for="<groupId>") based on whether its group's "その他" chip is active.
+        // Does not touch the input's value — callers decide whether to clear it.
+        function syncOtherInputVisibility(panel) {
+            if (!panel) return;
+            panel.querySelectorAll("[data-other-for]").forEach(inp => {
+                const groupId = inp.getAttribute("data-other-for");
+                const group = panel.querySelector(`.chip-group[data-group="${groupId}"]`);
+                if (!group) return;
+                const isOtherActive = Array.from(group.querySelectorAll(".chip-btn.active")).some(b => b.getAttribute("data-value") === "その他");
+                inp.style.display = isOtherActive ? "" : "none";
+            });
+        }
+
         function handleChipToggle(chip) {
             const group = chip.closest(".chip-group");
             const multi = group.getAttribute("data-multi") === "1";
+            const wasActive = chip.classList.contains("active");
             if (!multi) {
                 group.querySelectorAll(".chip-btn").forEach(b => b.classList.remove("active"));
-                chip.classList.add("active");
+                if (!wasActive) chip.classList.add("active");
             } else {
                 chip.classList.toggle("active");
+            }
+            const panel = group.closest(".mieruka-panel") || group.closest(".mieruka-body");
+            if (panel) {
+                syncOtherInputVisibility(panel);
+                const groupId = group.getAttribute("data-group");
+                const otherInput = panel.querySelector(`[data-other-for="${groupId}"]`);
+                if (otherInput && otherInput.style.display === "none") otherInput.value = "";
             }
             return group;
         }
