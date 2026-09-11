@@ -486,8 +486,9 @@
         }
 
         .tabulator-row {
+            background-color: #ffffff !important;
             border-bottom: 1px solid var(--border-color) !important;
-            color: var(--text-primary);
+            color: #14151a !important;
             transition: background-color 0.15s ease;
             height: 46px !important;
         }
@@ -571,6 +572,55 @@
 
         .tabulator-row.row-even {
             background-color: rgba(148, 163, 184, 0.08) !important;
+        }
+
+        /* Tag-based row highlight: darker colored left-edge bar + a paler tint of the same color across the row */
+        .tabulator-row.tag-white {
+            background-color: rgba(203, 213, 225, 0.10) !important;
+            box-shadow: inset 8px 0 0 #94a3b8 !important;
+        }
+        .tabulator-row.tag-cyan {
+            background-color: rgba(34, 211, 238, 0.12) !important;
+            box-shadow: inset 8px 0 0 #0e7490 !important;
+        }
+        .tabulator-row.tag-red {
+            background-color: rgba(239, 68, 68, 0.12) !important;
+            box-shadow: inset 8px 0 0 #b91c1c !important;
+        }
+        .tabulator-row.tag-brightgreen {
+            background-color: rgba(74, 222, 128, 0.14) !important;
+            box-shadow: inset 8px 0 0 #15803d !important;
+        }
+        .tabulator-row.tag-skin {
+            background-color: rgba(251, 207, 165, 0.18) !important;
+            box-shadow: inset 8px 0 0 #b45309 !important;
+        }
+        .tabulator-row.tag-darkcyan {
+            background-color: rgba(8, 145, 178, 0.16) !important;
+            box-shadow: inset 8px 0 0 #164e63 !important;
+        }
+        .tabulator-row.tag-shockingpink {
+            background-color: rgba(236, 72, 153, 0.14) !important;
+            box-shadow: inset 8px 0 0 #a21caf !important;
+        }
+        .tabulator-row.tag-orange {
+            background-color: rgba(251, 146, 60, 0.14) !important;
+            box-shadow: inset 8px 0 0 #c2410c !important;
+        }
+        .tabulator-row.tag-black {
+            background-color: rgba(0, 0, 0, 0.16) !important;
+            box-shadow: inset 8px 0 0 #000000 !important;
+        }
+        .tabulator-row.tag-yellowgreen {
+            background-color: rgba(163, 230, 53, 0.16) !important;
+            box-shadow: inset 8px 0 0 #4d7c0f !important;
+        }
+        .tabulator-row.tag-blue {
+            background-color: rgba(59, 130, 246, 0.12) !important;
+            box-shadow: inset 8px 0 0 #1e3a8a !important;
+        }
+        .tabulator-row[class*="tag-"]:hover {
+            filter: brightness(1.15);
         }
 
         /* Cell Badge Styling */
@@ -1598,6 +1648,30 @@
         ]);
         const posSelectEditor = createSelectEditor(["", "Buy", "Sell"]);
         const evalSelectEditor = createSelectEditor(["", "勝ち", "勝ち黄", "負け", "負け黄", "建値", "未決済"]);
+        const TAG_COLOR_CLASS = {
+            "ナイストレード！": "tag-white",
+            "その他": "tag-white",
+            "黄色未エントリー（気づいてなかった）": "tag-cyan",
+            "黄色未エントリー（入ろうと思っていた）": "tag-cyan",
+            "黄色未エントリー（気づいてて入れなかった）": "tag-cyan",
+            "黄色未エントリー（あえて見送った）": "tag-cyan",
+            "テールイベント": "tag-red",
+            "ダメトレ": "tag-red",
+            "環境足弱い": "tag-red",
+            "アリエン": "tag-brightgreen",
+            "損切り貧乏判定": "tag-brightgreen",
+            "上位足リスク": "tag-skin",
+            "相関リスク": "tag-skin",
+            "ビビリ決済": "tag-darkcyan",
+            "損切り設定ミス": "tag-shockingpink",
+            "資金管理ミス": "tag-shockingpink",
+            "レイトエントリ・決済": "tag-orange",
+            "3大指標": "tag-black",
+            "戻りすぎ": "tag-yellowgreen",
+            "7波以降対処ミス": "tag-blue"
+        };
+        const TAG_COLOR_CLASSES = Array.from(new Set(Object.values(TAG_COLOR_CLASS)));
+
         const tagSelectEditor = createSelectEditor([
             "",
             "ナイストレード！",
@@ -2786,6 +2860,7 @@
                 const data = row.getData();
                 const el = row.getElement();
                 el.classList.remove("row-win", "row-win-yellow", "row-loss", "row-loss-yellow", "row-even");
+                el.classList.remove.apply(el.classList, TAG_COLOR_CLASSES);
 
                 if (data.evaluation === "勝ち") {
                     el.classList.add("row-win");
@@ -2798,6 +2873,9 @@
                 } else if (data.evaluation === "建値") {
                     el.classList.add("row-even");
                 }
+
+                const tagClass = TAG_COLOR_CLASS[data.tag];
+                if (tagClass) el.classList.add(tagClass);
             },
 
             columns: [
@@ -3019,6 +3097,7 @@
             if (["tfTag", "weakTag"].includes(field)) {
                 updateNetStrength(cell.getRow());
             }
+            cell.getRow().reformat();
             saveAppState();
         });
 
