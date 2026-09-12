@@ -539,88 +539,85 @@
             padding: 8px !important;
         }
 
-        /* Highlight Row Colors based on Evaluation */
+        /* Highlight Row Colors based on Evaluation (solid/opaque so they never darken against the theme's table background) */
         .tabulator-row.row-win {
-            background-color: rgba(16, 185, 129, 0.12) !important;
-        }
-        .tabulator-row.row-win:hover {
-            background-color: rgba(16, 185, 129, 0.22) !important;
+            background-color: #e2f7f0 !important;
         }
 
         .tabulator-row.row-win-yellow {
-            background-color: rgba(6, 182, 212, 0.18) !important;
+            background-color: #d2f2f7 !important;
             box-shadow: inset 4px 0 0 var(--accent-cyan);
-        }
-        .tabulator-row.row-win-yellow:hover {
-            background-color: rgba(6, 182, 212, 0.28) !important;
         }
 
         .tabulator-row.row-loss {
-            background-color: rgba(239, 68, 68, 0.12) !important;
-        }
-        .tabulator-row.row-loss:hover {
-            background-color: rgba(239, 68, 68, 0.22) !important;
+            background-color: #fde9e9 !important;
         }
 
         .tabulator-row.row-loss-yellow {
-            background-color: rgba(245, 158, 11, 0.18) !important;
+            background-color: #fdeed3 !important;
             box-shadow: inset 4px 0 0 var(--accent-yellow);
-        }
-        .tabulator-row.row-loss-yellow:hover {
-            background-color: rgba(245, 158, 11, 0.28) !important;
         }
 
         .tabulator-row.row-even {
-            background-color: rgba(148, 163, 184, 0.08) !important;
+            background-color: #f6f8f9 !important;
         }
 
-        /* Tag-based row highlight: darker colored left-edge bar + a paler tint of the same color across the row */
+        /* Tag-based row highlight: darker colored left-edge bar + a pastel, more transparent tint of the same color across the row */
+        /* Tag-based row highlight: colored left-edge bar + a solid pastel fill (opaque, pre-mixed with white so it never darkens against the theme's table background) */
         .tabulator-row.tag-white {
-            background-color: rgba(203, 213, 225, 0.10) !important;
+            background-color: #eef1f6 !important;
             box-shadow: inset 8px 0 0 #94a3b8 !important;
         }
         .tabulator-row.tag-cyan {
-            background-color: rgba(34, 211, 238, 0.12) !important;
-            box-shadow: inset 8px 0 0 #0e7490 !important;
+            background-color: #c9f8fd !important;
+            box-shadow: inset 8px 0 0 #0891b2 !important;
         }
         .tabulator-row.tag-red {
-            background-color: rgba(239, 68, 68, 0.12) !important;
-            box-shadow: inset 8px 0 0 #b91c1c !important;
+            background-color: #fdc9c9 !important;
+            box-shadow: inset 8px 0 0 #dc2626 !important;
         }
         .tabulator-row.tag-brightgreen {
-            background-color: rgba(74, 222, 128, 0.14) !important;
-            box-shadow: inset 8px 0 0 #15803d !important;
+            background-color: #d6fae3 !important;
+            box-shadow: inset 8px 0 0 #16a34a !important;
         }
         .tabulator-row.tag-skin {
-            background-color: rgba(251, 207, 165, 0.18) !important;
-            box-shadow: inset 8px 0 0 #b45309 !important;
+            background-color: #fee7cc !important;
+            box-shadow: inset 8px 0 0 #d97706 !important;
         }
         .tabulator-row.tag-darkcyan {
-            background-color: rgba(8, 145, 178, 0.16) !important;
-            box-shadow: inset 8px 0 0 #164e63 !important;
+            background-color: #c2faef !important;
+            box-shadow: inset 8px 0 0 #155e75 !important;
         }
         .tabulator-row.tag-shockingpink {
-            background-color: rgba(236, 72, 153, 0.14) !important;
-            box-shadow: inset 8px 0 0 #a21caf !important;
+            background-color: #fde2f1 !important;
+            box-shadow: inset 8px 0 0 #c026d3 !important;
         }
         .tabulator-row.tag-orange {
-            background-color: rgba(251, 146, 60, 0.14) !important;
-            box-shadow: inset 8px 0 0 #c2410c !important;
+            background-color: #fedfc2 !important;
+            box-shadow: inset 8px 0 0 #ea580c !important;
         }
         .tabulator-row.tag-black {
-            background-color: rgba(0, 0, 0, 0.16) !important;
+            background-color: #e0e6ed !important;
             box-shadow: inset 8px 0 0 #000000 !important;
         }
         .tabulator-row.tag-yellowgreen {
-            background-color: rgba(163, 230, 53, 0.16) !important;
-            box-shadow: inset 8px 0 0 #4d7c0f !important;
+            background-color: #e8fbc4 !important;
+            box-shadow: inset 8px 0 0 #65a30d !important;
         }
         .tabulator-row.tag-blue {
-            background-color: rgba(59, 130, 246, 0.12) !important;
-            box-shadow: inset 8px 0 0 #1e3a8a !important;
+            background-color: #d9e9fe !important;
+            box-shadow: inset 8px 0 0 #2563eb !important;
         }
         .tabulator-row[class*="tag-"]:hover {
-            filter: brightness(1.15);
+            /* color intentionally unchanged on hover; see the outline rule below for the hover indicator */
+        }
+
+        /* Hover indicator that never changes background color: a visible ring drawn around the row */
+        .tabulator-row:hover {
+            outline: 2px solid #475569 !important;
+            outline-offset: -2px;
+            position: relative;
+            z-index: 1;
         }
 
         /* Cell Badge Styling */
@@ -634,15 +631,15 @@
         }
 
         .badge-buy {
-            background-color: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, 0.4);
+            background-color: rgba(59, 130, 246, 0.14);
+            color: #1d4ed8;
+            border: 1px solid rgba(29, 78, 216, 0.4);
         }
 
         .badge-sell {
-            background-color: rgba(239, 68, 68, 0.2);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.4);
+            background-color: rgba(239, 68, 68, 0.14);
+            color: #b91c1c;
+            border: 1px solid rgba(185, 28, 28, 0.4);
         }
 
         .badge-eval {
@@ -652,16 +649,16 @@
             font-weight: 600;
         }
 
-        .badge-eval-win { background-color: rgba(16, 185, 129, 0.25); color: #34d399; }
-        .badge-eval-win-yellow { background-color: rgba(6, 182, 212, 0.25); color: #22d3ee; }
-        .badge-eval-loss { background-color: rgba(239, 68, 68, 0.25); color: #f87171; }
-        .badge-eval-loss-yellow { background-color: rgba(245, 158, 11, 0.25); color: #fbbf24; }
-        .badge-eval-even { background-color: rgba(148, 163, 184, 0.25); color: #cbd5e1; }
+        .badge-eval-win { background-color: rgba(16, 185, 129, 0.18); color: #047857; }
+        .badge-eval-win-yellow { background-color: rgba(6, 182, 212, 0.18); color: #0e7490; }
+        .badge-eval-loss { background-color: rgba(239, 68, 68, 0.18); color: #b91c1c; }
+        .badge-eval-loss-yellow { background-color: rgba(245, 158, 11, 0.18); color: #b45309; }
+        .badge-eval-even { background-color: rgba(148, 163, 184, 0.25); color: #475569; }
 
-        .profit-pos { color: #34d399; font-weight: 700; }
-        .profit-neg { color: #f87171; font-weight: 700; }
-        .pips-pos { color: #38bdf8; font-weight: 600; }
-        .pips-neg { color: #fb7185; font-weight: 600; }
+        .profit-pos { color: #047857; font-weight: 700; }
+        .profit-neg { color: #b91c1c; font-weight: 700; }
+        .pips-pos { color: #0369a1; font-weight: 600; }
+        .pips-neg { color: #be123c; font-weight: 600; }
 
         /* Delete Button */
         .btn-del-row {
@@ -709,32 +706,26 @@
             font-size: 0.75rem;
             font-weight: 700;
             letter-spacing: 0.02em;
-            backdrop-filter: blur(8px) saturate(160%);
-            -webkit-backdrop-filter: blur(8px) saturate(160%);
         }
         .mk-entry {
-            background: rgba(6, 182, 212, 0.12);
-            color: #67e8f9;
-            border: 1px solid rgba(34, 211, 238, 0.5);
-            text-shadow: 0 0 4px #22d3ee, 0 0 10px rgba(34, 211, 238, 0.75), 0 0 20px rgba(34, 211, 238, 0.4);
+            background: rgba(6, 182, 212, 0.15);
+            color: #0e7490;
+            border: 1px solid rgba(14, 116, 144, 0.5);
         }
         .mk-miss {
-            background: rgba(244, 63, 94, 0.1);
-            color: #fda4af;
-            border: 1px solid rgba(251, 113, 133, 0.5);
-            text-shadow: 0 0 4px #fb7185, 0 0 10px rgba(251, 113, 133, 0.75), 0 0 20px rgba(251, 113, 133, 0.4);
+            background: rgba(244, 63, 94, 0.13);
+            color: #be123c;
+            border: 1px solid rgba(190, 18, 60, 0.45);
         }
         .mk-notice {
-            background: rgba(245, 158, 11, 0.1);
-            color: #fde68a;
-            border: 1px solid rgba(251, 191, 36, 0.5);
-            text-shadow: 0 0 4px #fbbf24, 0 0 10px rgba(251, 191, 36, 0.75), 0 0 20px rgba(251, 191, 36, 0.4);
+            background: rgba(245, 158, 11, 0.15);
+            color: #b45309;
+            border: 1px solid rgba(180, 83, 9, 0.45);
         }
         .mk-settlement {
-            background: rgba(52, 211, 153, 0.1);
-            color: #6ee7b7;
-            border: 1px solid rgba(52, 211, 153, 0.5);
-            text-shadow: 0 0 4px #34d399, 0 0 10px rgba(52, 211, 153, 0.75), 0 0 20px rgba(52, 211, 153, 0.4);
+            background: rgba(52, 211, 153, 0.16);
+            color: #047857;
+            border: 1px solid rgba(4, 120, 87, 0.45);
         }
 
         /* ===== Mieruka Style Trade Check (embedded log editor) ===== */
@@ -929,6 +920,18 @@
         }
         .mieruka-input:focus { border-color: var(--mk-cyan); }
 
+        .mieruka-readout {
+            width: 100%;
+            background: var(--mk-panel);
+            border: 1px solid var(--mk-border);
+            color: #67e8f9;
+            border-radius: 6px;
+            padding: 7px 10px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            box-sizing: border-box;
+        }
+
         .mieruka-row2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -994,6 +997,52 @@
             color: #fda4af;
             text-shadow: 0 0 4px #fb7185, 0 0 10px rgba(251, 113, 133, 0.8), 0 0 20px rgba(251, 113, 133, 0.4);
             box-shadow: 0 0 12px rgba(251, 113, 133, 0.25);
+        }
+
+        /* Cyan-themed chip group (used for Buy/Sell) — only the active/selected state is colored */
+        .chip-group[data-kind="cyan"] .chip-btn.active {
+            background: rgba(34, 211, 238, 0.18);
+            border-color: rgba(34, 211, 238, 0.85);
+            color: #cffafe;
+            font-weight: 700;
+            text-shadow: 0 0 4px #22d3ee, 0 0 10px rgba(34, 211, 238, 0.8), 0 0 20px rgba(34, 211, 238, 0.4);
+            box-shadow: 0 0 12px rgba(34, 211, 238, 0.3);
+        }
+
+        /* Yellow-themed chip group (used for 状況選択) — only the active/selected state is colored */
+        .chip-group[data-kind="yellow"] .chip-btn.active {
+            background: rgba(245, 158, 11, 0.18);
+            border-color: rgba(251, 191, 36, 0.85);
+            color: #fef3c7;
+            font-weight: 700;
+            text-shadow: 0 0 4px #fbbf24, 0 0 10px rgba(251, 191, 36, 0.8), 0 0 20px rgba(251, 191, 36, 0.4);
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
+        }
+
+        /* Buy/Sell selector: make it a big pair of full-width buttons instead of small chips,
+           since it's only 2 options and it's an important, frequently-used control */
+        .chip-group[data-group$="_side"] {
+            gap: 10px;
+        }
+        .chip-group[data-group$="_side"] .chip-btn {
+            flex: 1 1 0;
+            padding: 14px 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        /* 未到達: single button, stretched to fill the row width */
+        .chip-group[data-group$="_trig_none"] .chip-btn {
+            flex: 1 1 100%;
+            text-align: center;
+        }
+
+        /* 自国時間／直近波: two buttons split evenly across the full row width */
+        .chip-group[data-group$="_time_pass"] .chip-btn {
+            flex: 1 1 0;
+            text-align: center;
         }
 
         .score-row {
@@ -1153,6 +1202,66 @@
             z-index: 2;
         }
         .chart-slot-box.has-img .chart-slot-remove { display: flex; }
+        .chart-slot-zoom {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+        .chart-slot-box.has-img .chart-slot-zoom { display: flex; }
+        .chart-slot-zoom:hover, .chart-slot-remove:hover { background: rgba(0,0,0,0.85); }
+
+        /* Fullscreen image lightbox */
+        .image-lightbox-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 10900;
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+        }
+        .image-lightbox-overlay.active {
+            display: flex;
+        }
+        .image-lightbox-overlay img {
+            max-width: 95vw;
+            max-height: 95vh;
+            object-fit: contain;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            cursor: default;
+        }
+        .image-lightbox-close {
+            position: absolute;
+            top: 18px;
+            right: 24px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.25);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.4rem;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10901;
+        }
+        .image-lightbox-close:hover { background: rgba(255,255,255,0.2); }
         .chart-slot-hint {
             font-size: 0.68rem;
             color: #64748b;
@@ -1488,7 +1597,7 @@
                 <button class="mieruka-close" id="chart-close-btn">&times;</button>
             </div>
             <div class="mieruka-body">
-                <div class="chart-slot-hint">画像をクリックして選択、または画像をコピーしてから枠内をクリックし Ctrl+V（⌘+V）で貼り付けできます。</div>
+                <div class="chart-slot-hint">画像をクリックして選択、または画像をコピーしてから枠内をクリックし Ctrl+V（⌘+V）で貼り付けできます。虫眼鏡アイコンをクリックすると画面いっぱいに拡大表示できます。</div>
                 <div class="chart-slots-grid" id="chart-slots-grid" style="margin-top: 10px;"></div>
                 <div class="mieruka-actions">
                     <button type="button" class="mieruka-btn-save" id="chart-save-btn">保存する</button>
@@ -1496,6 +1605,12 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Fullscreen image lightbox: enlarges a chart image for later viewing -->
+    <div class="image-lightbox-overlay" id="image-lightbox-overlay">
+        <button type="button" class="image-lightbox-close" id="image-lightbox-close">&times;</button>
+        <img id="image-lightbox-img" src="" alt="拡大表示">
     </div>
 
     <!-- Toast Notification -->
@@ -1746,6 +1861,14 @@
             const m = tfTag.match(/根拠([\d.]+)強/);
             return m ? parseFloat(m[1]) : null;
         }
+        // Inverse of parseStrengthNum: turn a numeric score total back into a 強さタグ label
+        function strengthNumToTag(num) {
+            if (num === null || num === undefined || isNaN(num)) return "";
+            if (num <= 0) return "根拠あいまい";
+            if (num >= 4) return "根拠4強以上";
+            const rounded = Math.round(num * 4) / 4;
+            return `根拠${rounded}強`;
+        }
         function parseWeaknessNum(weakTag) {
             if (!weakTag) return 0;
             if (weakTag === "リスク無し") return 0;
@@ -1983,6 +2106,18 @@
         }
 
         // Pips & Profit Realtime Calculation
+        // Shared pip-value multiplier per pair (JPY pairs=100, XAU=10, XAG=1000, indices=1, USOIL=100, other FX=10000)
+        function pipMultiplierForPair(pair) {
+            pair = (pair || "").toUpperCase();
+            if (pair.includes("JPY")) return 100;
+            if (pair.includes("XAU")) return 10;
+            if (pair.includes("XAG")) return 1000;
+            if (pair.includes("BTC")) return 1;
+            if (pair === "NI225" || pair === "US500") return 1;
+            if (pair === "USOIL") return 100;
+            return 10000;
+        }
+
         function updateCalculations(row) {
             const data = row.getData();
             const entry = parseFloat(data.entry);
@@ -1996,22 +2131,7 @@
 
             if (!isNaN(entry) && !isNaN(exit)) {
                 let diff = (pos === "Sell") ? (entry - exit) : (exit - entry);
-                let multiplier = 100;
-                if (pair.includes("JPY")) {
-                    multiplier = 100;
-                } else if (pair.includes("XAU")) {
-                    multiplier = 10;
-                } else if (pair.includes("XAG")) {
-                    multiplier = 1000;
-                } else if (pair.includes("BTC")) {
-                    multiplier = 1;
-                } else if (pair === "NI225" || pair === "US500") {
-                    multiplier = 1;
-                } else if (pair === "USOIL") {
-                    multiplier = 100;
-                } else {
-                    multiplier = 10000;
-                }
+                let multiplier = pipMultiplierForPair(pair);
                 pips = Math.round(diff * multiplier * 10) / 10;
 
                 let ratePerPip = pair.includes("JPY") ? 1000 : 1500;
@@ -2027,8 +2147,10 @@
             });
         }
 
-        // 適正ロット・適正収益の自動計算：現在の口座残高 × 許容損失率（強数が2未満なら1%、2以上なら2%）を
-        // その行の実現pips幅で割ることで、リスク管理上「適正」な枚数を逆算する
+        // 適正ロット・適正収益の自動計算：エントリー前に決める数値なので、実現pips（結果）ではなく
+        // 手入力の「リスク(p)」列（想定リスク幅）を使う。口座残高も、その行自身の損益はまだ
+        // 確定していない前提で、他の全トレードの損益だけを反映した「その行のトレード前時点の残高」を使う。
+        // 許容損失率は強数が2未満なら1%、2以上なら2%。
         function recalcOptimalSizing() {
             if (!table) return;
             const capValInput = parseFloat(document.getElementById("input-initial-capital").value);
@@ -2038,22 +2160,24 @@
                 const p = parseFloat(d.profit);
                 if (!isNaN(p)) totalProfit += p;
             });
-            const currentBalance = initialCapital + totalProfit;
 
             table.getRows().forEach(function(row) {
                 const data = row.getData();
-                const pips = parseFloat(data.pips);
+                const riskPips = parseFloat(data.riskPips);
                 let optimalLot = null;
                 let optimalProfit = null;
 
-                if (!isNaN(pips) && pips !== 0 && currentBalance > 0) {
+                const ownProfit = parseFloat(data.profit);
+                const balanceBeforeThisTrade = initialCapital + totalProfit - (!isNaN(ownProfit) ? ownProfit : 0);
+
+                if (!isNaN(riskPips) && riskPips !== 0 && balanceBeforeThisTrade > 0) {
                     const pair = (data.pair || "").toUpperCase();
                     const ratePerPip = pair.includes("JPY") ? 1000 : 1500;
                     const ns = data.netStrength;
                     const riskRate = (typeof ns === "number" && ns >= 2) ? 0.02 : 0.01;
-                    const riskAmount = currentBalance * riskRate;
-                    optimalLot = Math.round((riskAmount / (Math.abs(pips) * ratePerPip)) * 100) / 100;
-                    optimalProfit = Math.round(pips * optimalLot * ratePerPip);
+                    const riskAmount = balanceBeforeThisTrade * riskRate;
+                    optimalLot = Math.round((riskAmount / (Math.abs(riskPips) * ratePerPip)) * 100) / 100;
+                    optimalProfit = Math.round(riskPips * optimalLot * ratePerPip);
                 }
 
                 if (data.optimalLot !== optimalLot || data.optimalProfit !== optimalProfit) {
@@ -2215,7 +2339,7 @@
                 ${chipGroupHtml(prefix + "_pair", MK_ALL_PAIRS, false)}
                 ${textInputHtml(prefix + "_pair_custom", "その他のペアを入力...")}
                 ${fieldLabel("Buy/Sell")}
-                ${chipGroupHtml(prefix + "_side", MK_SIDE_OPTIONS, false, "pink")}
+                ${chipGroupHtml(prefix + "_side", MK_SIDE_OPTIONS, false, "cyan")}
             `;
         }
 
@@ -2230,20 +2354,20 @@
                 ${fieldLabel("相関確認")}
                 ${textInputHtml(prefix + "_correlation", "例: 0.35 (-1.00〜1.00)")}
                 <div class="mieruka-subsection">
-                    <div class="mieruka-subsection-title">${escapeHtml(opts.kamiTitle || "環境足認識3種の神器")}</div>
+                    <div class="mieruka-subsection-title">${escapeHtml(opts.kamiTitle || "環境足該当3種の神器")}</div>
                     ${scoreRowHtml(prefix + "_trendline", "トレンドライン")}
-                    ${scoreRowHtml(prefix + "_zone", "意識エリア")}
-                    ${scoreRowHtml(prefix + "_cloud", "表雲確認")}
+                    ${scoreRowHtml(prefix + "_zone", "直撃エリア")}
+                    ${scoreRowHtml(prefix + "_cloud", "裏確認")}
                 </div>
             `;
             if (opts.entryTrigger) {
                 html += `
                 <div class="mieruka-subsection">
                     <div class="mieruka-subsection-title">エントリートリガー</div>
-                    ${scoreRowHtml(prefix + "_trig_diag", "斜めの吸収4点ブレイク")}
-                    ${scoreRowHtml(prefix + "_trig_horiz", "水平の吸収3点ブレイク")}
-                    ${scoreRowHtml(prefix + "_trig_line", "攻防ライン表裏確認")}
-                    ${scoreRowHtml(prefix + "_trig_dispersion", "分割パターン2")}
+                    ${scoreRowHtml(prefix + "_trig_diag", "斜めの攻防4点目ブレイク")}
+                    ${scoreRowHtml(prefix + "_trig_horiz", "水平の攻防3点目ブレイク")}
+                    ${scoreRowHtml(prefix + "_trig_line", "攻防ライン裏確認")}
+                    ${scoreRowHtml(prefix + "_trig_dispersion", "分類パターン2")}
                     ${chipGroupHtml(prefix + "_trig_none", ["未到達"], false, "pink")}
                 </div>`;
             }
@@ -2264,10 +2388,14 @@
                     <div>${fieldLabel("エントリー日時")}${dateInputHtml("entry_entry_dt")}</div>
                     <div>${fieldLabel("エントリー価格")}${numberInputHtml("entry_entry_price", "例: 150.250")}</div>
                 </div>
+                <div class="mieruka-row2">
+                    <div>${fieldLabel("SL価格")}${numberInputHtml("entry_sl_price", "例: 149.800")}</div>
+                    <div>${fieldLabel("SLまでのpips")}<div class="mieruka-readout" id="entry-sl-pips-display">-</div></div>
+                </div>
                 <div class="mieruka-subsection">
                     <div class="mieruka-subsection-title">監視状況</div>
                     ${fieldLabel("状況選択")}
-                    ${chipGroupHtml("entry_watch_state", ["仕事中", "就寝直前", "移動中", "遊び", "その他"], false)}
+                    ${chipGroupHtml("entry_watch_state", ["仕事中", "就寝直前", "移動中", "遊び", "その他"], false, "yellow")}
                     <input type="text" class="mieruka-input" data-field="entry_watch_state_other" data-other-for="entry_watch_state" placeholder="その他の状況を入力" style="display:none; margin-top:6px;">
                 </div>
                 <div class="mieruka-subsection">
@@ -2553,6 +2681,7 @@
                 prefillBasicFromTrade("settlement", data);
             }
             switchMierukaTab(activeTab);
+            updateSlPipsDisplay();
             document.getElementById("mieruka-overlay").classList.add("active");
         }
 
@@ -2561,12 +2690,87 @@
             mkCurrentRow = null;
         }
 
+        // Map the entry-log's 環境足 (analysis timeframe) selection to the table's 軸足タグ options
+        const ENTRY_TF_TO_AXIS_TAG = {
+            "1時間足": "軸足1H足",
+            "4時間足": "軸足4H足（通常）",
+            "日足": "軸足日足"
+        };
+
+        // Build the table-row field updates that should be auto-filled from the entry log:
+        // 通貨ペア／BUY・SELL／エントリー日時／エントリー価格／軸足タグ（＝環境足）／
+        // 強さタグ（＝環境足該当3種の神器＋エントリートリガーの得点合計）
+        function buildTradeUpdateFromEntryLog(data) {
+            const update = {};
+
+            const pair = (data.entry_pair_custom || "").trim() || data.entry_pair;
+            if (pair) update.pair = pair;
+
+            if (data.entry_side) update.position = data.entry_side;
+
+            if (data.entry_entry_dt) {
+                const parts = String(data.entry_entry_dt).split("T");
+                if (parts[0]) update.date = parts[0];
+                if (parts[1]) update.time = parts[1];
+            }
+
+            if (data.entry_entry_price !== undefined && data.entry_entry_price !== "") {
+                const p = parseFloat(data.entry_entry_price);
+                if (!isNaN(p)) update.entry = p;
+            }
+
+            // SL価格が入っていれば、エントリー価格との差から想定リスク幅（リスク(p)列）も自動算出
+            const entryPriceNum = parseFloat(data.entry_entry_price);
+            const slPriceNum = parseFloat(data.entry_sl_price);
+            if (!isNaN(entryPriceNum) && !isNaN(slPriceNum)) {
+                const multiplier = pipMultiplierForPair(pair || data.entry_pair || "");
+                update.riskPips = Math.round(Math.abs(entryPriceNum - slPriceNum) * multiplier * 10) / 10;
+            }
+
+            if (data.entry_tf && ENTRY_TF_TO_AXIS_TAG[data.entry_tf]) {
+                update.axisTag = ENTRY_TF_TO_AXIS_TAG[data.entry_tf];
+            }
+
+            const scoreFields = ["entry_trendline", "entry_zone", "entry_cloud", "entry_trig_diag", "entry_trig_horiz", "entry_trig_line", "entry_trig_dispersion"];
+            let hasAnyScore = false;
+            let scoreTotal = 0;
+            scoreFields.forEach(function(f) {
+                const v = parseFloat(data[f]);
+                if (!isNaN(v)) { scoreTotal += v; hasAnyScore = true; }
+            });
+            if (hasAnyScore) {
+                update.tfTag = strengthNumToTag(scoreTotal);
+            }
+
+            return update;
+        }
+
+        // 決済ログの決済価格をトレードノートの「決済」列にも反映する
+        function buildTradeUpdateFromSettlementLog(data) {
+            const update = {};
+            if (data.entry_exit_price !== undefined && data.entry_exit_price !== "") {
+                const p = parseFloat(data.entry_exit_price);
+                if (!isNaN(p)) update.exit = p;
+            }
+            return update;
+        }
+
         function saveMierukaLog(tab) {
             if (!mkCurrentRow) return;
             const data = collectMierukaData(tab);
             const payload = { data: data, savedAt: new Date().toISOString() };
             const update = (tab === "settlement") ? { settlementLog: payload } : { mieruka: Object.assign({ type: tab }, payload) };
+            if (tab === "entry") {
+                Object.assign(update, buildTradeUpdateFromEntryLog(data));
+            } else if (tab === "settlement") {
+                Object.assign(update, buildTradeUpdateFromSettlementLog(data));
+            }
             mkCurrentRow.update(update).then(function() {
+                if (tab === "entry" || tab === "settlement") {
+                    updateCalculations(mkCurrentRow);
+                    updateNetStrength(mkCurrentRow);
+                    mkCurrentRow.reformat();
+                }
                 saveAppState();
                 closeMierukaModal();
                 showToast(MIERUKA_TAB_LABELS[tab] + "を保存しました");
@@ -2607,6 +2811,35 @@
             return group;
         }
 
+        // Live "SLまでのpips" readout in the entry log: recalculated whenever entry price, SL price,
+        // or the selected currency pair changes
+        function updateSlPipsDisplay() {
+            const panel = document.getElementById("mk-panel-entry");
+            const display = document.getElementById("entry-sl-pips-display");
+            if (!panel || !display) return;
+            const priceEl = panel.querySelector('[data-field="entry_entry_price"]');
+            const slEl = panel.querySelector('[data-field="entry_sl_price"]');
+            if (!priceEl || !slEl) return;
+            const price = parseFloat(priceEl.value);
+            const sl = parseFloat(slEl.value);
+            if (isNaN(price) || isNaN(sl)) {
+                display.textContent = "-";
+                return;
+            }
+            const pairGroup = panel.querySelector('.chip-group[data-group="entry_pair"]');
+            const activeBtn = pairGroup ? pairGroup.querySelector(".chip-btn.active") : null;
+            const pair = activeBtn ? activeBtn.getAttribute("data-value") : "";
+            const multiplier = pipMultiplierForPair(pair);
+            const pips = Math.round(Math.abs(price - sl) * multiplier * 10) / 10;
+            display.textContent = pips.toFixed(1) + " pips";
+        }
+
+        document.getElementById("mieruka-overlay").addEventListener("input", function(e) {
+            if (e.target.matches('[data-field="entry_entry_price"], [data-field="entry_sl_price"]')) {
+                updateSlPipsDisplay();
+            }
+        });
+
         document.getElementById("mieruka-overlay").addEventListener("click", function(e) {
             const chip = e.target.closest(".chip-btn");
             if (chip) {
@@ -2616,6 +2849,7 @@
                     const prefix = groupId.slice(0, -"_category".length);
                     regeneratePairGroup(prefix, chip.getAttribute("data-value"), null);
                 }
+                if (groupId === "entry_pair") updateSlPipsDisplay();
                 return;
             }
             const tabBtn = e.target.closest(".mieruka-tab-btn");
@@ -2625,7 +2859,11 @@
             if (saveBtn) { saveMierukaLog(saveBtn.getAttribute("data-save")); return; }
 
             const clearBtn = e.target.closest("[data-clear]");
-            if (clearBtn) { clearMierukaPanel(clearBtn.getAttribute("data-clear")); return; }
+            if (clearBtn) {
+                clearMierukaPanel(clearBtn.getAttribute("data-clear"));
+                updateSlPipsDisplay();
+                return;
+            }
 
             if (e.target.id === "mk-close-btn" || e.target.id === "mieruka-overlay") {
                 closeMierukaModal();
@@ -2692,6 +2930,7 @@
                     <span class="chart-slot-label">${escapeHtml(s.label)}</span>
                     <div class="chart-slot-box" data-slot="${s.key}">
                         <span class="chart-slot-placeholder"><i class="fa-solid fa-image"></i><br>クリックまたは貼り付け</span>
+                        <button type="button" class="chart-slot-zoom" data-zoom="${s.key}" title="拡大表示"><i class="fa-solid fa-magnifying-glass"></i></button>
                         <button type="button" class="chart-slot-remove" data-remove="${s.key}" title="削除">&times;</button>
                     </div>
                     <input type="file" accept="image/*" class="chart-file-input" data-input="${s.key}" style="display:none;">
@@ -2730,12 +2969,42 @@
                 renderChartSlot(key);
                 return;
             }
+            const zoomBtn = e.target.closest("[data-zoom]");
+            if (zoomBtn) {
+                const key = zoomBtn.getAttribute("data-zoom");
+                const val = chartWorkingData[key];
+                if (val) openImageLightbox(val);
+                return;
+            }
             const box = e.target.closest(".chart-slot-box");
             if (box) {
                 const key = box.getAttribute("data-slot");
                 activeChartSlot = key;
                 const input = document.querySelector(`.chart-file-input[data-input="${key}"]`);
                 if (input) input.click();
+            }
+        });
+
+        // Fullscreen image lightbox: lets a saved chart image be reviewed enlarged, without
+        // triggering the "replace image" file picker that a plain click on the slot opens
+        function openImageLightbox(src) {
+            document.getElementById("image-lightbox-img").src = src;
+            document.getElementById("image-lightbox-overlay").classList.add("active");
+        }
+        function closeImageLightbox() {
+            document.getElementById("image-lightbox-overlay").classList.remove("active");
+            document.getElementById("image-lightbox-img").src = "";
+        }
+        document.getElementById("image-lightbox-overlay").addEventListener("click", function(e) {
+            closeImageLightbox();
+        });
+        document.getElementById("image-lightbox-close").addEventListener("click", function(e) {
+            e.stopPropagation();
+            closeImageLightbox();
+        });
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Escape" && document.getElementById("image-lightbox-overlay").classList.contains("active")) {
+                closeImageLightbox();
             }
         });
 
