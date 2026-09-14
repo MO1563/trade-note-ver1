@@ -242,6 +242,29 @@
             gap: 15px;
         }
 
+        .summary-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px 18px 18px 18px;
+            box-shadow: var(--shadow-sm);
+        }
+        .summary-panel-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--accent-gold);
+            margin-bottom: 12px;
+        }
+        .summary-panel .stats-grid .stat-card {
+            padding: 12px 14px;
+        }
+        .summary-panel .stat-value {
+            font-size: 1.15rem;
+        }
+
         .stat-card {
             position: relative;
             background-color: var(--card-bg);
@@ -735,14 +758,14 @@
             background-color: rgba(0, 0, 0, 0.75);
             backdrop-filter: blur(4px);
             display: flex;
-            align-items: flex-start;
+            align-items: stretch;
             justify-content: center;
             z-index: 10500;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.2s ease;
-            padding: 24px 12px;
-            overflow-y: auto;
+            padding: 0;
+            overflow: hidden;
         }
         .mieruka-overlay.active { opacity: 1; pointer-events: auto; }
 
@@ -755,12 +778,15 @@
             background: var(--mk-bg);
             color: #e2e8f0;
             width: 100%;
-            max-width: 1180px;
-            border-radius: 14px;
-            border: 1px solid var(--mk-border);
-            box-shadow: 0 30px 60px -12px rgba(0,0,0,0.7);
+            max-width: 100%;
+            height: 100vh;
+            border-radius: 0;
+            border: none;
+            box-shadow: none;
             overflow: hidden;
             font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            display: flex;
+            flex-direction: column;
         }
 
         .mieruka-titlebar {
@@ -769,6 +795,7 @@
             justify-content: space-between;
             padding: 14px 20px;
             border-bottom: 1px solid var(--mk-border);
+            flex-shrink: 0;
         }
         .mieruka-titlebar h3 {
             color: var(--mk-cyan);
@@ -785,6 +812,7 @@
             display: flex;
             gap: 8px;
             padding: 12px 20px 0 20px;
+            flex-shrink: 0;
         }
         .mieruka-tab-btn {
             flex: 1;
@@ -820,6 +848,12 @@
             text-shadow: 0 0 4px #fb7185, 0 0 12px rgba(251, 113, 133, 0.8), 0 0 24px rgba(251, 113, 133, 0.45);
             box-shadow: inset 0 -2px 0 #fb7185;
         }
+        .mieruka-tab-btn[data-tab="miss_result"].active {
+            color: #d8b4fe;
+            border-color: rgba(192, 132, 252, 0.55);
+            text-shadow: 0 0 4px #c084fc, 0 0 12px rgba(192, 132, 252, 0.8), 0 0 24px rgba(192, 132, 252, 0.45);
+            box-shadow: inset 0 -2px 0 #c084fc;
+        }
         .mieruka-tab-btn[data-tab="notice"].active {
             color: #fde68a;
             border-color: rgba(251, 191, 36, 0.55);
@@ -846,7 +880,8 @@
 
         .mieruka-body {
             padding: 16px 20px 20px 20px;
-            max-height: 78vh;
+            flex: 1;
+            min-height: 0;
             overflow-y: auto;
         }
 
@@ -1045,6 +1080,95 @@
             text-align: center;
         }
 
+        /* Entry log: these groups stretch their buttons evenly across the full row width */
+        .chip-group[data-group="entry_econ_star"] .chip-btn,
+        .chip-group[data-group="entry_watch_state"] .chip-btn,
+        .chip-group[data-group="entry_tf"] .chip-btn,
+        .chip-group[data-group="entry_trend_stage"] .chip-btn,
+        .chip-group[data-group="entry_risk_env"] .chip-btn,
+        .chip-group[data-group="entry_risk_structure"] .chip-btn,
+        .chip-group[data-group="entry_risk_time"] .chip-btn,
+        .chip-group[data-group="entry_risk_other"] .chip-btn,
+        .chip-group[data-group="miss_watch_state"] .chip-btn,
+        .chip-group[data-group="miss_watch_unneeded"] .chip-btn,
+        .chip-group[data-group="miss_tf"] .chip-btn,
+        .chip-group[data-group="miss_trend_stage"] .chip-btn,
+        .chip-group[data-group="miss_reason_env"] .chip-btn,
+        .chip-group[data-group="miss_reason_structure"] .chip-btn,
+        .chip-group[data-group="miss_reason_time"] .chip-btn,
+        .chip-group[data-group="miss_reason_other"] .chip-btn,
+        .chip-group[data-group="miss_rule_violation"] .chip-btn,
+        .chip-group[data-group="notice_tf"] .chip-btn,
+        .chip-group[data-group="notice_trend_stage"] .chip-btn,
+        .chip-group[data-group="notice_situation"] .chip-btn,
+        .chip-group[data-group="notice_reason"] .chip-btn,
+        .chip-group[data-group="entry_review_type"] .chip-btn,
+        .chip-group[data-group="entry_review_nice"] .chip-btn,
+        .chip-group[data-group="miss_result_correct"] .chip-btn,
+        .chip-group[data-group="miss_result_incorrect"] .chip-btn,
+        .chip-group[data-group="miss_result_neutral"] .chip-btn,
+        .chip-group[data-group="miss_worked"] .chip-btn,
+        .chip-group[data-group="miss_correct_trigger"] .chip-btn,
+        .chip-group[data-group="miss_correct_kami"] .chip-btn,
+        .chip-group[data-group="miss_recheck"] .chip-btn,
+        .chip-group[data-group="miss_wrong_reason"] .chip-btn,
+        .chip-group[data-group="miss_process_gap"] .chip-btn {
+            flex: 1 1 0;
+            text-align: center;
+        }
+
+        /* Per-box uniform active colors: every button in a given box glows the same
+           color when pressed, regardless of any individual chip-group "kind" */
+        #mk-entry-market .chip-btn.active,
+        #mk-miss-market .chip-btn.active,
+        #mk-notice-market .chip-btn.active {
+            background: rgba(34, 211, 238, 0.12) !important;
+            border-color: rgba(34, 211, 238, 0.7) !important;
+            color: #67e8f9 !important;
+            text-shadow: 0 0 4px #22d3ee, 0 0 10px rgba(34, 211, 238, 0.8), 0 0 20px rgba(34, 211, 238, 0.4) !important;
+            box-shadow: 0 0 12px rgba(34, 211, 238, 0.25) !important;
+        }
+        #mk-miss-reason .chip-btn.active {
+            background: rgba(244, 63, 94, 0.12) !important;
+            border-color: rgba(251, 113, 133, 0.7) !important;
+            color: #fda4af !important;
+            text-shadow: 0 0 4px #fb7185, 0 0 10px rgba(251, 113, 133, 0.8), 0 0 20px rgba(251, 113, 133, 0.4) !important;
+            box-shadow: 0 0 12px rgba(251, 113, 133, 0.25) !important;
+        }
+        #mk-miss-watch .chip-btn.active {
+            background: rgba(245, 158, 11, 0.18) !important;
+            border-color: rgba(251, 191, 36, 0.85) !important;
+            color: #fef3c7 !important;
+            font-weight: 700;
+            text-shadow: 0 0 4px #fbbf24, 0 0 10px rgba(251, 191, 36, 0.8), 0 0 20px rgba(251, 191, 36, 0.4) !important;
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.3) !important;
+        }
+
+        /* 再検討し状況が来たら: each button glows its own color when pressed */
+        .chip-group[data-group="miss_recheck"] .chip-btn[data-value="GO"].active {
+            background: rgba(34, 211, 238, 0.18) !important;
+            border-color: rgba(34, 211, 238, 0.85) !important;
+            color: #cffafe !important;
+            font-weight: 700;
+            text-shadow: 0 0 4px #22d3ee, 0 0 10px rgba(34, 211, 238, 0.8), 0 0 20px rgba(34, 211, 238, 0.4) !important;
+            box-shadow: 0 0 12px rgba(34, 211, 238, 0.3) !important;
+        }
+        .chip-group[data-group="miss_recheck"] .chip-btn[data-value="要監視"].active {
+            background: rgba(245, 158, 11, 0.18) !important;
+            border-color: rgba(251, 191, 36, 0.85) !important;
+            color: #fef3c7 !important;
+            font-weight: 700;
+            text-shadow: 0 0 4px #fbbf24, 0 0 10px rgba(251, 191, 36, 0.8), 0 0 20px rgba(251, 191, 36, 0.4) !important;
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.3) !important;
+        }
+        .chip-group[data-group="miss_recheck"] .chip-btn[data-value="見送り"].active {
+            background: rgba(244, 63, 94, 0.12) !important;
+            border-color: rgba(251, 113, 133, 0.7) !important;
+            color: #fda4af !important;
+            text-shadow: 0 0 4px #fb7185, 0 0 10px rgba(251, 113, 133, 0.8), 0 0 20px rgba(251, 113, 133, 0.4) !important;
+            box-shadow: 0 0 12px rgba(251, 113, 133, 0.25) !important;
+        }
+
         .score-row {
             display: flex;
             align-items: center;
@@ -1135,6 +1259,24 @@
             background: rgba(244, 63, 94, 0.18);
             box-shadow: 0 0 20px rgba(251, 113, 133, 0.3);
         }
+        .mieruka-btn-delete {
+            flex: 1;
+            background: rgba(127, 29, 29, 0.35);
+            backdrop-filter: blur(10px) saturate(160%);
+            -webkit-backdrop-filter: blur(10px) saturate(160%);
+            border: 1px solid rgba(220, 38, 38, 0.7);
+            color: #fecaca;
+            font-weight: 800;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .mieruka-btn-delete:hover {
+            background: rgba(127, 29, 29, 0.55);
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.35);
+        }
 
         /* Chart attachment slots */
         .chart-slots-grid {
@@ -1221,6 +1363,21 @@
         }
         .chart-slot-box.has-img .chart-slot-zoom { display: flex; }
         .chart-slot-zoom:hover, .chart-slot-remove:hover { background: rgba(0,0,0,0.85); }
+
+        .chart-folder-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 8px;
+            padding: 8px 10px;
+            background: rgba(148, 163, 184, 0.08);
+            border: 1px solid var(--mk-border);
+            border-radius: 6px;
+            font-size: 0.78rem;
+            color: #9aa4b8;
+        }
+        .chart-folder-bar strong { color: #e2e8f0; }
 
         /* Fullscreen image lightbox */
         .image-lightbox-overlay {
@@ -1505,13 +1662,89 @@
                     <option value="未決済">未決済</option>
                 </select>
 
-                <input type="text" id="filter-search" class="form-control" placeholder="タグ・感情・フリーワード検索..." style="min-width: 220px;">
+                <select id="filter-log-type" class="form-control">
+                    <option value="">すべてのログ種別</option>
+                    <option value="entry">エントリーログ登録済み</option>
+                    <option value="miss">見送りログ登録済み</option>
+                    <option value="notice">気づき漏れログ登録済み</option>
+                    <option value="settlement">決済ログ登録済み</option>
+                    <option value="miss_result">見送り結果登録済み</option>
+                </select>
+
+                <input type="text" id="filter-search" class="form-control" placeholder="トレードノート・各ログの全項目をフリーワード検索..." style="min-width: 220px;">
                 <button class="btn btn-secondary" id="btn-reset-filters" style="padding: 8px 12px;" title="フィルター解除">
                     <i class="fa-solid fa-filter-circle-xmark"></i> 解除
                 </button>
             </div>
             <div style="font-size: 0.8rem; color: var(--text-secondary);">
                 <i class="fa-solid fa-floppy-disk"></i> 自動保存機能: <span style="color: var(--accent-green); font-weight: 600;">有効</span>
+            </div>
+        </div>
+
+        <!-- 集計表: aggregate stats over the currently displayed (filtered) trades -->
+        <div class="summary-panel">
+            <div class="summary-panel-title"><i class="fa-solid fa-table-list"></i> 集計表</div>
+            <div class="stats-grid" id="summary-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">総トレード数</span>
+                        <span class="stat-value" id="summary-total-trades">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">総勝ち数</span>
+                        <span class="stat-value" id="summary-total-wins">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">総負け数</span>
+                        <span class="stat-value" id="summary-total-losses">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">勝率</span>
+                        <span class="stat-value" id="summary-win-rate">0.0 %</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">獲得pips数</span>
+                        <span class="stat-value" id="summary-win-pips">0.0 pips</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">ロスpips数</span>
+                        <span class="stat-value" id="summary-loss-pips">0.0 pips</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">平均ロット</span>
+                        <span class="stat-value" id="summary-avg-lot">-</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">平均リスク</span>
+                        <span class="stat-value" id="summary-avg-risk">-</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">平均利益</span>
+                        <span class="stat-value" id="summary-avg-profit">-</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">平均損失</span>
+                        <span class="stat-value" id="summary-avg-loss">-</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1529,6 +1762,7 @@
             <div class="mieruka-tabs">
                 <button type="button" class="mieruka-tab-btn active" data-tab="entry">エントリーログ</button>
                 <button type="button" class="mieruka-tab-btn" data-tab="miss">見送りログ</button>
+                <button type="button" class="mieruka-tab-btn" data-tab="miss_result">見送り結果</button>
                 <button type="button" class="mieruka-tab-btn" data-tab="notice">気づき漏れログ</button>
                 <button type="button" class="mieruka-tab-btn" data-tab="settlement">決済ログ</button>
             </div>
@@ -1545,6 +1779,7 @@
                     <div class="mieruka-actions">
                         <button type="button" class="mieruka-btn-save" data-save="entry">保存する</button>
                         <button type="button" class="mieruka-btn-clear" data-clear="entry">入力内容をクリア</button>
+                        <button type="button" class="mieruka-btn-delete" data-delete="entry">保存済みログを削除</button>
                     </div>
                 </div>
 
@@ -1555,12 +1790,23 @@
                         <div class="mieruka-col" id="mk-miss-market"></div>
                         <div class="mieruka-col" id="mk-miss-reason"></div>
                     </div>
+                    <div class="mieruka-fullwidth" id="mk-miss-watch" style="margin-top:14px;"></div>
+                    <div class="mieruka-actions">
+                        <button type="button" class="mieruka-btn-save" data-save="miss">保存する</button>
+                        <button type="button" class="mieruka-btn-clear" data-clear="miss">入力内容をクリア</button>
+                        <button type="button" class="mieruka-btn-delete" data-delete="miss">保存済みログを削除</button>
+                    </div>
+                </div>
+
+                <!-- 見送り結果 -->
+                <div class="mieruka-panel" id="mk-panel-miss_result" data-panel="miss_result">
                     <div class="mieruka-fullwidth" id="mk-miss-result" style="margin-top:14px;"></div>
                     <div class="mieruka-fullwidth" id="mk-miss-correct" style="margin-top:14px;"></div>
                     <div class="mieruka-fullwidth" id="mk-miss-incorrect" style="margin-top:14px;"></div>
                     <div class="mieruka-actions">
-                        <button type="button" class="mieruka-btn-save" data-save="miss">保存する</button>
-                        <button type="button" class="mieruka-btn-clear" data-clear="miss">入力内容をクリア</button>
+                        <button type="button" class="mieruka-btn-save" data-save="miss_result">保存する</button>
+                        <button type="button" class="mieruka-btn-clear" data-clear="miss_result">入力内容をクリア</button>
+                        <button type="button" class="mieruka-btn-delete" data-delete="miss_result">保存済みログを削除</button>
                     </div>
                 </div>
 
@@ -1574,6 +1820,7 @@
                     <div class="mieruka-actions">
                         <button type="button" class="mieruka-btn-save" data-save="notice">保存する</button>
                         <button type="button" class="mieruka-btn-clear" data-clear="notice">入力内容をクリア</button>
+                        <button type="button" class="mieruka-btn-delete" data-delete="notice">保存済みログを削除</button>
                     </div>
                 </div>
 
@@ -1583,6 +1830,7 @@
                     <div class="mieruka-actions">
                         <button type="button" class="mieruka-btn-save" data-save="settlement">保存する</button>
                         <button type="button" class="mieruka-btn-clear" data-clear="settlement">入力内容をクリア</button>
+                        <button type="button" class="mieruka-btn-delete" data-delete="settlement">保存済みログを削除</button>
                     </div>
                 </div>
             </div>
@@ -1598,6 +1846,10 @@
             </div>
             <div class="mieruka-body">
                 <div class="chart-slot-hint">画像をクリックして選択、または画像をコピーしてから枠内をクリックし Ctrl+V（⌘+V）で貼り付けできます。虫眼鏡アイコンをクリックすると画面いっぱいに拡大表示できます。</div>
+                <div class="chart-folder-bar">
+                    <span>保存先フォルダ: <strong id="chart-folder-name">未選択</strong></span>
+                    <button type="button" class="mieruka-mini-btn" id="chart-folder-select-btn">フォルダを選択</button>
+                </div>
                 <div class="chart-slots-grid" id="chart-slots-grid" style="margin-top: 10px;"></div>
                 <div class="mieruka-actions">
                     <button type="button" class="mieruka-btn-save" id="chart-save-btn">保存する</button>
@@ -2064,6 +2316,7 @@
             localStorage.setItem(STORAGE_KEY_MULTI, JSON.stringify(appState));
             showToast("自動保存しました");
             updateStats();
+            updateSummaryTable();
         }
 
         // Render the notebook selector dropdown options
@@ -2272,7 +2525,7 @@
 
         // Tabulator Grid Setup
         // ===== Mieruka Style Trade Check (embedded log editor) =====
-        const MIERUKA_TAB_LABELS = { entry: "エントリーログ", miss: "見送りログ", notice: "気づき漏れログ", settlement: "決済ログ" };
+        const MIERUKA_TAB_LABELS = { entry: "エントリーログ", miss: "見送りログ", miss_result: "見送り結果", notice: "気づき漏れログ", settlement: "決済ログ" };
         const MK_PAIR_BY_CATEGORY = {
             USD: ["USDJPY", "EURUSD", "GBPUSD", "AUDUSD", "USDCAD", "USDCHF", "NZDUSD", "GOLD", "SILVER"],
             JPY: ["USDJPY", "EURJPY", "GBPJPY", "AUDJPY", "CADJPY", "CHFJPY", "NZDJPY", "BTCJPY"],
@@ -2368,7 +2621,7 @@
                     ${scoreRowHtml(prefix + "_trig_horiz", "水平の攻防3点目ブレイク")}
                     ${scoreRowHtml(prefix + "_trig_line", "攻防ライン裏確認")}
                     ${scoreRowHtml(prefix + "_trig_dispersion", "分類パターン2")}
-                    ${chipGroupHtml(prefix + "_trig_none", ["未到達"], false, "pink")}
+                    ${opts.triggerNoneButton !== false ? chipGroupHtml(prefix + "_trig_none", ["未到達"], false, "pink") : ""}
                 </div>`;
             }
             if (opts.timePass) {
@@ -2383,6 +2636,11 @@
         function entryBasicHtml() {
             return `
                 <div class="mieruka-col-title">基本情報 <button type="button" class="mieruka-mini-btn" data-clear="entry">入力内容をクリア</button></div>
+                ${fieldLabel("今日の経済指標")}
+                ${textInputHtml("entry_econ_indicator", "例: 21:30 米雇用統計")}
+                ${chipGroupHtml("entry_econ_star", ["★2", "★3", "★4", "★5"], false, "yellow")}
+                ${fieldLabel("休場")}
+                ${textInputHtml("entry_holiday", "例: NY市場休場")}
                 ${pairBlockHtml("entry")}
                 <div class="mieruka-row2">
                     <div>${fieldLabel("エントリー日時")}${dateInputHtml("entry_entry_dt")}</div>
@@ -2392,6 +2650,11 @@
                     <div>${fieldLabel("SL価格")}${numberInputHtml("entry_sl_price", "例: 149.800")}</div>
                     <div>${fieldLabel("SLまでのpips")}<div class="mieruka-readout" id="entry-sl-pips-display">-</div></div>
                 </div>
+                <div class="mieruka-row2">
+                    <div>${fieldLabel("適正ロット")}<div class="mieruka-readout" id="entry-optimal-lot-display">-</div></div>
+                    <div>${fieldLabel("許容損失率")}<div class="mieruka-readout" id="entry-risk-rate-display">-</div></div>
+                </div>
+                <div>${fieldLabel("実行ロット")}${numberInputHtml("entry_exec_lot", "例: 0.10")}</div>
                 <div class="mieruka-subsection">
                     <div class="mieruka-subsection-title">監視状況</div>
                     ${fieldLabel("状況選択")}
@@ -2407,9 +2670,9 @@
 
         function entryRiskHtml() {
             return `
-                <div class="mieruka-col-title">リスク</div>
+                <div class="mieruka-col-title">リスク <span id="entry-risk-count-display" style="color:#f87171; font-weight:800; font-size:1.05rem; margin-left:10px;">リスク0個</span></div>
                 ${fieldLabel("環境")}
-                ${chipGroupHtml("entry_risk_env", ["上位足逆張りor全戻し", "上位足3種の神器近いorエリア内"], true, "pink")}
+                ${chipGroupHtml("entry_risk_env", ["上位足逆張りor全戻し", "上位足3種の神器近いorエリア内", "複数ダウカウント"], true, "pink")}
                 ${fieldLabel("構造")}
                 ${chipGroupHtml("entry_risk_structure", ["ダウカウント小さい", "間延び感", "戻しすぎor全戻し", "TL抜け", "7波以降"], true, "pink")}
                 ${fieldLabel("時間")}
@@ -2422,6 +2685,7 @@
                 </div>
                 ${fieldLabel("自分状態")}
                 ${chipGroupHtml("entry_self_state", MK_SELF_STATE_OPTIONS, true, "pink")}
+                <input type="text" class="mieruka-input" data-field="entry_self_state_other" data-other-for="entry_self_state" placeholder="その他の状態を入力" style="display:none; margin-top:6px;">
             `;
         }
 
@@ -2432,12 +2696,12 @@
                     <div>${fieldLabel("決済日時")}${dateInputHtml("entry_exit_dt")}</div>
                     <div>${fieldLabel("決済価格")}${numberInputHtml("entry_exit_price", "例: 150.500")}</div>
                 </div>
-                ${fieldLabel("あなたはどんなトレードだったと思いますか？")}
-                ${chipGroupHtml("entry_review_type", ["環境認識甘さ", "アリエン", "ビビり決済", "損切り見送りミス", "資金管理ミス", "上振足リスク", "7波以降リスク", "レイトエントリー", "レイト決済", "細切りミス", "3大治療ゴリ押し", "テールイベント"], true)}
+                ${fieldLabel("あなた自身はどんなトレードだったと思いますか？")}
+                ${chipGroupHtml("entry_review_type", ["環境認識甘い", "アリエン", "ビビり決済", "損切り設定ミス", "資金管理ミス", "上位足リスク", "7波以降リスク", "レイトエントリー", "レイト決済", "相関リスク", "3大指標ゴリ押し", "テールイベント"], true, "pink")}
                 ${chipGroupHtml("entry_review_nice", ["ナイストレード"], false, "pink")}
-                <div>${fieldLabel("トレード終了後の感想")}${textareaHtml("entry_review_feeling", "ここは「未入力」を埋める目的です。正解を書く必要はありません。", 300)}</div>
+                <div>${fieldLabel("トレード終了後の感想")}${textareaHtml("entry_review_feeling", "ここは「本人認識」を残す項目です。正解を書く必要はありません。", 300)}</div>
                 <div>${fieldLabel("一番後悔したこと（必須）")}${textareaHtml("entry_review_regret", "例：「ここを逃したら今日はチャンスがない」と思って飛びついた", 150)}</div>
-                <div>${fieldLabel("次回どうする？（必須）")}${textareaHtml("entry_review_next", "例：荒れたら入らない、一度離を持つ、逆指値を置く", 100)}</div>
+                <div>${fieldLabel("次回どうする？（必須）")}${textareaHtml("entry_review_next", "例：遅れたら入らない、一度席を立つ、逆指値を置く", 100)}</div>
                 <div>${fieldLabel("AI壁打ち結果（書ける人だけでOK！）")}${textareaHtml("entry_review_ai", "", 300)}</div>
             `;
         }
@@ -2448,23 +2712,18 @@
                 ${fieldLabel("日時")}${dateInputHtml("miss_dt")}
                 ${pairBlockHtml("miss")}
                 ${fieldLabel("価格")}${numberInputHtml("miss_price", "例: 150.250")}
-                <div class="mieruka-subsection">
-                    <div class="mieruka-subsection-title">監視状況・コメント</div>
-                    ${fieldLabel("監視状況")}
-                    ${chipGroupHtml("miss_watch_state", ["見れてた", "一部だけ", "ほぼ見れなかった"], false)}
-                    ${chipGroupHtml("miss_watch_unneeded", ["査知して見る必要がないと思った"], false, "pink")}
-                    ${fieldLabel("コメント")}
-                    ${textareaHtml("miss_comment", "例：「攻防ライン4点目が甘かった、今日は見送って正解？」", 50)}
-                </div>
-                <div class="mieruka-subsection">
-                    <div class="mieruka-subsection-title">見送り結果</div>
-                    ${fieldLabel("見送りで正解")}
-                    ${chipGroupHtml("miss_result_correct", ["型が来なかった", "見送り理由が確認した"], true)}
-                    ${fieldLabel("見送りは不正解")}
-                    ${chipGroupHtml("miss_result_incorrect", ["型がきて、入るべき損切りだった"], true)}
-                    ${fieldLabel("どちらとも言えない")}
-                    ${chipGroupHtml("miss_result_neutral", ["微妙", "再現性なし"], true)}
-                </div>
+            `;
+        }
+
+        function missResultHtml() {
+            return `
+                <div class="mieruka-col-title">見送り結果</div>
+                ${fieldLabel("見送りで正解")}
+                ${chipGroupHtml("miss_result_correct", ["型が来なかった", "見送り理由が確認した"], false)}
+                ${fieldLabel("見送りは不正解")}
+                ${chipGroupHtml("miss_result_incorrect", ["型がきて、入るべき獲物だった"], false, "pink")}
+                ${fieldLabel("どちらとも言えない")}
+                ${chipGroupHtml("miss_result_neutral", ["微妙", "再現性なし"], false, "yellow")}
             `;
         }
 
@@ -2474,15 +2733,27 @@
                 ${fieldLabel("環境")}
                 ${chipGroupHtml("miss_reason_env", ["上位足逆張り", "上位足3種の神器近いorエリア内", "カオス相場"], true)}
                 ${fieldLabel("構造")}
-                ${chipGroupHtml("miss_reason_structure", ["ダウカウント小さい", "開閉じ時", "戻しすぎor全て無視", "TL裂け?"], true)}
+                ${chipGroupHtml("miss_reason_structure", ["ダウカウント小さい", "間延び感", "戻しすぎor全戻し", "TL抜け", "7波以降"], true)}
                 ${fieldLabel("時間")}
                 ${chipGroupHtml("miss_reason_time", ["自国サイクル外", "重要指標前など"], true)}
-                ${fieldLabel("その他懸念")}
-                ${textInputHtml("miss_reason_other", "相関リスクなど")}
+                ${fieldLabel("その他技術")}
+                ${chipGroupHtml("miss_reason_other", ["相関リスクなど"], true, "pink")}
                 ${fieldLabel("自分状態")}
                 ${chipGroupHtml("miss_self_state", MK_SELF_STATE_OPTIONS, true)}
+                <input type="text" class="mieruka-input" data-field="miss_self_state_other" data-other-for="miss_self_state" placeholder="その他の状態を入力" style="display:none; margin-top:6px;">
                 ${fieldLabel("ルール違反")}
-                ${chipGroupHtml("miss_rule_violation", ["押機不足", "トリガー不一致"], true)}
+                ${chipGroupHtml("miss_rule_violation", ["神器不足", "トリガー不一致"], true)}
+            `;
+        }
+
+        function missWatchHtml() {
+            return `
+                <div class="mieruka-col-title">監視状況・コメント</div>
+                ${fieldLabel("監視状況")}
+                ${chipGroupHtml("miss_watch_state", ["見れてた", "一部だけ", "ほぼ見れなかった"], false)}
+                ${chipGroupHtml("miss_watch_unneeded", ["意図して見る必要がないと思った"], false, "pink")}
+                ${fieldLabel("コメント")}
+                ${textareaHtml("miss_comment", "例：「攻防ライン4点目が甘かった、今日は見送って正解？」", 50)}
             `;
         }
 
@@ -2496,7 +2767,7 @@
                     <div>${fieldLabel("神器")}${chipGroupHtml("miss_correct_kami", ["不足"], false)}</div>
                 </div>
                 ${fieldLabel("再検討し状況が来たら")}
-                ${chipGroupHtml("miss_recheck", ["GO", "変則型", "見送り"], false, "pink")}
+                ${chipGroupHtml("miss_recheck", ["GO", "要監視", "見送り"], false)}
             `;
         }
 
@@ -2504,10 +2775,11 @@
             return `
                 <div class="mieruka-col-title">見送りが不正解だった場合</div>
                 ${fieldLabel("何がズレてた？")}
-                ${chipGroupHtml("miss_wrong_reason", ["見送りの判定が遅すぎだった", "リスク評価が主観寄りだった（怖い等）", "監視が甘くて気づき遅れだった", "トリガー認識が曖昧だった", "時間感覚がずれなかった（自国時間・高波など）", "その他"], true)}
+                ${chipGroupHtml("miss_wrong_reason", ["見送りの判定が過剰だった", "リスク評価が主観寄りだった（怖い等）", "監視が甘くて”気づき漏れ”だった", "トリガー理解が曖昧だった", "時間感覚が足りなかった（自国時間・直近波など）", "その他"], true, "pink")}
+                <input type="text" class="mieruka-input" data-field="miss_wrong_reason_other" data-other-for="miss_wrong_reason" placeholder="その他の理由を入力" style="display:none; margin-top:6px;">
                 ${fieldLabel("プロセスの穴")}
-                ${chipGroupHtml("miss_process_gap", ["アラート不足", "監視時間が未設定", "見る徴量が減れた", "神様のラインが引けてなかった", "感情（迷い恐怖不安）で言葉できなかった", "自分ルール違反"], true)}
-                <div>${fieldLabel("If-Then（次回の修正を行動目標で2行程度で明確に）")}${textareaHtml("miss_ifthen", "例：「怖い時は『見送り』ではなく『損切り位置の把握』で判断する」", 100)}</div>
+                ${chipGroupHtml("miss_process_gap", ["アラート不足", "監視時間が未設定", "見る順番が崩れた", "神器のラインが引けてなかった", "感情（逃し恐怖/不安など）で直視できなかった", "自分ルール違反"], true, "pink")}
+                <div>${fieldLabel("If-Then（次回の修正を行動目標で2行程度で簡潔に）")}${textareaHtml("miss_ifthen", "例：「怖い時は『見送り』ではなく『損切り位置の把握』で判断する」", 100)}</div>
             `;
         }
 
@@ -2523,10 +2795,12 @@
         function noticeSituationHtml() {
             return `
                 <div class="mieruka-col-title">当時の状況</div>
-                ${chipGroupHtml("notice_situation", ["仕事中", "就寝直前", "移動中", "遊び", "寝てた", "見れてたがスルー", "その他"], false)}
+                ${chipGroupHtml("notice_situation", ["仕事中", "就寝直前", "移動中", "遊び", "寝てた", "見れてたがスルー", "その他"], false, "yellow")}
+                <input type="text" class="mieruka-input" data-field="notice_situation_other" data-other-for="notice_situation" placeholder="その他の状況を入力" style="display:none; margin-top:6px;">
                 <div class="mieruka-subsection">
                     <div class="mieruka-subsection-title">漏れた理由</div>
-                    ${chipGroupHtml("notice_reason", ["アラートなし", "監視時間が未設定", "見る徴量が減れた", "ラインが引けてなかった", "怖くて意識しなかった", "ダウカウントが遅った", "時間的に見ることができなかった", "その他"], true)}
+                    ${chipGroupHtml("notice_reason", ["アラートなし", "監視時間が未設定", "見る徴量が減れた", "ラインが引けてなかった", "怖くて意識しなかった", "ダウカウントが遅った", "時間的に見ることができなかった", "その他"], true, "pink")}
+                    <input type="text" class="mieruka-input" data-field="notice_reason_other" data-other-for="notice_reason" placeholder="その他の理由を入力" style="display:none; margin-top:6px;">
                 </div>
                 <div>${fieldLabel("If-Then（次回の修正を行動目標で2行程度で明確に）")}${textareaHtml("notice_ifthen", "例：「ロンドン勢に水平ライン付近は必ずアラートを入れる」", 100)}</div>
             `;
@@ -2542,11 +2816,13 @@
             document.getElementById("mk-miss-basic").innerHTML = missBasicHtml();
             document.getElementById("mk-miss-market").innerHTML = marketBlockHtml("miss", { entryTrigger: true, timePass: true });
             document.getElementById("mk-miss-reason").innerHTML = missReasonHtml();
+            document.getElementById("mk-miss-watch").innerHTML = missWatchHtml();
+            document.getElementById("mk-miss-result").innerHTML = missResultHtml();
             document.getElementById("mk-miss-correct").innerHTML = missCorrectHtml();
             document.getElementById("mk-miss-incorrect").innerHTML = missIncorrectHtml();
 
             document.getElementById("mk-notice-basic").innerHTML = noticeBasicHtml();
-            document.getElementById("mk-notice-market").innerHTML = marketBlockHtml("notice", { kamiTitle: "気づけなかった場合の環境認識3種の神器" });
+            document.getElementById("mk-notice-market").innerHTML = marketBlockHtml("notice", { kamiTitle: "気づけなかった場面の環境足該当3種の神器", entryTrigger: true, triggerNoneButton: false });
             document.getElementById("mk-notice-situation").innerHTML = noticeSituationHtml();
 
             document.querySelectorAll(".mieruka-overlay .mieruka-textarea").forEach(ta => {
@@ -2660,12 +2936,28 @@
 
         let mkCurrentRow = null;
 
-        function openMierukaModal(row, forceTab) {
+        // Which tabs are shown depends on which of the two emotion/review cells was clicked:
+        // 「エントリー前の感情＆根拠」→ entry + miss tabs only, 「決済後の感情＆振り返り」→ miss_result + notice + settlement tabs only
+        const MIERUKA_TAB_GROUPS = {
+            before: ["entry", "miss"],
+            after: ["miss_result", "notice", "settlement"]
+        };
+
+        function openMierukaModal(row, forceTab, tabGroup) {
             mkCurrentRow = row;
             const data = row.getData();
             const mk = data.mieruka;
             const sl = data.settlementLog;
-            const activeTab = forceTab || (mk && mk.type) || "entry";
+            const mr = data.missResultLog;
+            const allowedTabs = tabGroup ? MIERUKA_TAB_GROUPS[tabGroup] : null;
+            let activeTab = forceTab || (mk && mk.type) || "entry";
+            if (allowedTabs && allowedTabs.indexOf(activeTab) === -1) {
+                activeTab = allowedTabs[0];
+            }
+            document.querySelectorAll(".mieruka-tab-btn").forEach(function(btn) {
+                const t = btn.getAttribute("data-tab");
+                btn.style.display = (!allowedTabs || allowedTabs.indexOf(t) !== -1) ? "" : "none";
+            });
             ["entry", "miss", "notice"].forEach(t => {
                 if (mk && mk.type === t) {
                     populateMierukaPanel(t, mk.data);
@@ -2680,8 +2972,15 @@
                 clearMierukaPanel("settlement");
                 prefillBasicFromTrade("settlement", data);
             }
+            if (mr) {
+                populateMierukaPanel("miss_result", mr.data);
+            } else {
+                clearMierukaPanel("miss_result");
+            }
             switchMierukaTab(activeTab);
             updateSlPipsDisplay();
+            updateOptimalLotDisplay();
+            updateRiskCountDisplay();
             document.getElementById("mieruka-overlay").classList.add("active");
         }
 
@@ -2717,6 +3016,12 @@
             if (data.entry_entry_price !== undefined && data.entry_entry_price !== "") {
                 const p = parseFloat(data.entry_entry_price);
                 if (!isNaN(p)) update.entry = p;
+            }
+
+            // 実行ロットをそのままトレードノートのロット列に反映
+            if (data.entry_exec_lot !== undefined && data.entry_exec_lot !== "") {
+                const lotVal = parseFloat(data.entry_exec_lot);
+                if (!isNaN(lotVal)) update.lot = lotVal;
             }
 
             // SL価格が入っていれば、エントリー価格との差から想定リスク幅（リスク(p)列）も自動算出
@@ -2755,18 +3060,104 @@
             return update;
         }
 
+        // 見送りログの基本情報・環境足・スコアをトレードノートの対応項目にも反映する
+        function buildTradeUpdateFromMissLog(data) {
+            const update = {};
+
+            const pair = (data.miss_pair_custom || "").trim() || data.miss_pair;
+            if (pair) update.pair = pair;
+
+            if (data.miss_side) update.position = data.miss_side;
+
+            if (data.miss_dt) {
+                const parts = String(data.miss_dt).split("T");
+                if (parts[0]) update.date = parts[0];
+                if (parts[1]) update.time = parts[1];
+            }
+
+            if (data.miss_price !== undefined && data.miss_price !== "") {
+                const p = parseFloat(data.miss_price);
+                if (!isNaN(p)) update.entry = p;
+            }
+
+            if (data.miss_tf && ENTRY_TF_TO_AXIS_TAG[data.miss_tf]) {
+                update.axisTag = ENTRY_TF_TO_AXIS_TAG[data.miss_tf];
+            }
+
+            const scoreFields = ["miss_trendline", "miss_zone", "miss_cloud", "miss_trig_diag", "miss_trig_horiz", "miss_trig_line", "miss_trig_dispersion"];
+            let hasAnyScore = false;
+            let scoreTotal = 0;
+            scoreFields.forEach(function(f) {
+                const v = parseFloat(data[f]);
+                if (!isNaN(v)) { scoreTotal += v; hasAnyScore = true; }
+            });
+            if (hasAnyScore) {
+                update.tfTag = strengthNumToTag(scoreTotal);
+            }
+
+            return update;
+        }
+
+        // 保存済みのログ自体を削除する（フォームの「入力内容をクリア」とは別で、行データからも消す）
+        // entry/miss/notice は同じ mieruka フィールドを共有しているので、どのタブから削除してもそのフィールドごと消える
+        // エントリーログ・決済ログはトレードノート側に自動反映していた項目も、削除時に一緒にクリアする
+        function deleteMierukaLog(tab) {
+            if (!mkCurrentRow) return;
+            if (!confirm(MIERUKA_TAB_LABELS[tab] + "を削除します。よろしいですか？")) return;
+            const rowData = mkCurrentRow.getData();
+            let update;
+            if (tab === "settlement") {
+                update = { settlementLog: null };
+                if (rowData.settlementLog) update.exit = null;
+            } else if (tab === "miss_result") {
+                update = { missResultLog: null };
+            } else {
+                update = { mieruka: null };
+                if (tab === "entry" && rowData.mieruka && rowData.mieruka.type === "entry") {
+                    Object.assign(update, {
+                        pair: null, position: null, date: null, time: null,
+                        entry: null, axisTag: null, tfTag: null, riskPips: null
+                    });
+                } else if (tab === "miss" && rowData.mieruka && rowData.mieruka.type === "miss") {
+                    Object.assign(update, {
+                        pair: null, position: null, date: null, time: null,
+                        entry: null, axisTag: null, tfTag: null
+                    });
+                }
+            }
+            mkCurrentRow.update(update).then(function() {
+                clearMierukaPanel(tab);
+                if (tab === "entry" || tab === "settlement" || tab === "miss") {
+                    updateCalculations(mkCurrentRow);
+                    updateNetStrength(mkCurrentRow);
+                    mkCurrentRow.reformat();
+                }
+                saveAppState();
+                showToast(MIERUKA_TAB_LABELS[tab] + "を削除しました");
+            });
+        }
+
         function saveMierukaLog(tab) {
             if (!mkCurrentRow) return;
             const data = collectMierukaData(tab);
             const payload = { data: data, savedAt: new Date().toISOString() };
-            const update = (tab === "settlement") ? { settlementLog: payload } : { mieruka: Object.assign({ type: tab }, payload) };
+            let update;
+            if (tab === "settlement") {
+                update = { settlementLog: payload };
+            } else if (tab === "miss_result") {
+                update = { missResultLog: payload };
+            } else {
+                update = { mieruka: Object.assign({ type: tab }, payload) };
+            }
             if (tab === "entry") {
                 Object.assign(update, buildTradeUpdateFromEntryLog(data));
             } else if (tab === "settlement") {
                 Object.assign(update, buildTradeUpdateFromSettlementLog(data));
+            } else if (tab === "miss") {
+                Object.assign(update, buildTradeUpdateFromMissLog(data));
             }
             mkCurrentRow.update(update).then(function() {
-                if (tab === "entry" || tab === "settlement") {
+                if (tab === "entry" || tab === "settlement" || tab === "miss") {
                     updateCalculations(mkCurrentRow);
                     updateNetStrength(mkCurrentRow);
                     mkCurrentRow.reformat();
@@ -2834,15 +3225,92 @@
             display.textContent = pips.toFixed(1) + " pips";
         }
 
+        // Live 適正ロット／許容損失率 readout in the entry log: uses the same formula as the table's
+        // recalcOptimalSizing (balance excludes this row's own profit; 許容損失率 is 1% under a
+        // 環境足該当3種の神器＋エントリートリガー score total of 2, otherwise 2%), so it matches what
+        // ends up in the table after saving
+        function updateOptimalLotDisplay() {
+            const panel = document.getElementById("mk-panel-entry");
+            const lotDisplay = document.getElementById("entry-optimal-lot-display");
+            const rateDisplay = document.getElementById("entry-risk-rate-display");
+            if (!panel || !lotDisplay || !rateDisplay || !mkCurrentRow) return;
+
+            const scoreFieldIds = ["entry_trendline", "entry_zone", "entry_cloud", "entry_trig_diag", "entry_trig_horiz", "entry_trig_line", "entry_trig_dispersion"];
+            let scoreTotal = 0;
+            scoreFieldIds.forEach(function(id) {
+                const group = panel.querySelector(`.chip-group[data-group="${id}"]`);
+                const active = group ? group.querySelector(".chip-btn.active") : null;
+                if (active) scoreTotal += parseFloat(active.getAttribute("data-value")) || 0;
+            });
+            const riskRate = scoreTotal >= 2 ? 0.02 : 0.01;
+            rateDisplay.textContent = (riskRate * 100) + "%";
+
+            const priceEl = panel.querySelector('[data-field="entry_entry_price"]');
+            const slEl = panel.querySelector('[data-field="entry_sl_price"]');
+            const price = priceEl ? parseFloat(priceEl.value) : NaN;
+            const sl = slEl ? parseFloat(slEl.value) : NaN;
+            if (isNaN(price) || isNaN(sl) || price === sl) {
+                lotDisplay.textContent = "-";
+                return;
+            }
+
+            const pairGroup = panel.querySelector('.chip-group[data-group="entry_pair"]');
+            const activePairBtn = pairGroup ? pairGroup.querySelector(".chip-btn.active") : null;
+            const pair = activePairBtn ? activePairBtn.getAttribute("data-value") : (mkCurrentRow.getData().pair || "");
+            const multiplier = pipMultiplierForPair(pair);
+            const riskPips = Math.abs(price - sl) * multiplier;
+            const ratePerPip = (pair || "").toUpperCase().includes("JPY") ? 1000 : 1500;
+
+            const capValInput = parseFloat(document.getElementById("input-initial-capital").value);
+            const initialCapital = !isNaN(capValInput) ? capValInput : 0;
+            let totalProfit = 0;
+            table.getData().forEach(function(d) {
+                const p = parseFloat(d.profit);
+                if (!isNaN(p)) totalProfit += p;
+            });
+            const ownProfit = parseFloat(mkCurrentRow.getData().profit);
+            const balanceBeforeThisTrade = initialCapital + totalProfit - (!isNaN(ownProfit) ? ownProfit : 0);
+
+            if (riskPips <= 0 || balanceBeforeThisTrade <= 0) {
+                lotDisplay.textContent = "-";
+                return;
+            }
+            const optimalLot = Math.round((balanceBeforeThisTrade * riskRate / (riskPips * ratePerPip)) * 100) / 100;
+            lotDisplay.textContent = optimalLot.toFixed(2);
+        }
+
+        // Live count of how many リスク buttons (環境／構造／時間／その他技術) are currently pressed
+        function updateRiskCountDisplay() {
+            const panel = document.getElementById("mk-panel-entry");
+            const display = document.getElementById("entry-risk-count-display");
+            if (!panel || !display) return;
+            const groupIds = ["entry_risk_env", "entry_risk_structure", "entry_risk_time", "entry_risk_other"];
+            let count = 0;
+            groupIds.forEach(function(id) {
+                const group = panel.querySelector(`.chip-group[data-group="${id}"]`);
+                if (group) count += group.querySelectorAll(".chip-btn.active").length;
+            });
+            display.textContent = `リスク${count}個`;
+        }
+
         document.getElementById("mieruka-overlay").addEventListener("input", function(e) {
             if (e.target.matches('[data-field="entry_entry_price"], [data-field="entry_sl_price"]')) {
                 updateSlPipsDisplay();
+                updateOptimalLotDisplay();
             }
         });
 
         document.getElementById("mieruka-overlay").addEventListener("click", function(e) {
             const chip = e.target.closest(".chip-btn");
             if (chip) {
+                // 見送り結果ボックス内の5ボタン（3グループにまたがる）は、まとめて1つだけ光る排他選択にする
+                const resultBox = chip.closest("#mk-miss-result");
+                if (resultBox) {
+                    const wasActive = chip.classList.contains("active");
+                    resultBox.querySelectorAll(".chip-btn").forEach(b => b.classList.remove("active"));
+                    if (!wasActive) chip.classList.add("active");
+                    return;
+                }
                 const group = handleChipToggle(chip);
                 const groupId = group.getAttribute("data-group") || "";
                 if (groupId.endsWith("_category")) {
@@ -2850,6 +3318,7 @@
                     regeneratePairGroup(prefix, chip.getAttribute("data-value"), null);
                 }
                 if (groupId === "entry_pair") updateSlPipsDisplay();
+                if (groupId.indexOf("entry_") === 0) { updateOptimalLotDisplay(); updateRiskCountDisplay(); }
                 return;
             }
             const tabBtn = e.target.closest(".mieruka-tab-btn");
@@ -2862,8 +3331,13 @@
             if (clearBtn) {
                 clearMierukaPanel(clearBtn.getAttribute("data-clear"));
                 updateSlPipsDisplay();
+                updateOptimalLotDisplay();
+                updateRiskCountDisplay();
                 return;
             }
+
+            const deleteBtn = e.target.closest("[data-delete]");
+            if (deleteBtn) { deleteMierukaLog(deleteBtn.getAttribute("data-delete")); return; }
 
             if (e.target.id === "mk-close-btn" || e.target.id === "mieruka-overlay") {
                 closeMierukaModal();
@@ -2875,16 +3349,18 @@
         // reference key per slot, so localStorage stays light regardless of chart volume.
         const MK_IDB_NAME = "trade_note_images_db";
         const MK_IDB_STORE = "images";
+        const MK_IDB_SETTINGS_STORE = "settings";
         let mkIdbPromise = null;
 
         function openMkIdb() {
             if (mkIdbPromise) return mkIdbPromise;
             mkIdbPromise = new Promise(function(resolve, reject) {
                 if (!window.indexedDB) { reject(new Error("indexedDB unavailable")); return; }
-                const req = indexedDB.open(MK_IDB_NAME, 1);
+                const req = indexedDB.open(MK_IDB_NAME, 2);
                 req.onupgradeneeded = function(e) {
                     const db = e.target.result;
                     if (!db.objectStoreNames.contains(MK_IDB_STORE)) db.createObjectStore(MK_IDB_STORE);
+                    if (!db.objectStoreNames.contains(MK_IDB_SETTINGS_STORE)) db.createObjectStore(MK_IDB_SETTINGS_STORE);
                 };
                 req.onsuccess = function(e) { resolve(e.target.result); };
                 req.onerror = function(e) { reject(e.target.error); };
@@ -2915,9 +3391,114 @@
                 tx.onerror = (e) => reject(e.target.error);
             }));
         }
+        function mkSettingPut(key, value) {
+            return openMkIdb().then(db => new Promise(function(resolve, reject) {
+                const tx = db.transaction(MK_IDB_SETTINGS_STORE, "readwrite");
+                tx.objectStore(MK_IDB_SETTINGS_STORE).put(value, key);
+                tx.oncomplete = () => resolve();
+                tx.onerror = (e) => reject(e.target.error);
+            }));
+        }
+        function mkSettingGet(key) {
+            return openMkIdb().then(db => new Promise(function(resolve, reject) {
+                const tx = db.transaction(MK_IDB_SETTINGS_STORE, "readonly");
+                const req = tx.objectStore(MK_IDB_SETTINGS_STORE).get(key);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = (e) => reject(e.target.error);
+            }));
+        }
         function mkGenKey() {
             return "img_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 9);
         }
+
+        // ===== Image save-to-folder feature =====
+        // Lets the user pick a real folder on disk (via the File System Access API, Chrome/Edge only)
+        // so attached chart images are also written there with a fixed naming convention, in addition
+        // to the existing IndexedDB storage the app already relies on.
+        let chartSaveDirHandle = null;
+
+        function updateChartFolderStatus() {
+            const el = document.getElementById("chart-folder-name");
+            if (el) el.textContent = chartSaveDirHandle ? chartSaveDirHandle.name : "未選択";
+        }
+
+        function loadSavedChartFolderHandle() {
+            mkSettingGet("imageSaveDir").then(function(handle) {
+                if (!handle) return;
+                if (handle.queryPermission) {
+                    handle.queryPermission({ mode: "readwrite" }).then(function(perm) {
+                        if (perm === "granted") {
+                            chartSaveDirHandle = handle;
+                            updateChartFolderStatus();
+                        }
+                    }).catch(function() {});
+                }
+            }).catch(function() {});
+        }
+
+        // Slot key -> filename letter (エントリー足=E, トレード足=T, 環境足=K, リスク把握足=R)
+        const CHART_SLOT_FILE_LETTER = { entry: "E", trade: "T", env: "K", risk: "R" };
+
+        function extFromDataUrl(dataUrl) {
+            const m = /^data:image\/([a-zA-Z0-9+.-]+);base64,/.exec(dataUrl || "");
+            if (!m) return "png";
+            let ext = m[1].toLowerCase();
+            if (ext === "jpeg") ext = "jpg";
+            if (ext === "svg+xml") ext = "svg";
+            return ext;
+        }
+
+        function dataUrlToBlob(dataUrl) {
+            const parts = dataUrl.split(",");
+            const mimeMatch = /:(.*?);/.exec(parts[0]);
+            const mime = mimeMatch ? mimeMatch[1] : "image/png";
+            const bstr = atob(parts[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) u8arr[n] = bstr.charCodeAt(n);
+            return new Blob([u8arr], { type: mime });
+        }
+
+        // field: "chartsBefore" (エントリー直前直後チャート, prefix E-) or "chartsAfter" (決済後チャート, prefix K-)
+        // Example: E-USDJPY20260910E
+        function chartImageFilename(field, slotKey, row, dataUrl) {
+            const data = row.getData();
+            const pair = (data.pair || "unknown").toString().toUpperCase();
+            const dateCompact = (data.date || "").replace(/-/g, "") || "unknown";
+            const letter = CHART_SLOT_FILE_LETTER[slotKey] || "";
+            const filePrefix = field === "chartsAfter" ? "K" : "E";
+            const ext = extFromDataUrl(dataUrl);
+            return `${filePrefix}-${pair}${dateCompact}${letter}.${ext}`;
+        }
+
+        function saveChartImageToFolder(field, slotKey, row, dataUrl) {
+            if (!chartSaveDirHandle || !dataUrl) return Promise.resolve(false);
+            const filename = chartImageFilename(field, slotKey, row, dataUrl);
+            return chartSaveDirHandle.getFileHandle(filename, { create: true })
+                .then(function(fileHandle) { return fileHandle.createWritable(); })
+                .then(function(writable) {
+                    return writable.write(dataUrlToBlob(dataUrl)).then(function() { return writable.close(); });
+                })
+                .then(function() { return true; })
+                .catch(function(err) { console.error("画像のフォルダ保存に失敗:", err); return false; });
+        }
+
+        document.getElementById("chart-folder-select-btn").addEventListener("click", function() {
+            if (!window.showDirectoryPicker) {
+                alert("お使いのブラウザはフォルダ指定に対応していません（Chrome / Edgeでご利用ください）。");
+                return;
+            }
+            window.showDirectoryPicker({ mode: "readwrite" }).then(function(handle) {
+                chartSaveDirHandle = handle;
+                updateChartFolderStatus();
+                return mkSettingPut("imageSaveDir", handle);
+            }).catch(function(err) {
+                if (err && err.name !== "AbortError") console.error(err);
+            });
+        });
+
+        loadSavedChartFolderHandle();
+
 
         // chartWorkingKeys: the IDB key currently saved for each slot (or null)
         // chartWorkingData: the actual image data currently shown for each slot (loaded async from IDB, or a freshly picked/pasted image)
@@ -3102,8 +3683,19 @@
                 return chartCurrentRow.update(update);
             }).then(function() {
                 saveAppState();
+                const row = chartCurrentRow;
                 closeChartModal();
                 showToast("チャートを保存しました");
+                if (chartSaveDirHandle) {
+                    const writes = CHART_SLOTS
+                        .filter(s => chartSlotDirty[s.key] && chartWorkingData[s.key])
+                        .map(s => saveChartImageToFolder(field, s.key, row, chartWorkingData[s.key]));
+                    if (writes.length) {
+                        Promise.all(writes).then(function(results) {
+                            if (results.some(r => r)) showToast("画像をフォルダにも保存しました");
+                        });
+                    }
+                }
             }).catch(function(err) {
                 console.error(err);
                 showToast("画像の保存に失敗しました");
@@ -3305,7 +3897,7 @@
                     editor: false,
                     formatter: emotionFormatter,
                     cellClick: function(e, cell) {
-                        openMierukaModal(cell.getRow());
+                        openMierukaModal(cell.getRow(), null, "before");
                     },
                     width: 250
                 },
@@ -3315,7 +3907,13 @@
                     editor: false,
                     formatter: settlementLogFormatter,
                     cellClick: function(e, cell) {
-                        openMierukaModal(cell.getRow(), "settlement");
+                        const rowData = cell.getRow().getData();
+                        const mkType = rowData.mieruka && rowData.mieruka.type;
+                        let tab;
+                        if (mkType === "entry") tab = "settlement";
+                        else if (mkType === "miss") tab = "miss_result";
+                        else tab = "notice";
+                        openMierukaModal(cell.getRow(), tab, "after");
                     },
                     width: 220
                 },
@@ -3509,9 +4107,68 @@
             profitEl.className = `stat-value ${totalProfit >= 0 ? "val-profit-pos" : "val-profit-neg"}`;
         }
 
+        // Calculate and update the 集計表 (aggregate stats over the currently displayed/filtered trades)
+        function updateSummaryTable() {
+            if (!table) return;
+            const rows = table.getData("active");
+            const totalTrades = rows.length;
+
+            let wins = 0, losses = 0;
+            let winPips = 0, lossPips = 0;
+            let winProfitSum = 0, winProfitCount = 0;
+            let lossProfitSum = 0, lossProfitCount = 0;
+            let lotSum = 0, lotCount = 0;
+            let riskSum = 0, riskCount = 0;
+
+            rows.forEach(function(row) {
+                const isWin = row.evaluation === "勝ち" || row.evaluation === "勝ち黄";
+                const isLoss = row.evaluation === "負け" || row.evaluation === "負け黄";
+                if (isWin) {
+                    wins++;
+                    if (typeof row.pips === "number" && !isNaN(row.pips)) winPips += row.pips;
+                    if (typeof row.profit === "number" && !isNaN(row.profit)) { winProfitSum += row.profit; winProfitCount++; }
+                } else if (isLoss) {
+                    losses++;
+                    if (typeof row.pips === "number" && !isNaN(row.pips)) lossPips += row.pips;
+                    if (typeof row.profit === "number" && !isNaN(row.profit)) { lossProfitSum += row.profit; lossProfitCount++; }
+                }
+                const lotNum = parseFloat(row.lot);
+                if (!isNaN(lotNum)) { lotSum += lotNum; lotCount++; }
+                const riskNum = parseFloat(row.riskPips);
+                if (!isNaN(riskNum)) { riskSum += riskNum; riskCount++; }
+            });
+
+            const winRate = (wins + losses) > 0 ? ((wins / (wins + losses)) * 100).toFixed(1) : "0.0";
+            const avgLot = lotCount > 0 ? (lotSum / lotCount).toFixed(2) : null;
+            const avgRisk = riskCount > 0 ? (riskSum / riskCount).toFixed(1) : null;
+            const avgProfit = winProfitCount > 0 ? Math.round(winProfitSum / winProfitCount) : null;
+            const avgLoss = lossProfitCount > 0 ? Math.round(lossProfitSum / lossProfitCount) : null;
+
+            document.getElementById("summary-total-trades").textContent = totalTrades;
+            document.getElementById("summary-total-wins").textContent = wins;
+            document.getElementById("summary-total-losses").textContent = losses;
+            document.getElementById("summary-win-rate").textContent = `${winRate} %`;
+            document.getElementById("summary-win-pips").textContent = `${winPips > 0 ? "+" : ""}${winPips.toFixed(1)} pips`;
+            document.getElementById("summary-loss-pips").textContent = `${lossPips.toFixed(1)} pips`;
+            document.getElementById("summary-avg-lot").textContent = avgLot !== null ? avgLot : "-";
+            document.getElementById("summary-avg-risk").textContent = avgRisk !== null ? `${avgRisk} pips` : "-";
+            document.getElementById("summary-avg-profit").textContent = avgProfit !== null ? `¥${avgProfit.toLocaleString("ja-JP")}` : "-";
+            document.getElementById("summary-avg-loss").textContent = avgLoss !== null ? `¥${avgLoss.toLocaleString("ja-JP")}` : "-";
+        }
+
         table.on("tableBuilt", function() {
             recalcOptimalSizing();
             updateStats();
+            updateSummaryTable();
+        });
+
+        // 集計表はフィルターが変わるたびにも再計算する（表示中のトレードを対象にするため）
+        table.on("dataFiltered", function() {
+            updateSummaryTable();
+        });
+        // ノート切替やインポートなど、setDataで丸ごとデータが入れ替わった場合の保険
+        table.on("dataChanged", function() {
+            updateSummaryTable();
         });
 
         // Add Row Handler
@@ -3542,10 +4199,22 @@
             });
         });
 
+        // 保存済みのMierukaログ・決済ログ・見送り結果ログの中身（ネストしたオブジェクト／配列も含む）を
+        // 再帰的に走査して、検索語にマッチする文字列があるか調べる
+        function deepMatchesSearch(obj, searchVal) {
+            if (obj === null || obj === undefined) return false;
+            if (typeof obj === "string") return obj.toLowerCase().includes(searchVal);
+            if (typeof obj === "number") return String(obj).toLowerCase().includes(searchVal);
+            if (Array.isArray(obj)) return obj.some(v => deepMatchesSearch(v, searchVal));
+            if (typeof obj === "object") return Object.values(obj).some(v => deepMatchesSearch(v, searchVal));
+            return false;
+        }
+
         // Filter Handlers
         function applyFilters() {
             const pairVal = document.getElementById("filter-pair").value;
             const evalVal = document.getElementById("filter-eval").value;
+            const logTypeVal = document.getElementById("filter-log-type").value;
             const searchVal = document.getElementById("filter-search").value.trim().toLowerCase();
 
             table.clearFilter();
@@ -3556,24 +4225,36 @@
             if (evalVal) {
                 table.addFilter("evaluation", "=", evalVal);
             }
+            if (logTypeVal) {
+                table.addFilter(function(data) {
+                    if (logTypeVal === "settlement") return !!data.settlementLog;
+                    if (logTypeVal === "miss_result") return !!data.missResultLog;
+                    return !!(data.mieruka && data.mieruka.type === logTypeVal);
+                });
+            }
             if (searchVal) {
                 table.addFilter(function(data) {
                     const tagMatch = (data.tag || "").toLowerCase().includes(searchVal);
                     const emotionMatch = (data.emotion || "").toLowerCase().includes(searchVal);
                     const tfMatch = (data.tfTag || "").toLowerCase().includes(searchVal);
                     const pairMatch = (data.pair || "").toLowerCase().includes(searchVal);
-                    return tagMatch || emotionMatch || tfMatch || pairMatch;
+                    const logMatch = deepMatchesSearch(data.mieruka && data.mieruka.data, searchVal)
+                        || deepMatchesSearch(data.settlementLog && data.settlementLog.data, searchVal)
+                        || deepMatchesSearch(data.missResultLog && data.missResultLog.data, searchVal);
+                    return tagMatch || emotionMatch || tfMatch || pairMatch || logMatch;
                 });
             }
         }
 
         document.getElementById("filter-pair").addEventListener("change", applyFilters);
         document.getElementById("filter-eval").addEventListener("change", applyFilters);
+        document.getElementById("filter-log-type").addEventListener("change", applyFilters);
         document.getElementById("filter-search").addEventListener("input", applyFilters);
 
         document.getElementById("btn-reset-filters").addEventListener("click", function() {
             document.getElementById("filter-pair").value = "";
             document.getElementById("filter-eval").value = "";
+            document.getElementById("filter-log-type").value = "";
             document.getElementById("filter-search").value = "";
             table.clearFilter();
         });
