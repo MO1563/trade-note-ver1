@@ -265,6 +265,127 @@
             font-size: 1.15rem;
         }
 
+        .period-summary-scroll {
+            overflow-x: auto;
+        }
+        .period-summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+        .period-summary-table th, .period-summary-table td {
+            padding: 8px 12px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-soft);
+        }
+        .period-summary-table th:first-child, .period-summary-table td:first-child {
+            text-align: left;
+        }
+        .period-summary-table thead th {
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .period-summary-table td.period-summary-period {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .period-summary-empty {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding: 8px 0;
+        }
+
+        .period-mode-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .period-mode-btn, .period-button-row .period-btn {
+            padding: 7px 14px;
+            font-size: 0.82rem;
+        }
+        .period-button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .period-btn {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg-alt);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.82rem;
+            transition: all 0.15s ease;
+        }
+        .period-btn:hover {
+            border-color: var(--accent-gold);
+        }
+        .period-btn.btn-active {
+            background-color: var(--accent-gold);
+            color: #1a1a1f;
+            border-color: var(--accent-gold);
+            font-weight: 700;
+        }
+        .period-current-label {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .filter-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .filter-field-group label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .filter-field-group select[multiple] {
+            height: auto;
+            padding: 4px;
+        }
+        .filter-field-group select[multiple] option {
+            padding: 3px 6px;
+        }
+
+        .filter-checkbox-list {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .filter-checkbox-list label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 400;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 2px 3px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        .filter-checkbox-list label:hover {
+            background-color: var(--card-bg-alt);
+        }
+        .filter-checkbox-list input[type="checkbox"] {
+            cursor: pointer;
+            margin: 0;
+            flex-shrink: 0;
+        }
+
         .stat-card {
             position: relative;
             background-color: var(--card-bg);
@@ -466,6 +587,11 @@
         .btn-secondary:hover {
             border-color: var(--accent-gold);
         }
+        .btn-secondary.btn-active {
+            background-color: var(--accent-gold);
+            color: #1a1a1f;
+            border-color: var(--accent-gold);
+        }
 
         .btn-danger {
             background-color: rgba(239, 68, 68, 0.12);
@@ -506,6 +632,19 @@
             padding: 10px 10px !important;
             vertical-align: middle;
             white-space: nowrap !important;
+        }
+
+        /* メンテナンスモードのツールチップ: 白背景・黒枠・黒文字ではっきり見えるようにする */
+        .tabulator-tooltip {
+            background-color: #ffffff !important;
+            color: #14151a !important;
+            border: 1px solid #000000 !important;
+            font-size: 0.95rem !important;
+            line-height: 1.5 !important;
+            padding: 8px 12px !important;
+            border-radius: 6px !important;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.25) !important;
+            max-width: 360px !important;
         }
 
         .tabulator-row {
@@ -749,6 +888,11 @@
             background: rgba(52, 211, 153, 0.16);
             color: #047857;
             border: 1px solid rgba(4, 120, 87, 0.45);
+        }
+        .mk-miss_result {
+            background: rgba(192, 132, 252, 0.16);
+            color: #7e22ce;
+            border: 1px solid rgba(126, 34, 206, 0.45);
         }
 
         /* ===== Mieruka Style Trade Check (embedded log editor) ===== */
@@ -1643,13 +1787,38 @@
                 <i class="fa-solid fa-filter" style="color: var(--text-secondary);"></i>
                 <select id="filter-pair" class="form-control">
                     <option value="">すべてのペア</option>
-                    <option value="USD/JPY">USD/JPY</option>
-                    <option value="EUR/USD">EUR/USD</option>
-                    <option value="GBP/JPY">GBP/JPY</option>
-                    <option value="EUR/JPY">EUR/JPY</option>
-                    <option value="AUD/USD">AUD/USD</option>
-                    <option value="GBP/USD">GBP/USD</option>
-                    <option value="XAU/USD">XAU/USD</option>
+                    <option value="USDJPY">USDJPY</option>
+                    <option value="EURUSD">EURUSD</option>
+                    <option value="GBPUSD">GBPUSD</option>
+                    <option value="AUDUSD">AUDUSD</option>
+                    <option value="USDCHF">USDCHF</option>
+                    <option value="NZDUSD">NZDUSD</option>
+                    <option value="EURJPY">EURJPY</option>
+                    <option value="GBPJPY">GBPJPY</option>
+                    <option value="CADJPY">CADJPY</option>
+                    <option value="AUDJPY">AUDJPY</option>
+                    <option value="NZDJPY">NZDJPY</option>
+                    <option value="EURGBP">EURGBP</option>
+                    <option value="CHFJPY">CHFJPY</option>
+                    <option value="XAUUSD">XAUUSD</option>
+                    <option value="XAGUSD">XAGUSD</option>
+                    <option value="GBPAUD">GBPAUD</option>
+                    <option value="EURAUD">EURAUD</option>
+                    <option value="GBPNZD">GBPNZD</option>
+                    <option value="EURNZD">EURNZD</option>
+                    <option value="AUDNZD">AUDNZD</option>
+                    <option value="AUDCAD">AUDCAD</option>
+                    <option value="GBPCAD">GBPCAD</option>
+                    <option value="EURCAD">EURCAD</option>
+                    <option value="NZDCAD">NZDCAD</option>
+                    <option value="GBPCHF">GBPCHF</option>
+                    <option value="EURCHF">EURCHF</option>
+                    <option value="AUDCHF">AUDCHF</option>
+                    <option value="CADCHF">CADCHF</option>
+                    <option value="NZDCHF">NZDCHF</option>
+                    <option value="NI225">NI225</option>
+                    <option value="US500">US500</option>
+                    <option value="USOIL">USOIL</option>
                 </select>
 
                 <select id="filter-eval" class="form-control">
@@ -1675,12 +1844,149 @@
                 <button class="btn btn-secondary" id="btn-reset-filters" style="padding: 8px 12px;" title="フィルター解除">
                     <i class="fa-solid fa-filter-circle-xmark"></i> 解除
                 </button>
+                <button class="btn btn-secondary" id="btn-toggle-summary" style="padding: 8px 12px;" title="集計表・黄色集計の表示切替">
+                    <i class="fa-solid fa-chart-column"></i> 集計
+                </button>
+                <button class="btn btn-secondary" id="btn-toggle-advanced-filter" style="padding: 8px 12px;" title="詳細な絞り込みの表示切替">
+                    <i class="fa-solid fa-sliders"></i> 絞り込み
+                </button>
+                <button class="btn btn-secondary" id="btn-toggle-maintenance" style="padding: 8px 12px;" title="列の見出しにカーソルを合わせると自動計算・自動入力の説明が出ます">
+                    <i class="fa-solid fa-wrench"></i> メンテナンス
+                </button>
             </div>
             <div style="font-size: 0.8rem; color: var(--text-secondary);">
                 <i class="fa-solid fa-floppy-disk"></i> 自動保存機能: <span style="color: var(--accent-green); font-weight: 600;">有効</span>
             </div>
         </div>
 
+        <!-- 詳細な絞り込み: 日付・時間・ポジション・タグ・強さタグ・弱さタグ・強数・軸足タグ -->
+        <div id="advanced-filter-wrap" class="control-panel" style="display:none; flex-direction: column; align-items: stretch; gap: 12px;">
+            <div class="filters-group" style="flex-wrap: wrap;">
+                <div class="filter-field-group">
+                    <label>日付（から）</label>
+                    <input type="date" id="filter-date-from" class="form-control">
+                </div>
+                <div class="filter-field-group">
+                    <label>日付（まで）</label>
+                    <input type="date" id="filter-date-to" class="form-control">
+                </div>
+                <div class="filter-field-group">
+                    <label>時間（から）</label>
+                    <input type="time" id="filter-time-from" class="form-control">
+                </div>
+                <div class="filter-field-group">
+                    <label>時間（まで）</label>
+                    <input type="time" id="filter-time-to" class="form-control">
+                </div>
+                <div class="filter-field-group">
+                    <label>ポジション</label>
+                    <select id="filter-position" class="form-control">
+                        <option value="">すべて</option>
+                        <option value="Buy">Buy</option>
+                        <option value="Sell">Sell</option>
+                    </select>
+                </div>
+                <div class="filter-field-group">
+                    <label>タグ（複数選択可）</label>
+                    <div id="filter-tag" class="filter-checkbox-list" style="min-width: 260px;">
+                        <label><input type="checkbox" value="ナイストレード！"> ナイストレード！</label>
+                        <label><input type="checkbox" value="黄色未エントリー（気づいてなかった）"> 黄色未エントリー（気づいてなかった）</label>
+                        <label><input type="checkbox" value="黄色未エントリー（入ろうと思っていた）"> 黄色未エントリー（入ろうと思っていた）</label>
+                        <label><input type="checkbox" value="黄色未エントリー（気づいてて入れなかった）"> 黄色未エントリー（気づいてて入れなかった）</label>
+                        <label><input type="checkbox" value="黄色未エントリー（あえて見送った）"> 黄色未エントリー（あえて見送った）</label>
+                        <label><input type="checkbox" value="テールイベント"> テールイベント</label>
+                        <label><input type="checkbox" value="ダメトレ"> ダメトレ</label>
+                        <label><input type="checkbox" value="環境足弱い"> 環境足弱い</label>
+                        <label><input type="checkbox" value="アリエン"> アリエン</label>
+                        <label><input type="checkbox" value="損切り貧乏判定"> 損切り貧乏判定</label>
+                        <label><input type="checkbox" value="上位足リスク"> 上位足リスク</label>
+                        <label><input type="checkbox" value="相関リスク"> 相関リスク</label>
+                        <label><input type="checkbox" value="ビビリ決済"> ビビリ決済</label>
+                        <label><input type="checkbox" value="損切り設定ミス"> 損切り設定ミス</label>
+                        <label><input type="checkbox" value="資金管理ミス"> 資金管理ミス</label>
+                        <label><input type="checkbox" value="レイトエントリ・決済"> レイトエントリ・決済</label>
+                        <label><input type="checkbox" value="3大指標"> 3大指標</label>
+                        <label><input type="checkbox" value="戻りすぎ"> 戻りすぎ</label>
+                        <label><input type="checkbox" value="7波以降対処ミス"> 7波以降対処ミス</label>
+                        <label><input type="checkbox" value="その他"> その他</label>
+                    </div>
+                </div>
+                <div class="filter-field-group">
+                    <label>強さタグ</label>
+                    <select id="filter-strength-tag" class="form-control">
+                        <option value="">すべて</option>
+                        <option value="根拠あいまい">根拠あいまい</option>
+                        <option value="根拠1強">根拠1強</option>
+                        <option value="根拠1.25強">根拠1.25強</option>
+                        <option value="根拠1.5強">根拠1.5強</option>
+                        <option value="根拠1.75強">根拠1.75強</option>
+                        <option value="根拠2強">根拠2強</option>
+                        <option value="根拠2.25強">根拠2.25強</option>
+                        <option value="根拠2.5強">根拠2.5強</option>
+                        <option value="根拠2.75強">根拠2.75強</option>
+                        <option value="根拠3強">根拠3強</option>
+                        <option value="根拠3.25強">根拠3.25強</option>
+                        <option value="根拠3.5強">根拠3.5強</option>
+                        <option value="根拠3.75強">根拠3.75強</option>
+                        <option value="根拠4強以上">根拠4強以上</option>
+                    </select>
+                </div>
+                <div class="filter-field-group">
+                    <label>弱さタグ</label>
+                    <select id="filter-weak-tag" class="form-control">
+                        <option value="">すべて</option>
+                        <option value="リスク無し">リスク無し</option>
+                        <option value="リスク0.25弱">リスク0.25弱</option>
+                        <option value="リスク0.50弱">リスク0.50弱</option>
+                        <option value="リスク0.75弱">リスク0.75弱</option>
+                        <option value="リスク1.00弱">リスク1.00弱</option>
+                        <option value="リスク1.25弱">リスク1.25弱</option>
+                        <option value="リスク1.50弱">リスク1.50弱</option>
+                        <option value="リスク1.75弱">リスク1.75弱</option>
+                        <option value="リスク2.00弱">リスク2.00弱</option>
+                        <option value="リスク2.25弱">リスク2.25弱</option>
+                        <option value="リスク2.50弱">リスク2.50弱</option>
+                        <option value="リスク2.75弱">リスク2.75弱</option>
+                        <option value="リスク3.00弱以上">リスク3.00弱以上</option>
+                    </select>
+                </div>
+                <div class="filter-field-group">
+                    <label>強数（以上）</label>
+                    <input type="number" id="filter-netstrength-min" class="form-control" step="0.25" style="width: 90px;">
+                </div>
+                <div class="filter-field-group">
+                    <label>強数（以下）</label>
+                    <input type="number" id="filter-netstrength-max" class="form-control" step="0.25" style="width: 90px;">
+                </div>
+                <div class="filter-field-group">
+                    <label>軸足タグ（複数選択可）</label>
+                    <div id="filter-axis-tag" class="filter-checkbox-list" style="min-width: 170px;">
+                        <label><input type="checkbox" value="軸足1H足"> 軸足1H足</label>
+                        <label><input type="checkbox" value="軸足4H足（通常）"> 軸足4H足（通常）</label>
+                        <label><input type="checkbox" value="軸足日足/週足"> 軸足日足/週足</label>
+                        <label><input type="checkbox" value="軸足日足"> 軸足日足</label>
+                        <label><input type="checkbox" value="軸足週足"> 軸足週足</label>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" id="btn-reset-advanced-filters" style="padding: 8px 12px; align-self: flex-end;" title="詳細フィルター解除">
+                    <i class="fa-solid fa-filter-circle-xmark"></i> 詳細フィルター解除
+                </button>
+            </div>
+        </div>
+
+        <!-- 集計表・黄色集計: 「集計」ボタンで表示切替 -->
+        <div id="summary-toggle-wrap" style="display:none;">
+        <!-- 期間切替: 全体／年間／月間、選んだ期間の集計に絞り込む -->
+        <div class="summary-panel">
+            <div class="summary-panel-title"><i class="fa-solid fa-calendar-check"></i> 集計期間</div>
+            <div class="period-mode-row">
+                <button type="button" class="btn btn-secondary period-mode-btn btn-active" data-mode="all">全体</button>
+                <button type="button" class="btn btn-secondary period-mode-btn" data-mode="year">年間</button>
+                <button type="button" class="btn btn-secondary period-mode-btn" data-mode="month">月間</button>
+            </div>
+            <div id="summary-period-buttons" class="period-button-row"></div>
+            <div id="summary-period-current" class="period-current-label"></div>
+        </div>
         <!-- 集計表: aggregate stats over the currently displayed (filtered) trades -->
         <div class="summary-panel">
             <div class="summary-panel-title"><i class="fa-solid fa-table-list"></i> 集計表</div>
@@ -1746,6 +2052,86 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- 黄色集計: 勝ち黄／負け黄トレードと、黄色未エントリー（見送ってしまった黄色パターン）の集計 -->
+        <div class="summary-panel">
+            <div class="summary-panel-title"><i class="fa-solid fa-circle-half-stroke"></i> 黄色集計</div>
+            <div class="stats-grid" id="yellow-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">黄色エントリー率</span>
+                        <span class="stat-value" id="yellow-entry-rate">-</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">黄色勝ち数</span>
+                        <span class="stat-value" id="yellow-wins">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">黄色負け数</span>
+                        <span class="stat-value" id="yellow-losses">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">黄色勝率</span>
+                        <span class="stat-value" id="yellow-win-rate">-</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">黄色平均利益</span>
+                        <span class="stat-value" id="yellow-avg-profit">-</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">黄色平均損失</span>
+                        <span class="stat-value" id="yellow-avg-loss">-</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">黄色平均勝ちpips数</span>
+                        <span class="stat-value" id="yellow-avg-win-pips">-</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">黄色平均負けpips数</span>
+                        <span class="stat-value" id="yellow-avg-loss-pips">-</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">黄色逃し率</span>
+                        <span class="stat-value" id="yellow-miss-rate">-</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">逃し黄色総pips数</span>
+                        <span class="stat-value" id="yellow-missed-total-pips">0.0 pips</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">黄色総収支</span>
+                        <span class="stat-value" id="yellow-total-profit">¥0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">ビビリ率</span>
+                        <span class="stat-value" id="bibiri-rate">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
         </div>
 
         <!-- Tabulator Table Container -->
@@ -2479,7 +2865,8 @@
         function emotionFormatter(cell) {
             const data = cell.getRow().getData();
             const mk = data.mieruka;
-            if (!mk || !mk.type) {
+            // エントリー前の感情＆根拠にはエントリーログ／見送りログのみ表示する（気づき漏れログは決済後側に表示）
+            if (!mk || !mk.type || (mk.type !== "entry" && mk.type !== "miss")) {
                 return '<div class="emotion-cell mieruka-empty" title="クリックで入力"><i class="fa-solid fa-pen"></i> <span>入力する</span></div>';
             }
             const label = MIERUKA_TAB_LABELS[mk.type] || mk.type;
@@ -2488,11 +2875,21 @@
         }
 
         function settlementLogFormatter(cell) {
-            const val = cell.getValue();
-            if (!val || !val.data) {
+            const data = cell.getRow().getData();
+            let type = null;
+            if (data.settlementLog && data.settlementLog.data) {
+                type = "settlement";
+            } else if (data.missResultLog && data.missResultLog.data) {
+                type = "miss_result";
+            } else if (data.mieruka && data.mieruka.type === "notice") {
+                type = "notice";
+            }
+            if (!type) {
                 return '<div class="emotion-cell mieruka-empty" title="クリックで入力"><i class="fa-solid fa-pen"></i> <span>入力する</span></div>';
             }
-            return '<div class="emotion-cell" title="クリックで詳細を表示・編集"><i class="fa-solid fa-expand"></i> <span class="mk-badge mk-settlement">決済ログ</span></div>';
+            const label = MIERUKA_TAB_LABELS[type] || type;
+            const cls = "mk-badge mk-" + type;
+            return `<div class="emotion-cell" title="クリックで詳細を表示・編集"><i class="fa-solid fa-expand"></i> <span class="${cls}">${escapeHtml(label)}</span></div>`;
         }
 
         const CHART_SLOTS = [
@@ -3130,8 +3527,8 @@
                 if (tab === "entry" || tab === "settlement" || tab === "miss") {
                     updateCalculations(mkCurrentRow);
                     updateNetStrength(mkCurrentRow);
-                    mkCurrentRow.reformat();
                 }
+                mkCurrentRow.reformat();
                 saveAppState();
                 showToast(MIERUKA_TAB_LABELS[tab] + "を削除しました");
             });
@@ -3160,8 +3557,8 @@
                 if (tab === "entry" || tab === "settlement" || tab === "miss") {
                     updateCalculations(mkCurrentRow);
                     updateNetStrength(mkCurrentRow);
-                    mkCurrentRow.reformat();
                 }
+                mkCurrentRow.reformat();
                 saveAppState();
                 closeMierukaModal();
                 showToast(MIERUKA_TAB_LABELS[tab] + "を保存しました");
@@ -3709,6 +4106,14 @@
             if (e.target.id === "chart-overlay") closeChartModal();
         });
 
+        // メンテナンスモード: ONのとき、自動計算・自動入力される列の見出しにカーソルを合わせると説明が出る
+        let maintenanceMode = false;
+        function maintenanceTooltip(text) {
+            return function() {
+                return maintenanceMode ? text : false;
+            };
+        }
+
         const table = new Tabulator("#trade-table-container", {
             data: activeData,
             layout: "fitDataFill",
@@ -3748,7 +4153,9 @@
                         return formatDateInput(value);
                     },
                     width: 110,
-                    sorter: "string"
+                    sorter: "string",
+                    tooltip: maintenanceTooltip("エントリーログ・見送りログの「日時」から自動入力されます（手入力も可能）"),
+                    headerTooltip: maintenanceTooltip("エントリーログ・見送りログの「日時」から自動入力されます（手入力も可能）")
                 },
                 {
                     title: "時間",
@@ -3758,13 +4165,17 @@
                         return formatTimeInput(value);
                     },
                     width: 80,
-                    sorter: "string"
+                    sorter: "string",
+                    tooltip: maintenanceTooltip("エントリーログ・見送りログの「日時」から自動入力されます（手入力も可能）"),
+                    headerTooltip: maintenanceTooltip("エントリーログ・見送りログの「日時」から自動入力されます（手入力も可能）")
                 },
                 {
                     title: "ペア",
                     field: "pair",
                     editor: pairSelectEditor,
-                    width: 110
+                    width: 110,
+                    tooltip: maintenanceTooltip("エントリーログ・見送りログの「通貨ペア」から自動入力されます（手入力も可能）"),
+                    headerTooltip: maintenanceTooltip("エントリーログ・見送りログの「通貨ペア」から自動入力されます（手入力も可能）")
                 },
                 {
                     title: "ポジ",
@@ -3772,7 +4183,9 @@
                     editor: posSelectEditor,
                     formatter: positionFormatter,
                     width: 90,
-                    hozAlign: "center"
+                    hozAlign: "center",
+                    tooltip: maintenanceTooltip("エントリーログ・見送りログの「Buy/Sell」から自動入力されます（手入力も可能）"),
+                    headerTooltip: maintenanceTooltip("エントリーログ・見送りログの「Buy/Sell」から自動入力されます（手入力も可能）")
                 },
                 {
                     title: "評価",
@@ -3794,7 +4207,9 @@
                     editor: "number",
                     editorParams: { step: "any" },
                     hozAlign: "right",
-                    width: 110
+                    width: 110,
+                    tooltip: maintenanceTooltip("エントリーログの「エントリー価格」／見送りログの「価格」から自動入力されます（手入力も可能）"),
+                    headerTooltip: maintenanceTooltip("エントリーログの「エントリー価格」／見送りログの「価格」から自動入力されます（手入力も可能）")
                 },
                 {
                     title: "決済",
@@ -3802,7 +4217,9 @@
                     editor: "number",
                     editorParams: { step: "any" },
                     hozAlign: "right",
-                    width: 110
+                    width: 110,
+                    tooltip: maintenanceTooltip("決済ログの「決済価格」から自動入力されます（手入力も可能）"),
+                    headerTooltip: maintenanceTooltip("決済ログの「決済価格」から自動入力されます（手入力も可能）")
                 },
                 {
                     title: "Pips",
@@ -3810,7 +4227,9 @@
                     formatter: pipsFormatter,
                     hozAlign: "right",
                     width: 95,
-                    headerSort: true
+                    headerSort: true,
+                    tooltip: maintenanceTooltip("自動計算：(決済価格－エントリー価格)をペアごとのpips換算で算出（Sellは符号反転）"),
+                    headerTooltip: maintenanceTooltip("自動計算：(決済価格－エントリー価格)をペアごとのpips換算で算出（Sellは符号反転）")
                 },
                 {
                     title: "Lot",
@@ -3818,7 +4237,9 @@
                     editor: "number",
                     editorParams: { step: "0.01", min: 0 },
                     hozAlign: "right",
-                    width: 85
+                    width: 85,
+                    tooltip: maintenanceTooltip("エントリーログの「実行ロット」から自動入力されます（手入力も可能）"),
+                    headerTooltip: maintenanceTooltip("エントリーログの「実行ロット」から自動入力されます（手入力も可能）")
                 },
                 {
                     title: "収益(円)",
@@ -3826,7 +4247,9 @@
                     formatter: profitFormatter,
                     hozAlign: "right",
                     width: 125,
-                    headerSort: true
+                    headerSort: true,
+                    tooltip: maintenanceTooltip("自動計算：Pips × Lot × 1pipsあたりの円価値（JPYペア=1000円、それ以外=1500円）"),
+                    headerTooltip: maintenanceTooltip("自動計算：Pips × Lot × 1pipsあたりの円価値（JPYペア=1000円、それ以外=1500円）")
                 },
                 {
                     title: "適正ロット",
@@ -3837,7 +4260,9 @@
                         return (val === null || val === undefined || val === "") ? "" : Number(val).toFixed(2);
                     },
                     hozAlign: "right",
-                    width: 95
+                    width: 95,
+                    tooltip: maintenanceTooltip("自動計算：口座残高（このトレード自身の損益を除く）× 許容損失率 ÷ (リスク(p) × 1pipsの円価値)"),
+                    headerTooltip: maintenanceTooltip("自動計算：口座残高（このトレード自身の損益を除く）× 許容損失率 ÷ (リスク(p) × 1pipsの円価値)")
                 },
                 {
                     title: "適正収益(円)",
@@ -3846,7 +4271,9 @@
                     editor: false,
                     hozAlign: "right",
                     width: 125,
-                    headerSort: true
+                    headerSort: true,
+                    tooltip: maintenanceTooltip("自動計算：リスク(p) × 適正ロット × 1pipsの円価値"),
+                    headerTooltip: maintenanceTooltip("自動計算：リスク(p) × 適正ロット × 1pipsの円価値")
                 },
                 {
                     title: "リスク(p)",
@@ -3854,7 +4281,9 @@
                     editor: "number",
                     editorParams: { step: "0.1" },
                     hozAlign: "right",
-                    width: 95
+                    width: 95,
+                    tooltip: maintenanceTooltip("エントリーログの「エントリー価格」と「SL価格」の差（pips換算）から自動入力されます（手入力も可能）"),
+                    headerTooltip: maintenanceTooltip("エントリーログの「エントリー価格」と「SL価格」の差（pips換算）から自動入力されます（手入力も可能）")
                 },
                 {
                     title: "スワップ(円)",
@@ -3869,7 +4298,9 @@
                     title: "強さタグ",
                     field: "tfTag",
                     editor: strengthSelectEditor,
-                    width: 140
+                    width: 140,
+                    tooltip: maintenanceTooltip("エントリーログ・見送りログの「環境足該当3種の神器」＋「エントリートリガー」の合計点数から自動入力されます（手入力も可能）"),
+                    headerTooltip: maintenanceTooltip("エントリーログ・見送りログの「環境足該当3種の神器」＋「エントリートリガー」の合計点数から自動入力されます（手入力も可能）")
                 },
                 {
                     title: "弱さタグ",
@@ -3883,13 +4314,17 @@
                     editor: false,
                     formatter: netStrengthFormatter,
                     hozAlign: "right",
-                    width: 90
+                    width: 90,
+                    tooltip: maintenanceTooltip("自動計算：強さタグの数値 － 弱さタグの数値"),
+                    headerTooltip: maintenanceTooltip("自動計算：強さタグの数値 － 弱さタグの数値")
                 },
                 {
                     title: "軸足タグ",
                     field: "axisTag",
                     editor: axisSelectEditor,
-                    width: 150
+                    width: 150,
+                    tooltip: maintenanceTooltip("エントリーログ・見送りログの「環境足」の選択から自動入力されます（1時間足→軸足1H足／4時間足→軸足4H足（通常）／日足→軸足日足、手入力も可能）"),
+                    headerTooltip: maintenanceTooltip("エントリーログ・見送りログの「環境足」の選択から自動入力されます（1時間足→軸足1H足／4時間足→軸足4H足（通常）／日足→軸足日足、手入力も可能）")
                 },
                 {
                     title: "エントリー前の感情＆根拠",
@@ -4108,9 +4543,8 @@
         }
 
         // Calculate and update the 集計表 (aggregate stats over the currently displayed/filtered trades)
-        function updateSummaryTable() {
-            if (!table) return;
-            const rows = table.getData("active");
+        // 指定したトレード配列から集計表の各指標を計算する（全体集計・年間集計・月間集計で共通利用）
+        function computeSummaryStats(rows) {
             const totalTrades = rows.length;
 
             let wins = 0, losses = 0;
@@ -4138,22 +4572,187 @@
                 if (!isNaN(riskNum)) { riskSum += riskNum; riskCount++; }
             });
 
-            const winRate = (wins + losses) > 0 ? ((wins / (wins + losses)) * 100).toFixed(1) : "0.0";
-            const avgLot = lotCount > 0 ? (lotSum / lotCount).toFixed(2) : null;
-            const avgRisk = riskCount > 0 ? (riskSum / riskCount).toFixed(1) : null;
-            const avgProfit = winProfitCount > 0 ? Math.round(winProfitSum / winProfitCount) : null;
-            const avgLoss = lossProfitCount > 0 ? Math.round(lossProfitSum / lossProfitCount) : null;
+            return {
+                totalTrades: totalTrades,
+                wins: wins,
+                losses: losses,
+                winRate: (wins + losses) > 0 ? ((wins / (wins + losses)) * 100) : null,
+                winPips: winPips,
+                lossPips: lossPips,
+                avgLot: lotCount > 0 ? (lotSum / lotCount) : null,
+                avgRisk: riskCount > 0 ? (riskSum / riskCount) : null,
+                avgProfit: winProfitCount > 0 ? Math.round(winProfitSum / winProfitCount) : null,
+                avgLoss: lossProfitCount > 0 ? Math.round(lossProfitSum / lossProfitCount) : null
+            };
+        }
 
-            document.getElementById("summary-total-trades").textContent = totalTrades;
-            document.getElementById("summary-total-wins").textContent = wins;
-            document.getElementById("summary-total-losses").textContent = losses;
-            document.getElementById("summary-win-rate").textContent = `${winRate} %`;
-            document.getElementById("summary-win-pips").textContent = `${winPips > 0 ? "+" : ""}${winPips.toFixed(1)} pips`;
-            document.getElementById("summary-loss-pips").textContent = `${lossPips.toFixed(1)} pips`;
-            document.getElementById("summary-avg-lot").textContent = avgLot !== null ? avgLot : "-";
-            document.getElementById("summary-avg-risk").textContent = avgRisk !== null ? `${avgRisk} pips` : "-";
-            document.getElementById("summary-avg-profit").textContent = avgProfit !== null ? `¥${avgProfit.toLocaleString("ja-JP")}` : "-";
-            document.getElementById("summary-avg-loss").textContent = avgLoss !== null ? `¥${avgLoss.toLocaleString("ja-JP")}` : "-";
+        function renderSummaryStatsInto(stats, ids) {
+            document.getElementById(ids.totalTrades).textContent = stats.totalTrades;
+            document.getElementById(ids.totalWins).textContent = stats.wins;
+            document.getElementById(ids.totalLosses).textContent = stats.losses;
+            document.getElementById(ids.winRate).textContent = stats.winRate !== null ? `${stats.winRate.toFixed(1)} %` : "0.0 %";
+            document.getElementById(ids.winPips).textContent = `${stats.winPips > 0 ? "+" : ""}${stats.winPips.toFixed(1)} pips`;
+            document.getElementById(ids.lossPips).textContent = `${stats.lossPips.toFixed(1)} pips`;
+            document.getElementById(ids.avgLot).textContent = stats.avgLot !== null ? stats.avgLot.toFixed(2) : "-";
+            document.getElementById(ids.avgRisk).textContent = stats.avgRisk !== null ? `${stats.avgRisk.toFixed(1)} pips` : "-";
+            document.getElementById(ids.avgProfit).textContent = stats.avgProfit !== null ? `¥${stats.avgProfit.toLocaleString("ja-JP")}` : "-";
+            document.getElementById(ids.avgLoss).textContent = stats.avgLoss !== null ? `¥${stats.avgLoss.toLocaleString("ja-JP")}` : "-";
+        }
+
+        // 黄色（勝ち黄／負け黄）トレードと、黄色未エントリー（見送ってしまった黄色パターン）の集計
+        const YELLOW_MISS_TAGS = [
+            "黄色未エントリー（気づいてなかった）",
+            "黄色未エントリー（入ろうと思っていた）",
+            "黄色未エントリー（気づいてて入れなかった）",
+            "黄色未エントリー（あえて見送った）"
+        ];
+
+        function computeYellowStats(rows) {
+            let yw = 0, yl = 0;
+            let ywPipsSum = 0, ylPipsSum = 0;
+            let ywProfitSum = 0, ylProfitSum = 0;
+            let missedYellow = 0;
+            let missedYellowPipsSum = 0;
+            let bibiriCount = 0;
+            const totalTrades = rows.length;
+
+            rows.forEach(function(row) {
+                if (row.evaluation === "勝ち黄") {
+                    yw++;
+                    if (typeof row.pips === "number" && !isNaN(row.pips)) ywPipsSum += row.pips;
+                    if (typeof row.profit === "number" && !isNaN(row.profit)) ywProfitSum += row.profit;
+                } else if (row.evaluation === "負け黄") {
+                    yl++;
+                    if (typeof row.pips === "number" && !isNaN(row.pips)) ylPipsSum += row.pips;
+                    if (typeof row.profit === "number" && !isNaN(row.profit)) ylProfitSum += row.profit;
+                }
+                if (YELLOW_MISS_TAGS.indexOf(row.tag) !== -1) {
+                    missedYellow++;
+                    if (typeof row.pips === "number" && !isNaN(row.pips)) missedYellowPipsSum += row.pips;
+                }
+                if (row.tag === "ビビリ決済") bibiriCount++;
+            });
+
+            const yellowTrades = yw + yl;
+            const totalYellowOpportunities = yellowTrades + missedYellow;
+
+            return {
+                yellowEntryRate: totalYellowOpportunities > 0 ? (yellowTrades / totalYellowOpportunities * 100) : null,
+                yellowWins: yw,
+                yellowLosses: yl,
+                yellowWinRate: (yw + yl) > 0 ? (yw / (yw + yl) * 100) : null,
+                yellowAvgProfit: yw > 0 ? Math.round(ywProfitSum / yw) : null,
+                yellowAvgLoss: yl > 0 ? Math.round(ylProfitSum / yl) : null,
+                yellowAvgWinPips: yw > 0 ? (ywPipsSum / yw) : null,
+                yellowAvgLossPips: yl > 0 ? (ylPipsSum / yl) : null,
+                yellowMissRate: totalYellowOpportunities > 0 ? (missedYellow / totalYellowOpportunities * 100) : null,
+                missedYellowTotalPips: missedYellowPipsSum,
+                yellowTotalProfit: ywProfitSum + ylProfitSum,
+                bibiriRate: totalTrades > 0 ? (bibiriCount / totalTrades * 100) : null
+            };
+        }
+
+        function renderYellowStats(stats) {
+            document.getElementById("yellow-entry-rate").textContent = stats.yellowEntryRate !== null ? `${stats.yellowEntryRate.toFixed(1)} %` : "-";
+            document.getElementById("yellow-wins").textContent = stats.yellowWins;
+            document.getElementById("yellow-losses").textContent = stats.yellowLosses;
+            document.getElementById("yellow-win-rate").textContent = stats.yellowWinRate !== null ? `${stats.yellowWinRate.toFixed(1)} %` : "-";
+            document.getElementById("yellow-avg-profit").textContent = stats.yellowAvgProfit !== null ? `¥${stats.yellowAvgProfit.toLocaleString("ja-JP")}` : "-";
+            document.getElementById("yellow-avg-loss").textContent = stats.yellowAvgLoss !== null ? `¥${stats.yellowAvgLoss.toLocaleString("ja-JP")}` : "-";
+            document.getElementById("yellow-avg-win-pips").textContent = stats.yellowAvgWinPips !== null ? `${stats.yellowAvgWinPips.toFixed(1)} pips` : "-";
+            document.getElementById("yellow-avg-loss-pips").textContent = stats.yellowAvgLossPips !== null ? `${stats.yellowAvgLossPips.toFixed(1)} pips` : "-";
+            document.getElementById("yellow-miss-rate").textContent = stats.yellowMissRate !== null ? `${stats.yellowMissRate.toFixed(1)} %` : "-";
+            document.getElementById("yellow-missed-total-pips").textContent = `${stats.missedYellowTotalPips > 0 ? "+" : ""}${stats.missedYellowTotalPips.toFixed(1)} pips`;
+            document.getElementById("yellow-total-profit").textContent = `¥${stats.yellowTotalProfit.toLocaleString("ja-JP")}`;
+            document.getElementById("bibiri-rate").textContent = stats.bibiriRate !== null ? `${stats.bibiriRate.toFixed(1)} %` : "-";
+        }
+
+        // 集計表・黄色集計を「全体／年間／月間」の期間で絞り込むための状態と補助関数
+        let summaryPeriodMode = "all"; // "all" | "year" | "month"
+        let summarySelectedPeriod = null; // 例: "2026" または "2026-01"
+
+        function getAvailablePeriods(rows, mode) {
+            const set = new Set();
+            rows.forEach(function(row) {
+                const d = row.date;
+                if (!d || d.length < 7) return;
+                if (mode === "year") set.add(d.substring(0, 4));
+                else if (mode === "month") set.add(d.substring(0, 7));
+            });
+            return Array.from(set).sort().reverse();
+        }
+
+        function formatPeriodLabel(period, mode) {
+            if (mode === "year") return `${period}年`;
+            const parts = period.split("-");
+            return `${parts[0]}年${parseInt(parts[1], 10)}月`;
+        }
+
+        function renderPeriodButtons(rows) {
+            const container = document.getElementById("summary-period-buttons");
+            if (summaryPeriodMode === "all") {
+                container.innerHTML = "";
+                return;
+            }
+            const periods = getAvailablePeriods(rows, summaryPeriodMode);
+            if (periods.length === 0) {
+                container.innerHTML = `<span class="period-summary-empty">表示中のトレードに日付データがありません</span>`;
+                return;
+            }
+            container.innerHTML = periods.map(p =>
+                `<button type="button" class="period-btn${p === summarySelectedPeriod ? ' btn-active' : ''}" data-period="${p}">${formatPeriodLabel(p, summaryPeriodMode)}</button>`
+            ).join("");
+        }
+
+        function filterRowsByPeriod(rows) {
+            if (summaryPeriodMode === "all" || !summarySelectedPeriod) return rows;
+            return rows.filter(row => row.date && row.date.startsWith(summarySelectedPeriod));
+        }
+
+        document.querySelectorAll(".period-mode-btn").forEach(function(btn) {
+            btn.addEventListener("click", function() {
+                document.querySelectorAll(".period-mode-btn").forEach(b => b.classList.remove("btn-active"));
+                this.classList.add("btn-active");
+                summaryPeriodMode = this.getAttribute("data-mode");
+                summarySelectedPeriod = null;
+                updateSummaryTable();
+            });
+        });
+
+        document.getElementById("summary-period-buttons").addEventListener("click", function(e) {
+            const btn = e.target.closest(".period-btn");
+            if (!btn) return;
+            const period = btn.getAttribute("data-period");
+            summarySelectedPeriod = (summarySelectedPeriod === period) ? null : period;
+            updateSummaryTable();
+        });
+
+        function updateSummaryTable() {
+            if (!table) return;
+            const allRows = table.getData("active");
+            renderPeriodButtons(allRows);
+            const rows = filterRowsByPeriod(allRows);
+            const stats = computeSummaryStats(rows);
+            renderSummaryStatsInto(stats, {
+                totalTrades: "summary-total-trades",
+                totalWins: "summary-total-wins",
+                totalLosses: "summary-total-losses",
+                winRate: "summary-win-rate",
+                winPips: "summary-win-pips",
+                lossPips: "summary-loss-pips",
+                avgLot: "summary-avg-lot",
+                avgRisk: "summary-avg-risk",
+                avgProfit: "summary-avg-profit",
+                avgLoss: "summary-avg-loss"
+            });
+            renderYellowStats(computeYellowStats(rows));
+
+            const label = document.getElementById("summary-period-current");
+            if (summaryPeriodMode !== "all" && summarySelectedPeriod) {
+                label.textContent = `表示中: ${formatPeriodLabel(summarySelectedPeriod, summaryPeriodMode)}の集計`;
+            } else {
+                label.textContent = "表示中: 全体の集計";
+            }
         }
 
         table.on("tableBuilt", function() {
@@ -4244,7 +4843,76 @@
                     return tagMatch || emotionMatch || tfMatch || pairMatch || logMatch;
                 });
             }
+
+            // 詳細な絞り込み（日付・時間・ポジション・タグ・強さタグ・弱さタグ・強数・軸足タグ）
+            const dateFrom = document.getElementById("filter-date-from").value;
+            const dateTo = document.getElementById("filter-date-to").value;
+            const timeFrom = document.getElementById("filter-time-from").value;
+            const timeTo = document.getElementById("filter-time-to").value;
+            const positionVal = document.getElementById("filter-position").value;
+            const tagVals = Array.from(document.querySelectorAll("#filter-tag input:checked")).map(el => el.value);
+            const strengthVal = document.getElementById("filter-strength-tag").value;
+            const weakVal = document.getElementById("filter-weak-tag").value;
+            const nsMinRaw = document.getElementById("filter-netstrength-min").value;
+            const nsMaxRaw = document.getElementById("filter-netstrength-max").value;
+            const axisVals = Array.from(document.querySelectorAll("#filter-axis-tag input:checked")).map(el => el.value);
+
+            if (dateFrom) table.addFilter(d => !!d.date && d.date >= dateFrom);
+            if (dateTo) table.addFilter(d => !!d.date && d.date <= dateTo);
+            if (timeFrom) table.addFilter(d => !!d.time && d.time >= timeFrom);
+            if (timeTo) table.addFilter(d => !!d.time && d.time <= timeTo);
+            if (positionVal) table.addFilter("position", "=", positionVal);
+            if (tagVals.length) table.addFilter(d => tagVals.indexOf(d.tag) !== -1);
+            if (strengthVal) table.addFilter("tfTag", "=", strengthVal);
+            if (weakVal) table.addFilter("weakTag", "=", weakVal);
+            if (axisVals.length) table.addFilter(d => axisVals.indexOf(d.axisTag) !== -1);
+
+            const nsMin = parseFloat(nsMinRaw);
+            if (!isNaN(nsMin)) table.addFilter(d => typeof d.netStrength === "number" && d.netStrength >= nsMin);
+            const nsMax = parseFloat(nsMaxRaw);
+            if (!isNaN(nsMax)) table.addFilter(d => typeof d.netStrength === "number" && d.netStrength <= nsMax);
         }
+
+        const ADVANCED_FILTER_IDS = [
+            "filter-date-from", "filter-date-to", "filter-time-from", "filter-time-to",
+            "filter-position", "filter-strength-tag", "filter-weak-tag",
+            "filter-netstrength-min", "filter-netstrength-max"
+        ];
+        const ADVANCED_FILTER_CHECKBOX_IDS = ["filter-tag", "filter-axis-tag"];
+
+        ADVANCED_FILTER_IDS.forEach(function(id) {
+            const el = document.getElementById(id);
+            el.addEventListener(el.tagName === "SELECT" ? "change" : "input", applyFilters);
+        });
+        ADVANCED_FILTER_CHECKBOX_IDS.forEach(function(id) {
+            document.getElementById(id).addEventListener("change", applyFilters);
+        });
+
+        function clearAdvancedFilterInputs() {
+            ADVANCED_FILTER_IDS.forEach(function(id) {
+                document.getElementById(id).value = "";
+            });
+            ADVANCED_FILTER_CHECKBOX_IDS.forEach(function(id) {
+                document.querySelectorAll(`#${id} input[type="checkbox"]`).forEach(cb => { cb.checked = false; });
+            });
+        }
+
+        document.getElementById("btn-toggle-advanced-filter").addEventListener("click", function() {
+            const wrap = document.getElementById("advanced-filter-wrap");
+            const isHidden = wrap.style.display === "none";
+            wrap.style.display = isHidden ? "flex" : "none";
+            this.classList.toggle("btn-active", isHidden);
+        });
+
+        document.getElementById("btn-toggle-maintenance").addEventListener("click", function() {
+            maintenanceMode = !maintenanceMode;
+            this.classList.toggle("btn-active", maintenanceMode);
+        });
+
+        document.getElementById("btn-reset-advanced-filters").addEventListener("click", function() {
+            clearAdvancedFilterInputs();
+            applyFilters();
+        });
 
         document.getElementById("filter-pair").addEventListener("change", applyFilters);
         document.getElementById("filter-eval").addEventListener("change", applyFilters);
@@ -4256,7 +4924,16 @@
             document.getElementById("filter-eval").value = "";
             document.getElementById("filter-log-type").value = "";
             document.getElementById("filter-search").value = "";
+            clearAdvancedFilterInputs();
             table.clearFilter();
+        });
+
+        document.getElementById("btn-toggle-summary").addEventListener("click", function() {
+            const wrap = document.getElementById("summary-toggle-wrap");
+            const isHidden = wrap.style.display === "none";
+            wrap.style.display = isHidden ? "" : "none";
+            this.classList.toggle("btn-active", isHidden);
+            if (isHidden) updateSummaryTable();
         });
 
         // Export CSV Handler
