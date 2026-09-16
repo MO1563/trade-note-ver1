@@ -35,8 +35,8 @@
             --accent-red: #ef4444;
             --accent-yellow: #f59e0b;
             --accent-cyan: #06b6d4;
-            --accent-gold: #d4af6a;
-            --accent-gold-soft: rgba(212, 175, 106, 0.16);
+            --accent-gold: #06b6d4;
+            --accent-gold-soft: rgba(6, 182, 212, 0.16);
             --text-primary: #f5f4f0;
             --text-secondary: #9a99a6;
             --text-muted: #6b6a76;
@@ -61,8 +61,8 @@
             --accent-red: #dc2626;
             --accent-yellow: #d97706;
             --accent-cyan: #0891b2;
-            --accent-gold: #a8791f;
-            --accent-gold-soft: rgba(168, 121, 31, 0.12);
+            --accent-gold: #0891b2;
+            --accent-gold-soft: rgba(8, 145, 178, 0.12);
             --text-primary: #1a1a1f;
             --text-secondary: #5c5b64;
             --text-muted: #8b8a93;
@@ -340,6 +340,34 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
+        }
+
+        .filter-section-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 4px 0;
+        }
+        .filter-section-divider hr {
+            flex: 1;
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 0;
+        }
+        .filter-section-divider span {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            white-space: nowrap;
+        }
+        .filter-section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            text-align: left;
+            margin: 4px 0 -4px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border-color);
         }
         .filter-field-group label {
             font-size: 0.72rem;
@@ -647,6 +675,26 @@
             max-width: 360px !important;
         }
 
+        /* メンテナンスモード×集計パネル: 集計表・黄色集計の各項目にカーソルを合わせたときの説明ツールチップ（Tabulator側と同じ見た目） */
+        .stat-mnt-tooltip {
+            display: none;
+            position: fixed;
+            background-color: #ffffff;
+            color: #14151a;
+            border: 1px solid #000000;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            padding: 8px 12px;
+            border-radius: 6px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+            max-width: 320px;
+            z-index: 3000;
+            pointer-events: none;
+        }
+        body.maintenance-active .stat-card[data-mnt-tip] {
+            cursor: help;
+        }
+
         .tabulator-row {
             background-color: #ffffff !important;
             border-bottom: 1px solid var(--border-color) !important;
@@ -913,6 +961,15 @@
         }
         .mieruka-overlay.active { opacity: 1; pointer-events: auto; }
 
+        /* 別ウィンドウ表示: ログ/9つの行動戦略をポップアウトした先の画面では、
+           メイン画面（ヘッダー・トレード表など）を隠し、モーダル部分だけを表示する */
+        body.popout-mode > *:not(.mieruka-overlay):not(#action-strategy-overlay):not(.toast):not(.image-lightbox-overlay) {
+            display: none !important;
+        }
+        body.popout-mode {
+            background: var(--mk-bg, #0b0f19);
+        }
+
         .mieruka-card {
             --mk-bg: #0b0f19;
             --mk-panel: #101627;
@@ -1031,6 +1088,82 @@
 
         .mieruka-panel { display: none; }
         .mieruka-panel.active { display: block; }
+
+        /* ===== 9つの行動戦略: 月別行動目標シート ===== */
+        .as-table {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+        }
+        .as-table th, .as-table td {
+            border: 1px solid var(--mk-border);
+            vertical-align: top;
+            padding: 0;
+        }
+        .as-table .as-label-col {
+            width: 190px;
+            min-width: 190px;
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            background: var(--mk-panel);
+        }
+        .as-table .as-month-col { width: 260px; min-width: 260px; }
+        .as-section-row th {
+            background: #0e7490;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 8px 12px;
+            text-align: left;
+            position: sticky;
+            left: 0;
+        }
+        .as-month-header {
+            background: #14532d;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 8px 6px;
+        }
+        .as-caption-row td, .as-caption-row th {
+            background: rgba(255,255,255,0.04);
+            color: #94a3b8;
+            font-size: 0.72rem;
+            line-height: 1.4;
+            padding: 6px 10px;
+        }
+        .as-row-label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 10px 12px;
+            color: #e2e8f0;
+        }
+        .as-row-blue .as-row-label, .as-row-blue { background: rgba(56, 189, 248, 0.10); }
+        .as-row-yellow .as-row-label, .as-row-yellow { background: rgba(250, 204, 21, 0.10); }
+        .as-row-green .as-row-label, .as-row-green { background: rgba(21, 128, 61, 0.28); }
+        .as-row-green .as-row-label { color: #ffffff; }
+        .as-row-lightgreen .as-row-label, .as-row-lightgreen { background: rgba(74, 222, 128, 0.10); }
+        .as-cell-input {
+            width: 100%;
+            min-height: 120px;
+            resize: vertical;
+            background: transparent;
+            border: none;
+            color: #e2e8f0;
+            font-size: 0.8rem;
+            line-height: 1.55;
+            padding: 10px 12px;
+            font-family: inherit;
+        }
+        .as-row-green .as-cell-input { min-height: 180px; }
+        .as-cell-input:focus { outline: 1px solid var(--mk-cyan); outline-offset: -1px; }
+        .as-cell-input::placeholder { color: #64748b; white-space: pre-line; }
+        .as-links-row td { padding: 12px 14px; font-size: 0.8rem; line-height: 1.7; }
+        .as-links-row input.mieruka-input { max-width: 420px; display: inline-block; margin-left: 6px; }
+        .as-link-open-btn { margin-left: 6px; }
+
 
         .mieruka-columns {
             display: grid;
@@ -1225,6 +1358,7 @@
         }
 
         /* Entry log: these groups stretch their buttons evenly across the full row width */
+        .chip-group[data-group="entry_econ_major"] .chip-btn,
         .chip-group[data-group="entry_econ_star"] .chip-btn,
         .chip-group[data-group="entry_watch_state"] .chip-btn,
         .chip-group[data-group="entry_tf"] .chip-btn,
@@ -1688,7 +1822,6 @@
                             <i class="fa-solid fa-trash"></i> 削除
                         </button>
                     </div>
-                    <div class="app-subtitle">スプレッドシート風 マルチトレードノート＆自動保存</div>
                 </div>
             </div>
 
@@ -1715,9 +1848,6 @@
                     <span class="stat-label">初期資金 (円)</span>
                     <input type="number" id="input-initial-capital" class="form-control mk-white-input" style="font-size: 1.15rem; font-weight: 700; width: 100%; margin-top: 4px;" placeholder="例: 1000000" value="1000000">
                 </div>
-                <div class="stat-icon" style="color: var(--accent-blue); margin-left: 8px;">
-                    <i class="fa-solid fa-piggy-bank"></i>
-                </div>
             </div>
             <div class="stat-card" id="whatif-card">
                 <div class="stat-info" style="width: 100%;">
@@ -1730,17 +1860,11 @@
                     </span>
                     <input type="number" id="input-whatif-capital" class="form-control mk-white-input" style="font-size: 1.05rem; font-weight: 700; width: 100%; margin-top: 6px;" placeholder="もしも初期資金 例: 500000" disabled>
                 </div>
-                <div class="stat-icon" style="color: var(--accent-gold); margin-left: 8px;">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                </div>
             </div>
             <div class="stat-card" id="stat-current-balance-card">
                 <div class="stat-info">
                     <span class="stat-label" id="stat-current-balance-label">現在の口座残高</span>
                     <span class="stat-value" id="stat-current-balance">¥1,000,000</span>
-                </div>
-                <div class="stat-icon" style="color: var(--accent-green);">
-                    <i class="fa-solid fa-vault"></i>
                 </div>
             </div>
             <div class="stat-card" id="stat-growth-rate-card">
@@ -1748,17 +1872,11 @@
                     <span class="stat-label" id="stat-growth-rate-label">資金増減率 (ROI)</span>
                     <span class="stat-value" id="stat-growth-rate">0.00 %</span>
                 </div>
-                <div class="stat-icon" style="color: var(--accent-cyan);">
-                    <i class="fa-solid fa-chart-line"></i>
-                </div>
             </div>
             <div class="stat-card">
                 <div class="stat-info">
                     <span class="stat-label">勝率</span>
                     <span class="stat-value" id="stat-win-rate">0.0 %</span>
-                </div>
-                <div class="stat-icon" style="color: var(--accent-yellow);">
-                    <i class="fa-solid fa-trophy"></i>
                 </div>
             </div>
             <div class="stat-card">
@@ -1766,89 +1884,39 @@
                     <span class="stat-label">獲得 Pips 合計</span>
                     <span class="stat-value" id="stat-total-pips">0.0 pips</span>
                 </div>
-                <div class="stat-icon" style="color: var(--accent-cyan);">
-                    <i class="fa-solid fa-arrow-trend-up"></i>
-                </div>
             </div>
             <div class="stat-card">
                 <div class="stat-info">
                     <span class="stat-label">累積損益 (円)</span>
                     <span class="stat-value" id="stat-total-profit">¥0</span>
                 </div>
-                <div class="stat-icon" style="color: var(--accent-green);">
-                    <i class="fa-solid fa-wallet"></i>
-                </div>
+            </div>
+        </div>
+
+        <!-- 9つの行動戦略: 絞り込み行の上に配置 -->
+        <div class="control-panel" style="padding: 8px 16px;">
+            <div class="filters-group">
+                <button class="btn btn-secondary" id="btn-open-action-strategy" style="padding: 8px 12px;" title="月別行動目標（9つの行動戦略）を記録します">
+                    <i class="fa-solid fa-list-check"></i> 9つの行動戦略
+                </button>
             </div>
         </div>
 
         <!-- Filter Controls -->
         <div class="control-panel">
             <div class="filters-group">
-                <i class="fa-solid fa-filter" style="color: var(--text-secondary);"></i>
-                <select id="filter-pair" class="form-control">
-                    <option value="">すべてのペア</option>
-                    <option value="USDJPY">USDJPY</option>
-                    <option value="EURUSD">EURUSD</option>
-                    <option value="GBPUSD">GBPUSD</option>
-                    <option value="AUDUSD">AUDUSD</option>
-                    <option value="USDCHF">USDCHF</option>
-                    <option value="NZDUSD">NZDUSD</option>
-                    <option value="EURJPY">EURJPY</option>
-                    <option value="GBPJPY">GBPJPY</option>
-                    <option value="CADJPY">CADJPY</option>
-                    <option value="AUDJPY">AUDJPY</option>
-                    <option value="NZDJPY">NZDJPY</option>
-                    <option value="EURGBP">EURGBP</option>
-                    <option value="CHFJPY">CHFJPY</option>
-                    <option value="XAUUSD">XAUUSD</option>
-                    <option value="XAGUSD">XAGUSD</option>
-                    <option value="GBPAUD">GBPAUD</option>
-                    <option value="EURAUD">EURAUD</option>
-                    <option value="GBPNZD">GBPNZD</option>
-                    <option value="EURNZD">EURNZD</option>
-                    <option value="AUDNZD">AUDNZD</option>
-                    <option value="AUDCAD">AUDCAD</option>
-                    <option value="GBPCAD">GBPCAD</option>
-                    <option value="EURCAD">EURCAD</option>
-                    <option value="NZDCAD">NZDCAD</option>
-                    <option value="GBPCHF">GBPCHF</option>
-                    <option value="EURCHF">EURCHF</option>
-                    <option value="AUDCHF">AUDCHF</option>
-                    <option value="CADCHF">CADCHF</option>
-                    <option value="NZDCHF">NZDCHF</option>
-                    <option value="NI225">NI225</option>
-                    <option value="US500">US500</option>
-                    <option value="USOIL">USOIL</option>
-                </select>
-
-                <select id="filter-eval" class="form-control">
-                    <option value="">すべての評価</option>
-                    <option value="勝ち">勝ち</option>
-                    <option value="勝ち黄">勝ち黄</option>
-                    <option value="負け">負け</option>
-                    <option value="負け黄">負け黄</option>
-                    <option value="建値">建値</option>
-                    <option value="未決済">未決済</option>
-                </select>
-
-                <select id="filter-log-type" class="form-control">
-                    <option value="">すべてのログ種別</option>
-                    <option value="entry">エントリーログ登録済み</option>
-                    <option value="miss">見送りログ登録済み</option>
-                    <option value="notice">気づき漏れログ登録済み</option>
-                    <option value="settlement">決済ログ登録済み</option>
-                    <option value="miss_result">見送り結果登録済み</option>
-                </select>
-
                 <input type="text" id="filter-search" class="form-control" placeholder="トレードノート・各ログの全項目をフリーワード検索..." style="min-width: 220px;">
+                <button class="btn btn-secondary" id="btn-toggle-custom-columns" style="padding: 8px 12px;" title="トレードノートに項目を追加・削除">
+                    <i class="fa-solid fa-table-columns"></i> 項目管理
+                </button>
+                <button class="btn btn-secondary" id="btn-toggle-advanced-filter" style="padding: 8px 12px;" title="詳細な絞り込みの表示切替">
+                    <i class="fa-solid fa-sliders"></i> 絞り込み
+                </button>
                 <button class="btn btn-secondary" id="btn-reset-filters" style="padding: 8px 12px;" title="フィルター解除">
                     <i class="fa-solid fa-filter-circle-xmark"></i> 解除
                 </button>
                 <button class="btn btn-secondary" id="btn-toggle-summary" style="padding: 8px 12px;" title="集計表・黄色集計の表示切替">
                     <i class="fa-solid fa-chart-column"></i> 集計
-                </button>
-                <button class="btn btn-secondary" id="btn-toggle-advanced-filter" style="padding: 8px 12px;" title="詳細な絞り込みの表示切替">
-                    <i class="fa-solid fa-sliders"></i> 絞り込み
                 </button>
                 <button class="btn btn-secondary" id="btn-toggle-maintenance" style="padding: 8px 12px;" title="列の見出しにカーソルを合わせると自動計算・自動入力の説明が出ます">
                     <i class="fa-solid fa-wrench"></i> メンテナンス
@@ -1859,8 +1927,35 @@
             </div>
         </div>
 
-        <!-- 詳細な絞り込み: 日付・時間・ポジション・タグ・強さタグ・弱さタグ・強数・軸足タグ -->
+        <!-- 項目管理: トレードノートに任意の列を追加・削除する -->
+        <div id="custom-columns-wrap" class="control-panel" style="display:none; flex-direction: column; align-items: stretch; gap: 12px;">
+            <div id="custom-columns-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+            <div class="filters-group" style="flex-wrap: wrap; align-items: flex-end;">
+                <div class="filter-field-group">
+                    <label>項目名</label>
+                    <input type="text" id="new-column-name" class="form-control" placeholder="例: 通貨ペア別メモ" style="min-width: 180px;">
+                </div>
+                <div class="filter-field-group">
+                    <label>種類</label>
+                    <select id="new-column-type" class="form-control">
+                        <option value="text">テキスト</option>
+                        <option value="number">数値</option>
+                        <option value="select">プルダウン</option>
+                    </select>
+                </div>
+                <div class="filter-field-group" id="new-column-options-wrap" style="display:none;">
+                    <label>選択肢（カンマ区切り）</label>
+                    <input type="text" id="new-column-options" class="form-control" placeholder="例: A,B,C" style="min-width: 200px;">
+                </div>
+                <button class="btn btn-secondary" id="btn-add-custom-column" style="padding: 8px 14px;">
+                    <i class="fa-solid fa-plus"></i> 項目を追加
+                </button>
+            </div>
+        </div>
+
+        <!-- 詳細な絞り込み: 日付・時間・ポジション・タグ・強さタグ・弱さタグ・強数・軸足タグ・エントリーログの中身 -->
         <div id="advanced-filter-wrap" class="control-panel" style="display:none; flex-direction: column; align-items: stretch; gap: 12px;">
+            <div class="filter-section-title">基本絞り込み</div>
             <div class="filters-group" style="flex-wrap: wrap;">
                 <div class="filter-field-group">
                     <label>日付（から）</label>
@@ -1968,6 +2063,140 @@
                         <label><input type="checkbox" value="軸足週足"> 軸足週足</label>
                     </div>
                 </div>
+            </div>
+            <div class="filter-section-title">ログ絞り込み</div>
+            <div class="filters-group" style="flex-wrap: wrap;">
+                <div class="filter-field-group">
+                    <label>経済指標（複数選択可）</label>
+                    <div id="filter-entry-econ-star" class="filter-checkbox-list" style="min-width: 100px;">
+                        <label><input type="checkbox" value="★2"> ★2</label>
+                        <label><input type="checkbox" value="★3"> ★3</label>
+                        <label><input type="checkbox" value="★4"> ★4</label>
+                        <label><input type="checkbox" value="★5"> ★5</label>
+                    </div>
+                </div>
+                <div class="filter-field-group">
+                    <label>3大指標（複数選択可）</label>
+                    <div id="filter-entry-econ-major" class="filter-checkbox-list" style="min-width: 100px;">
+                        <label><input type="checkbox" value="雇用統計"> 雇用統計</label>
+                        <label><input type="checkbox" value="CPI"> CPI</label>
+                        <label><input type="checkbox" value="政策金利"> 政策金利</label>
+                    </div>
+                </div>
+                <div class="filter-field-group">
+                    <label>監視状況（複数選択可）</label>
+                    <div id="filter-watch-state" class="filter-checkbox-list" style="min-width: 160px;">
+                        <label><input type="checkbox" value="仕事中"> 仕事中</label>
+                        <label><input type="checkbox" value="就寝直前"> 就寝直前</label>
+                        <label><input type="checkbox" value="移動中"> 移動中</label>
+                        <label><input type="checkbox" value="遊び"> 遊び</label>
+                        <label><input type="checkbox" value="その他"> その他</label>
+                        <label><input type="checkbox" value="見れてた"> 見れてた</label>
+                        <label><input type="checkbox" value="一部だけ"> 一部だけ</label>
+                        <label><input type="checkbox" value="ほぼ見れなかった"> ほぼ見れなかった</label>
+                        <label><input type="checkbox" value="意図して見る必要がないと思った"> 意図して見る必要がないと思った</label>
+                        <label><input type="checkbox" value="寝てた"> 寝てた</label>
+                        <label><input type="checkbox" value="見れてたがスルー"> 見れてたがスルー</label>
+                    </div>
+                </div>
+                <div class="filter-field-group">
+                    <label>トレンド段階（複数選択可）</label>
+                    <div id="filter-entry-trend-stage" class="filter-checkbox-list" style="min-width: 130px;">
+                        <label><input type="checkbox" value="先行期"> 先行期</label>
+                        <label><input type="checkbox" value="追随期"> 追随期</label>
+                        <label><input type="checkbox" value="利食い期"> 利食い期</label>
+                        <label><input type="checkbox" value="7波以降"> 7波以降</label>
+                    </div>
+                </div>
+                <div class="filter-field-group">
+                    <label>相関確認（以上）</label>
+                    <input type="number" id="filter-entry-correlation-min" class="form-control" step="0.01" style="width: 90px;">
+                </div>
+                <div class="filter-field-group">
+                    <label>相関確認（以下）</label>
+                    <input type="number" id="filter-entry-correlation-max" class="form-control" step="0.01" style="width: 90px;">
+                </div>
+                <div class="filter-field-group">
+                    <label>環境足該当3種の神器（選択済みのものにチェック）</label>
+                    <div id="filter-entry-kami" class="filter-checkbox-list" style="min-width: 160px;">
+                        <label><input type="checkbox" value="entry_trendline"> トレンドライン</label>
+                        <label><input type="checkbox" value="entry_zone"> 直撃エリア</label>
+                        <label><input type="checkbox" value="entry_cloud"> 裏確認</label>
+                    </div>
+                </div>
+                <div class="filter-field-group">
+                    <label>エントリートリガー（選択済みのものにチェック）</label>
+                    <div id="filter-entry-trigger" class="filter-checkbox-list" style="min-width: 200px;">
+                        <label><input type="checkbox" value="entry_trig_diag"> 斜めの攻防4点目ブレイク</label>
+                        <label><input type="checkbox" value="entry_trig_horiz"> 水平の攻防3点目ブレイク</label>
+                        <label><input type="checkbox" value="entry_trig_line"> 攻防ライン裏確認</label>
+                        <label><input type="checkbox" value="entry_trig_dispersion"> 分類パターン2</label>
+                        <label><input type="checkbox" value="entry_trig_none"> 未到達</label>
+                    </div>
+                </div>
+                <div class="filter-field-group">
+                    <label>時間経過（複数選択可）</label>
+                    <div id="filter-entry-time-pass" class="filter-checkbox-list" style="min-width: 110px;">
+                        <label><input type="checkbox" value="自国時間"> 自国時間</label>
+                        <label><input type="checkbox" value="直近波"> 直近波</label>
+                    </div>
+                </div>
+                <div class="filter-field-group">
+                    <label>リスク（複数選択可）</label>
+                    <div id="filter-entry-risk" class="filter-checkbox-list" style="min-width: 220px;">
+                        <label><input type="checkbox" value="上位足逆張りor全戻し"> 上位足逆張りor全戻し</label>
+                        <label><input type="checkbox" value="上位足3種の神器近いorエリア内"> 上位足3種の神器近いorエリア内</label>
+                        <label><input type="checkbox" value="複数ダウカウント"> 複数ダウカウント</label>
+                        <label><input type="checkbox" value="ダウカウント小さい"> ダウカウント小さい</label>
+                        <label><input type="checkbox" value="間延び感"> 間延び感</label>
+                        <label><input type="checkbox" value="戻しすぎor全戻し"> 戻しすぎor全戻し</label>
+                        <label><input type="checkbox" value="TL抜け"> TL抜け</label>
+                        <label><input type="checkbox" value="7波以降"> 7波以降</label>
+                        <label><input type="checkbox" value="自国サイクル外"> 自国サイクル外</label>
+                        <label><input type="checkbox" value="重要指標前"> 重要指標前</label>
+                        <label><input type="checkbox" value="相関リスクなど"> 相関リスクなど</label>
+                    </div>
+                </div>
+                <div class="filter-field-group">
+                    <label>リスク個数（以上）</label>
+                    <input type="number" id="filter-entry-risk-count-min" class="form-control" step="1" min="0" style="width: 90px;">
+                </div>
+                <div class="filter-field-group">
+                    <label>自分状態（複数選択可）</label>
+                    <div id="filter-entry-self-state" class="filter-checkbox-list" style="min-width: 140px;">
+                        <label><input type="checkbox" value="疲れ"> 疲れ</label>
+                        <label><input type="checkbox" value="焦り"> 焦り</label>
+                        <label><input type="checkbox" value="集中不可"> 集中不可</label>
+                        <label><input type="checkbox" value="時間なし"> 時間なし</label>
+                        <label><input type="checkbox" value="睡眠不足"> 睡眠不足</label>
+                        <label><input type="checkbox" value="ストレス大"> ストレス大</label>
+                        <label><input type="checkbox" value="不安"> 不安</label>
+                        <label><input type="checkbox" value="自信過剰"> 自信過剰</label>
+                        <label><input type="checkbox" value="ナチュラル"> ナチュラル</label>
+                        <label><input type="checkbox" value="負け認められない"> 負け認められない</label>
+                        <label><input type="checkbox" value="取り返したい"> 取り返したい</label>
+                        <label><input type="checkbox" value="安心"> 安心</label>
+                        <label><input type="checkbox" value="欲張り"> 欲張り</label>
+                        <label><input type="checkbox" value="恐怖"> 恐怖</label>
+                        <label><input type="checkbox" value="怒り"> 怒り</label>
+                        <label><input type="checkbox" value="悔しさ"> 悔しさ</label>
+                        <label><input type="checkbox" value="その他"> その他</label>
+                    </div>
+                </div>
+                <div id="custom-column-filters" style="display:contents;"></div>
+                <div class="filter-field-group">
+                    <label>見送り結果（複数選択可）</label>
+                    <div id="filter-miss-result" class="filter-checkbox-list" style="min-width: 220px;">
+                        <label><input type="checkbox" value="型が来なかった"> 型が来なかった</label>
+                        <label><input type="checkbox" value="見送り理由が確認した"> 見送り理由が確認した</label>
+                        <label><input type="checkbox" value="型がきて、入るべき獲物だった"> 型がきて、入るべき獲物だった</label>
+                        <label><input type="checkbox" value="微妙"> 微妙</label>
+                        <label><input type="checkbox" value="再現性なし"> 再現性なし</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filters-group" style="flex-wrap: wrap;">
                 <button class="btn btn-secondary" id="btn-reset-advanced-filters" style="padding: 8px 12px; align-self: flex-end;" title="詳細フィルター解除">
                     <i class="fa-solid fa-filter-circle-xmark"></i> 詳細フィルター解除
                 </button>
@@ -1991,61 +2220,61 @@
         <div class="summary-panel">
             <div class="summary-panel-title"><i class="fa-solid fa-table-list"></i> 集計表</div>
             <div class="stats-grid" id="summary-stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="現在表示中（フィルター後）のトレード行数の合計です。">
                     <div class="stat-info">
                         <span class="stat-label">総トレード数</span>
                         <span class="stat-value" id="summary-total-trades">0</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="表示中のトレードのうち、評価が「勝ち」または「勝ち黄」の行数です。">
                     <div class="stat-info">
                         <span class="stat-label">総勝ち数</span>
                         <span class="stat-value" id="summary-total-wins">0</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="表示中のトレードのうち、評価が「負け」または「負け黄」の行数です。">
                     <div class="stat-info">
                         <span class="stat-label">総負け数</span>
                         <span class="stat-value" id="summary-total-losses">0</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="総勝ち数 ÷（総勝ち数＋総負け数）× 100 で計算しています。">
                     <div class="stat-info">
                         <span class="stat-label">勝率</span>
                         <span class="stat-value" id="summary-win-rate">0.0 %</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="評価が「勝ち」「勝ち黄」の行のPips列を合計した値です。">
                     <div class="stat-info">
                         <span class="stat-label">獲得pips数</span>
                         <span class="stat-value" id="summary-win-pips">0.0 pips</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="評価が「負け」「負け黄」の行のPips列を合計した値です。">
                     <div class="stat-info">
                         <span class="stat-label">ロスpips数</span>
                         <span class="stat-value" id="summary-loss-pips">0.0 pips</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="表示中の全トレードのLot列の平均値です。">
                     <div class="stat-info">
                         <span class="stat-label">平均ロット</span>
                         <span class="stat-value" id="summary-avg-lot">-</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="表示中の全トレードのリスク(p)列の平均値です。">
                     <div class="stat-info">
                         <span class="stat-label">平均リスク</span>
                         <span class="stat-value" id="summary-avg-risk">-</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="評価が「勝ち」「勝ち黄」の行の収益(円)列の平均値です。">
                     <div class="stat-info">
                         <span class="stat-label">平均利益</span>
                         <span class="stat-value" id="summary-avg-profit">-</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="評価が「負け」「負け黄」の行の収益(円)列の平均値です。">
                     <div class="stat-info">
                         <span class="stat-label">平均損失</span>
                         <span class="stat-value" id="summary-avg-loss">-</span>
@@ -2058,73 +2287,73 @@
         <div class="summary-panel">
             <div class="summary-panel-title"><i class="fa-solid fa-circle-half-stroke"></i> 黄色集計</div>
             <div class="stats-grid" id="yellow-stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="黄色トレード数（勝ち黄＋負け黄）÷（黄色トレード数＋黄色未エントリー数）× 100。黄色未エントリーはタグが「黄色未エントリー」系4種の行です。">
                     <div class="stat-info">
                         <span class="stat-label">黄色エントリー率</span>
                         <span class="stat-value" id="yellow-entry-rate">-</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="評価が「勝ち黄」の行数です。">
                     <div class="stat-info">
                         <span class="stat-label">黄色勝ち数</span>
                         <span class="stat-value" id="yellow-wins">0</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="評価が「負け黄」の行数です。">
                     <div class="stat-info">
                         <span class="stat-label">黄色負け数</span>
                         <span class="stat-value" id="yellow-losses">0</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="黄色勝ち数 ÷（黄色勝ち数＋黄色負け数）× 100 で計算しています。">
                     <div class="stat-info">
                         <span class="stat-label">黄色勝率</span>
                         <span class="stat-value" id="yellow-win-rate">-</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="評価が「勝ち黄」の行の収益(円)列の平均値です。">
                     <div class="stat-info">
                         <span class="stat-label">黄色平均利益</span>
                         <span class="stat-value" id="yellow-avg-profit">-</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="評価が「負け黄」の行の収益(円)列の平均値です。">
                     <div class="stat-info">
                         <span class="stat-label">黄色平均損失</span>
                         <span class="stat-value" id="yellow-avg-loss">-</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="評価が「勝ち黄」の行のPips列の平均値です。">
                     <div class="stat-info">
                         <span class="stat-label">黄色平均勝ちpips数</span>
                         <span class="stat-value" id="yellow-avg-win-pips">-</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="評価が「負け黄」の行のPips列の平均値です。">
                     <div class="stat-info">
                         <span class="stat-label">黄色平均負けpips数</span>
                         <span class="stat-value" id="yellow-avg-loss-pips">-</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="黄色未エントリー数 ÷（黄色トレード数＋黄色未エントリー数）× 100。「気づいてなかった／入ろうと思っていた／気づいてて入れなかった／あえて見送った」の4タグが対象です。">
                     <div class="stat-info">
                         <span class="stat-label">黄色逃し率</span>
                         <span class="stat-value" id="yellow-miss-rate">-</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="黄色未エントリー（4種のタグ）に該当する行のPips列を合計した値です。">
                     <div class="stat-info">
                         <span class="stat-label">逃し黄色総pips数</span>
                         <span class="stat-value" id="yellow-missed-total-pips">0.0 pips</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="評価が「勝ち黄」＋「負け黄」の行の収益(円)列を合計した値です。">
                     <div class="stat-info">
                         <span class="stat-label">黄色総収支</span>
                         <span class="stat-value" id="yellow-total-profit">¥0</span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-mnt-tip="タグが「ビビリ決済」の行数 ÷ 表示中の総トレード数 × 100。">
                     <div class="stat-info">
                         <span class="stat-label">ビビリ率</span>
                         <span class="stat-value" id="bibiri-rate">-</span>
@@ -2240,6 +2469,27 @@
                 <div class="mieruka-actions">
                     <button type="button" class="mieruka-btn-save" id="chart-save-btn">保存する</button>
                     <button type="button" class="mieruka-btn-clear" id="chart-clear-all-btn">すべてクリア</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9つの行動戦略: 月別の行動目標を年月ごとに記録するシート -->
+    <div class="mieruka-overlay" id="action-strategy-overlay">
+        <div class="mieruka-card">
+            <div class="mieruka-titlebar">
+                <h3>9つの行動戦略（月別行動目標） <span id="as-notebook-label" style="font-size:0.8rem; font-weight:400; color:#8a93a6;"></span></h3>
+                <button class="mieruka-close" id="as-close-btn">&times;</button>
+            </div>
+            <div class="mieruka-body" style="padding: 0;">
+                <div style="display:flex; align-items:center; gap:10px; padding: 14px 20px; border-bottom: 1px solid var(--mk-border); flex-wrap: wrap;">
+                    <button type="button" class="mieruka-mini-btn" id="as-prev-year-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                    <span style="font-weight:700; font-size:1rem;"><span id="as-year-label">2026</span>年</span>
+                    <button type="button" class="mieruka-mini-btn" id="as-next-year-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                    <span style="font-size:0.8rem; color:#8a93a6; margin-left: 8px;">入力内容は自動保存されます（トレードノート本体とは別の記録です）</span>
+                </div>
+                <div style="overflow:auto; height: calc(100vh - 130px);">
+                    <table class="as-table" id="as-table"></table>
                 </div>
             </div>
         </div>
@@ -2628,6 +2878,11 @@
         // Initial App State Schema
         let appState = {
             activeNotebookId: "nb_main",
+            customColumns: [],
+            actionStrategy: {
+                links: { video: "", blog: "https://mieruka-labo.com/9-action-strategy" },
+                years: {}
+            },
             notebooks: {
                 "nb_main": {
                     id: "nb_main",
@@ -2666,6 +2921,20 @@
                         }
                     } catch (e) {}
                 }
+            }
+
+            if (!Array.isArray(appState.customColumns)) {
+                appState.customColumns = [];
+            }
+
+            if (!appState.actionStrategy || typeof appState.actionStrategy !== "object") {
+                appState.actionStrategy = { links: { video: "", blog: "https://mieruka-labo.com/9-action-strategy" }, years: {} };
+            }
+            if (!appState.actionStrategy.links) {
+                appState.actionStrategy.links = { video: "", blog: "https://mieruka-labo.com/9-action-strategy" };
+            }
+            if (!appState.actionStrategy.years) {
+                appState.actionStrategy.years = {};
             }
 
             if (!appState.notebooks[appState.activeNotebookId]) {
@@ -2757,6 +3026,14 @@
             return 10000;
         }
 
+        // JPYペアは1pips=1000円（レート換算不要）で固定。それ以外（USD建てペアなど）は
+        // 1pips=10ドル/lotをドル円レートで円換算する。レート未入力時はデフォルト150円を使う
+        const DEFAULT_USDJPY_RATE = 150;
+        function ratePerPipForPair(pair, usdJpyRate) {
+            const rate = (typeof usdJpyRate === "number" && !isNaN(usdJpyRate) && usdJpyRate > 0) ? usdJpyRate : DEFAULT_USDJPY_RATE;
+            return (pair || "").toUpperCase().includes("JPY") ? 1000 : rate * 10;
+        }
+
         function updateCalculations(row) {
             const data = row.getData();
             const entry = parseFloat(data.entry);
@@ -2773,7 +3050,7 @@
                 let multiplier = pipMultiplierForPair(pair);
                 pips = Math.round(diff * multiplier * 10) / 10;
 
-                let ratePerPip = pair.includes("JPY") ? 1000 : 1500;
+                let ratePerPip = ratePerPipForPair(pair, parseFloat(data.usdJpyRate));
 
                 if (!isNaN(lot) && lot > 0) {
                     profit = Math.round(pips * lot * ratePerPip);
@@ -2811,7 +3088,7 @@
 
                 if (!isNaN(riskPips) && riskPips !== 0 && balanceBeforeThisTrade > 0) {
                     const pair = (data.pair || "").toUpperCase();
-                    const ratePerPip = pair.includes("JPY") ? 1000 : 1500;
+                    const ratePerPip = ratePerPipForPair(pair, parseFloat(data.usdJpyRate));
                     const ns = data.netStrength;
                     const riskRate = (typeof ns === "number" && ns >= 2) ? 0.02 : 0.01;
                     const riskAmount = balanceBeforeThisTrade * riskRate;
@@ -3034,8 +3311,9 @@
             return `
                 <div class="mieruka-col-title">基本情報 <button type="button" class="mieruka-mini-btn" data-clear="entry">入力内容をクリア</button></div>
                 ${fieldLabel("今日の経済指標")}
-                ${textInputHtml("entry_econ_indicator", "例: 21:30 米雇用統計")}
-                ${chipGroupHtml("entry_econ_star", ["★2", "★3", "★4", "★5"], false, "yellow")}
+                ${textareaHtml("entry_econ_indicator", "例: 21:30 米雇用統計")}
+                ${chipGroupHtml("entry_econ_major", ["雇用統計", "CPI", "政策金利"], true, "yellow")}
+                ${chipGroupHtml("entry_econ_star", ["★2", "★3", "★4", "★5"], true, "yellow")}
                 ${fieldLabel("休場")}
                 ${textInputHtml("entry_holiday", "例: NY市場休場")}
                 ${pairBlockHtml("entry")}
@@ -3052,6 +3330,10 @@
                     <div>${fieldLabel("許容損失率")}<div class="mieruka-readout" id="entry-risk-rate-display">-</div></div>
                 </div>
                 <div>${fieldLabel("実行ロット")}${numberInputHtml("entry_exec_lot", "例: 0.10")}</div>
+                <div class="mieruka-row2" style="align-items:flex-end;">
+                    <div>${fieldLabel("ドル円レート")}<input type="number" step="0.001" class="mieruka-input" data-field="entry_usdjpy_rate" id="entry-usdjpy-rate-input" placeholder="例: 155.234"></div>
+                    <div><button type="button" class="btn btn-secondary" id="entry-usdjpy-update-btn" style="width:100%; padding:7px 10px; font-size:0.78rem;" title="現在のドル円レートを取得して反映します"><i class="fa-solid fa-rotate"></i> 現在レートに更新</button></div>
+                </div>
                 <div class="mieruka-subsection">
                     <div class="mieruka-subsection-title">監視状況</div>
                     ${fieldLabel("状況選択")}
@@ -3109,6 +3391,10 @@
                 ${fieldLabel("日時")}${dateInputHtml("miss_dt")}
                 ${pairBlockHtml("miss")}
                 ${fieldLabel("価格")}${numberInputHtml("miss_price", "例: 150.250")}
+                <div class="mieruka-row2">
+                    <div>${fieldLabel("SL価格")}${numberInputHtml("miss_sl_price", "例: 149.800")}</div>
+                    <div>${fieldLabel("SLまでのpips")}<div class="mieruka-readout" id="miss-sl-pips-display">-</div></div>
+                </div>
             `;
         }
 
@@ -3171,6 +3457,10 @@
         function missIncorrectHtml() {
             return `
                 <div class="mieruka-col-title">見送りが不正解だった場合</div>
+                <div class="mieruka-row2">
+                    <div>${fieldLabel("仮想決済日時（エントリーしていた場合）")}${dateInputHtml("miss_virtual_exit_dt")}</div>
+                    <div>${fieldLabel("仮想決済価格")}${numberInputHtml("miss_virtual_exit_price", "例: 150.800")}</div>
+                </div>
                 ${fieldLabel("何がズレてた？")}
                 ${chipGroupHtml("miss_wrong_reason", ["見送りの判定が過剰だった", "リスク評価が主観寄りだった（怖い等）", "監視が甘くて”気づき漏れ”だった", "トリガー理解が曖昧だった", "時間感覚が足りなかった（自国時間・直近波など）", "その他"], true, "pink")}
                 <input type="text" class="mieruka-input" data-field="miss_wrong_reason_other" data-other-for="miss_wrong_reason" placeholder="その他の理由を入力" style="display:none; margin-top:6px;">
@@ -3376,6 +3666,7 @@
             }
             switchMierukaTab(activeTab);
             updateSlPipsDisplay();
+            updateMissSlPipsDisplay();
             updateOptimalLotDisplay();
             updateRiskCountDisplay();
             document.getElementById("mieruka-overlay").classList.add("active");
@@ -3384,6 +3675,9 @@
         function closeMierukaModal() {
             document.getElementById("mieruka-overlay").classList.remove("active");
             mkCurrentRow = null;
+            if (document.body.classList.contains("popout-mode")) {
+                window.close();
+            }
         }
 
         // Map the entry-log's 環境足 (analysis timeframe) selection to the table's 軸足タグ options
@@ -3419,6 +3713,12 @@
             if (data.entry_exec_lot !== undefined && data.entry_exec_lot !== "") {
                 const lotVal = parseFloat(data.entry_exec_lot);
                 if (!isNaN(lotVal)) update.lot = lotVal;
+            }
+
+            // ドル円レート（手入力または「現在レートに更新」ボタンで取得）をトレードノートのレート列に反映
+            if (data.entry_usdjpy_rate !== undefined && data.entry_usdjpy_rate !== "") {
+                const rateVal = parseFloat(data.entry_usdjpy_rate);
+                if (!isNaN(rateVal) && rateVal > 0) update.usdJpyRate = rateVal;
             }
 
             // SL価格が入っていれば、エントリー価格との差から想定リスク幅（リスク(p)列）も自動算出
@@ -3481,7 +3781,53 @@
                 update.axisTag = ENTRY_TF_TO_AXIS_TAG[data.miss_tf];
             }
 
+            // SL価格が入っていれば、エントリーログと同じくリスク(p)列も自動算出
+            const missPriceNum = parseFloat(data.miss_price);
+            const missSlPriceNum = parseFloat(data.miss_sl_price);
+            if (!isNaN(missPriceNum) && !isNaN(missSlPriceNum)) {
+                const missMultiplier = pipMultiplierForPair(pair || data.miss_pair || "");
+                update.riskPips = Math.round(Math.abs(missPriceNum - missSlPriceNum) * missMultiplier * 10) / 10;
+            }
+
             const scoreFields = ["miss_trendline", "miss_zone", "miss_cloud", "miss_trig_diag", "miss_trig_horiz", "miss_trig_line", "miss_trig_dispersion"];
+            let hasAnyScore = false;
+            let scoreTotal = 0;
+            scoreFields.forEach(function(f) {
+                const v = parseFloat(data[f]);
+                if (!isNaN(v)) { scoreTotal += v; hasAnyScore = true; }
+            });
+            if (hasAnyScore) {
+                update.tfTag = strengthNumToTag(scoreTotal);
+            }
+
+            return update;
+        }
+
+        // 気づき漏れログの基本情報・環境足・スコアをトレードノートの対応項目にも反映する（見送りログと同じ形）
+        function buildTradeUpdateFromNoticeLog(data) {
+            const update = {};
+
+            const pair = (data.notice_pair_custom || "").trim() || data.notice_pair;
+            if (pair) update.pair = pair;
+
+            if (data.notice_side) update.position = data.notice_side;
+
+            if (data.notice_dt) {
+                const parts = String(data.notice_dt).split("T");
+                if (parts[0]) update.date = parts[0];
+                if (parts[1]) update.time = parts[1];
+            }
+
+            if (data.notice_price !== undefined && data.notice_price !== "") {
+                const p = parseFloat(data.notice_price);
+                if (!isNaN(p)) update.entry = p;
+            }
+
+            if (data.notice_tf && ENTRY_TF_TO_AXIS_TAG[data.notice_tf]) {
+                update.axisTag = ENTRY_TF_TO_AXIS_TAG[data.notice_tf];
+            }
+
+            const scoreFields = ["notice_trendline", "notice_zone", "notice_cloud", "notice_trig_diag", "notice_trig_horiz", "notice_trig_line", "notice_trig_dispersion"];
             let hasAnyScore = false;
             let scoreTotal = 0;
             scoreFields.forEach(function(f) {
@@ -3518,13 +3864,18 @@
                 } else if (tab === "miss" && rowData.mieruka && rowData.mieruka.type === "miss") {
                     Object.assign(update, {
                         pair: null, position: null, date: null, time: null,
+                        entry: null, axisTag: null, tfTag: null, riskPips: null
+                    });
+                } else if (tab === "notice" && rowData.mieruka && rowData.mieruka.type === "notice") {
+                    Object.assign(update, {
+                        pair: null, position: null, date: null, time: null,
                         entry: null, axisTag: null, tfTag: null
                     });
                 }
             }
             mkCurrentRow.update(update).then(function() {
                 clearMierukaPanel(tab);
-                if (tab === "entry" || tab === "settlement" || tab === "miss") {
+                if (tab === "entry" || tab === "settlement" || tab === "miss" || tab === "notice") {
                     updateCalculations(mkCurrentRow);
                     updateNetStrength(mkCurrentRow);
                 }
@@ -3552,9 +3903,11 @@
                 Object.assign(update, buildTradeUpdateFromSettlementLog(data));
             } else if (tab === "miss") {
                 Object.assign(update, buildTradeUpdateFromMissLog(data));
+            } else if (tab === "notice") {
+                Object.assign(update, buildTradeUpdateFromNoticeLog(data));
             }
             mkCurrentRow.update(update).then(function() {
-                if (tab === "entry" || tab === "settlement" || tab === "miss") {
+                if (tab === "entry" || tab === "settlement" || tab === "miss" || tab === "notice") {
                     updateCalculations(mkCurrentRow);
                     updateNetStrength(mkCurrentRow);
                 }
@@ -3622,6 +3975,28 @@
             display.textContent = pips.toFixed(1) + " pips";
         }
 
+        // 見送りログ版の「SLまでのpips」ライブ表示。ロジックはエントリーログと同じ（価格・SL価格・ペアから算出）
+        function updateMissSlPipsDisplay() {
+            const panel = document.getElementById("mk-panel-miss");
+            const display = document.getElementById("miss-sl-pips-display");
+            if (!panel || !display) return;
+            const priceEl = panel.querySelector('[data-field="miss_price"]');
+            const slEl = panel.querySelector('[data-field="miss_sl_price"]');
+            if (!priceEl || !slEl) return;
+            const price = parseFloat(priceEl.value);
+            const sl = parseFloat(slEl.value);
+            if (isNaN(price) || isNaN(sl)) {
+                display.textContent = "-";
+                return;
+            }
+            const pairGroup = panel.querySelector('.chip-group[data-group="miss_pair"]');
+            const activeBtn = pairGroup ? pairGroup.querySelector(".chip-btn.active") : null;
+            const pair = activeBtn ? activeBtn.getAttribute("data-value") : "";
+            const multiplier = pipMultiplierForPair(pair);
+            const pips = Math.round(Math.abs(price - sl) * multiplier * 10) / 10;
+            display.textContent = pips.toFixed(1) + " pips";
+        }
+
         // Live 適正ロット／許容損失率 readout in the entry log: uses the same formula as the table's
         // recalcOptimalSizing (balance excludes this row's own profit; 許容損失率 is 1% under a
         // 環境足該当3種の神器＋エントリートリガー score total of 2, otherwise 2%), so it matches what
@@ -3656,7 +4031,9 @@
             const pair = activePairBtn ? activePairBtn.getAttribute("data-value") : (mkCurrentRow.getData().pair || "");
             const multiplier = pipMultiplierForPair(pair);
             const riskPips = Math.abs(price - sl) * multiplier;
-            const ratePerPip = (pair || "").toUpperCase().includes("JPY") ? 1000 : 1500;
+            const rateEl = panel.querySelector('[data-field="entry_usdjpy_rate"]');
+            const liveRate = rateEl ? parseFloat(rateEl.value) : NaN;
+            const ratePerPip = ratePerPipForPair(pair, liveRate);
 
             const capValInput = parseFloat(document.getElementById("input-initial-capital").value);
             const initialCapital = !isNaN(capValInput) ? capValInput : 0;
@@ -3695,6 +4072,60 @@
                 updateSlPipsDisplay();
                 updateOptimalLotDisplay();
             }
+            if (e.target.matches('[data-field="miss_price"], [data-field="miss_sl_price"]')) {
+                updateMissSlPipsDisplay();
+            }
+            if (e.target.matches('[data-field="entry_usdjpy_rate"]')) {
+                updateOptimalLotDisplay();
+            }
+        });
+
+        // 「現在レートに更新」ボタン：ドル円の最新レートを取得して入力欄に反映する
+        // （過去検証など、実際の当時レートを使いたい場合は取得後も自由に上書き入力できる）
+        // frankfurter.devがダメな場合はopen.er-api.comにフォールバックし、取得失敗時はコンソールに詳細を残す
+        document.getElementById("entry-usdjpy-update-btn").addEventListener("click", async function() {
+            const btn = this;
+            const input = document.getElementById("entry-usdjpy-rate-input");
+            if (!input) return;
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 取得中...';
+
+            async function tryFrankfurter() {
+                const res = await fetch("https://api.frankfurter.dev/v1/latest?base=USD&symbols=JPY");
+                if (!res.ok) throw new Error("frankfurter status " + res.status);
+                const json = await res.json();
+                const rate = json && json.rates && json.rates.JPY;
+                if (typeof rate !== "number" || !(rate > 0)) throw new Error("frankfurter invalid response");
+                return rate;
+            }
+            async function tryOpenErApi() {
+                const res = await fetch("https://open.er-api.com/v6/latest/USD");
+                if (!res.ok) throw new Error("open.er-api status " + res.status);
+                const json = await res.json();
+                const rate = json && json.rates && json.rates.JPY;
+                if (typeof rate !== "number" || !(rate > 0)) throw new Error("open.er-api invalid response");
+                return rate;
+            }
+
+            try {
+                let rate;
+                try {
+                    rate = await tryFrankfurter();
+                } catch (e1) {
+                    console.warn("frankfurter.devでのレート取得に失敗。open.er-api.comにフォールバックします:", e1);
+                    rate = await tryOpenErApi();
+                }
+                input.value = rate.toFixed(3);
+                input.dispatchEvent(new Event("input", { bubbles: true }));
+                showToast(`ドル円レートを更新しました（${rate.toFixed(3)}円）`);
+            } catch (err) {
+                console.error("ドル円レートの取得に失敗しました:", err);
+                showToast("レートの取得に失敗しました。通信環境をご確認のうえ、必要であれば手入力してください");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
         });
 
         document.getElementById("mieruka-overlay").addEventListener("click", function(e) {
@@ -3715,6 +4146,7 @@
                     regeneratePairGroup(prefix, chip.getAttribute("data-value"), null);
                 }
                 if (groupId === "entry_pair") updateSlPipsDisplay();
+                if (groupId === "miss_pair") updateMissSlPipsDisplay();
                 if (groupId.indexOf("entry_") === 0) { updateOptimalLotDisplay(); updateRiskCountDisplay(); }
                 return;
             }
@@ -3728,6 +4160,7 @@
             if (clearBtn) {
                 clearMierukaPanel(clearBtn.getAttribute("data-clear"));
                 updateSlPipsDisplay();
+                updateMissSlPipsDisplay();
                 updateOptimalLotDisplay();
                 updateRiskCountDisplay();
                 return;
@@ -4242,14 +4675,28 @@
                     headerTooltip: maintenanceTooltip("エントリーログの「実行ロット」から自動入力されます（手入力も可能）")
                 },
                 {
+                    title: "ドル円レート",
+                    field: "usdJpyRate",
+                    editor: "number",
+                    editorParams: { step: "0.001", min: 0 },
+                    hozAlign: "right",
+                    width: 100,
+                    formatter: function(cell) {
+                        const val = cell.getValue();
+                        return (val === null || val === undefined || val === "") ? "" : Number(val).toFixed(3);
+                    },
+                    tooltip: maintenanceTooltip("エントリーログの「ドル円レート」から自動入力されます（手入力も可能・未入力時はデフォルト150円で計算）。JPYペア以外の収益・適正ロット計算の円換算に使われます"),
+                    headerTooltip: maintenanceTooltip("エントリーログの「ドル円レート」から自動入力されます（手入力も可能・未入力時はデフォルト150円で計算）。JPYペア以外の収益・適正ロット計算の円換算に使われます")
+                },
+                {
                     title: "収益(円)",
                     field: "profit",
                     formatter: profitFormatter,
                     hozAlign: "right",
                     width: 125,
                     headerSort: true,
-                    tooltip: maintenanceTooltip("自動計算：Pips × Lot × 1pipsあたりの円価値（JPYペア=1000円、それ以外=1500円）"),
-                    headerTooltip: maintenanceTooltip("自動計算：Pips × Lot × 1pipsあたりの円価値（JPYペア=1000円、それ以外=1500円）")
+                    tooltip: maintenanceTooltip("自動計算：Pips × Lot × 1pipsあたりの円価値（JPYペア=1000円、それ以外=ドル円レート×10円。レート未入力時はデフォルト150円）"),
+                    headerTooltip: maintenanceTooltip("自動計算：Pips × Lot × 1pipsあたりの円価値（JPYペア=1000円、それ以外=ドル円レート×10円。レート未入力時はデフォルト150円）")
                 },
                 {
                     title: "適正ロット",
@@ -4332,7 +4779,7 @@
                     editor: false,
                     formatter: emotionFormatter,
                     cellClick: function(e, cell) {
-                        openMierukaModal(cell.getRow(), null, "before");
+                        openMierukaLogPopout(cell.getRow(), null, "before");
                     },
                     width: 250
                 },
@@ -4348,7 +4795,7 @@
                         if (mkType === "entry") tab = "settlement";
                         else if (mkType === "miss") tab = "miss_result";
                         else tab = "notice";
-                        openMierukaModal(cell.getRow(), tab, "after");
+                        openMierukaLogPopout(cell.getRow(), tab, "after");
                     },
                     width: 220
                 },
@@ -4393,7 +4840,7 @@
         // Event listeners for cell edits
         table.on("cellEdited", function(cell) {
             const field = cell.getField();
-            if (["entry", "exit", "position", "pair", "lot", "swap"].includes(field)) {
+            if (["entry", "exit", "position", "pair", "lot", "swap", "usdJpyRate"].includes(field)) {
                 updateCalculations(cell.getRow());
             }
             if (["tfTag", "weakTag"].includes(field)) {
@@ -4405,6 +4852,283 @@
 
         table.on("rowAdded", saveAppState);
         table.on("rowDeleted", saveAppState);
+
+        // ===== 項目管理: トレードノートに任意の列を追加・削除する =====
+        function customColumnFieldEditor(col) {
+            if (col.type === "number") return { editor: "number", editorParams: { step: "any" } };
+            if (col.type === "select") return { editor: createSelectEditor([""].concat(col.options || [])) };
+            return { editor: "input" };
+        }
+
+        function buildCustomColumnTabulatorDef(col) {
+            return Object.assign({
+                title: col.name,
+                field: col.id,
+                width: 140,
+                hozAlign: col.type === "number" ? "right" : "left"
+            }, customColumnFieldEditor(col));
+        }
+
+        function addCustomColumnToTable(col) {
+            table.addColumn(buildCustomColumnTabulatorDef(col), false, "chartsAfter");
+        }
+
+        function renderCustomColumnsList() {
+            const container = document.getElementById("custom-columns-list");
+            if (appState.customColumns.length === 0) {
+                container.innerHTML = `<div class="period-summary-empty">まだ項目が追加されていません</div>`;
+                return;
+            }
+            const typeLabel = { text: "テキスト", number: "数値", select: "プルダウン" };
+            container.innerHTML = appState.customColumns.map(col => `
+                <div style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:var(--card-bg-alt); border:1px solid var(--border-color); border-radius:6px;">
+                    <span style="font-weight:700; flex:1;">${escapeHtml(col.name)}</span>
+                    <span style="font-size:0.78rem; color:var(--text-muted);">${typeLabel[col.type] || col.type}${col.type === "select" ? "：" + escapeHtml((col.options || []).join(" / ")) : ""}</span>
+                    <button type="button" class="btn btn-danger" data-remove-column="${col.id}" style="padding: 5px 10px; font-size: 0.78rem;">削除</button>
+                </div>
+            `).join("");
+        }
+
+        function renderCustomColumnFilters() {
+            const container = document.getElementById("custom-column-filters");
+            if (!container) return;
+            if (appState.customColumns.length === 0) {
+                container.innerHTML = "";
+                return;
+            }
+            container.innerHTML = appState.customColumns.map(col => {
+                if (col.type === "select") {
+                    const opts = (col.options || []).map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
+                    return `<div class="filter-field-group">
+                        <label>${escapeHtml(col.name)}</label>
+                        <select class="form-control custom-column-filter" data-custom-field="${col.id}">
+                            <option value="">すべて</option>${opts}
+                        </select>
+                    </div>`;
+                }
+                return `<div class="filter-field-group">
+                    <label>${escapeHtml(col.name)}</label>
+                    <input type="text" class="form-control custom-column-filter" data-custom-field="${col.id}" placeholder="部分一致で検索">
+                </div>`;
+            }).join("");
+            container.querySelectorAll(".custom-column-filter").forEach(function(el) {
+                el.addEventListener(el.tagName === "SELECT" ? "change" : "input", applyFilters);
+            });
+        }
+
+        document.getElementById("btn-toggle-custom-columns").addEventListener("click", function() {
+            const wrap = document.getElementById("custom-columns-wrap");
+            const isHidden = wrap.style.display === "none";
+            wrap.style.display = isHidden ? "flex" : "none";
+            this.classList.toggle("btn-active", isHidden);
+            if (isHidden) renderCustomColumnsList();
+        });
+
+        // ===== 9つの行動戦略: 月別行動目標シート =====
+        const AS_ROW_GROUPS = [
+            {
+                section: "手順6【行動戦略立案】",
+                rows: [
+                    { key: "__caption__", label: "今解決すべきSS課題と行動目標要約を記入", color: "as-row-yellow", caption: true },
+                    { key: "ssCause", label: "SSランクの原因", color: "as-row-blue",
+                      placeholder: "(記入例)\n・チームイベントに参加すると、適切な間隔をおいて適切なトレードをしていたのに、頻繁に時間帯を狭めてルールのトレードをしてしまう\n・そして深夜な時間帯の中に合わせてルールのトレードをしてしまう\n・自分の資産管理を徹底したトレードの為に精神的にエネルギーを浪費する。" },
+                    { key: "ssOvercome", label: "SSランクを克服する為の具体的な行動目標\n（成果目標はNG）", color: "as-row-blue",
+                      placeholder: "(記入例)\n・自らの利益を求めているかどうかの客観視の為に、メンタルセルフチェックを毎日朝から行い、どのような気持ちでチャートを見ているかを把握する\n・資金管理で1トレードが損失1〜1.5%のトレードを行い、そのトレード結果を100回、1000回といてエントリー根拠を追っていることを体感する→損失許容計算シートを使う" },
+                    { key: "memo", label: "備考（覚書メモ）", color: "as-row-yellow",
+                      placeholder: "(記入例)\n・二回以上のエントリーのみに絞り、慎重な鋭いトレードをしない。\n・エントリー前に、このトレードが将来のトレードなのか自分自身に確認してからエントリーする" }
+                ]
+            },
+            {
+                section: "手順2【行動分析結果】",
+                rows: [
+                    { key: "sRank", label: "Sランク", color: "as-row-blue",
+                      placeholder: "(記入例)\n・ルールイベントをなくす。\n・トレードノートの継続。\n・投資を出し切るということが頭では理解しても、体感としてイメージができておらず、トレードで空回りをしてしまうことがある。\n・仕事のストレスをトレードに持ち込んでいる。\n・他人のトレード結果が気になり、自分もこんなトレードをしました!と言いたい自己顕示欲がある" },
+                    { key: "aRank", label: "Aランク", color: "as-row-blue",
+                      placeholder: "(記入例)\n・他人のトレードの損切りや他の人のトレード成績が気になり、100回、1000回のトレードでエントリー根拠を選んでいくということが出来ていない。\n・自分に関してはどちらかというと逃避的 なのでイケイケエントリーしてしまう。\n・感情的な部分が出て、ルール通り損切りせずに待ってしまうことがある。" },
+                    { key: "bRank", label: "Bランク", color: "as-row-blue", placeholder: "(記入例)" },
+                    { key: "other", label: "その他気づいた事", color: "as-row-blue", placeholder: "(記入例)" }
+                ]
+            },
+            {
+                section: "手順1【行動分析結果】",
+                rows: [
+                    { key: "weaknesses", label: "自分の弱点をわかる限り\n「全て書き出す」", color: "as-row-green",
+                      placeholder: "(記入例)\n・損切りが浅くと自分の利益を求めて、根拠の甘いトレードをしてしまう\n→さらに損切りになり、結果としてルールイベントを引き起こす要因となっている\n・相場に翻弄されてしまう\n・トレードノートをつけるのが苦手\n・仕事のストレスをトレードに持ち込んでいる\n・他のトレードの損切りや他の人のトレード結果が気になり、100回、1000回のトレードでエントリー根拠を追っていくということが出来ていない\n・他のトレードや他人のトレード結果を見て、自分も という気持ちが出てしまい、アリコンしてしまう。\n・投資を出し切るということが頭では理解しても、体感としてイメージができておらず、トレードで空回りをしてしまうことがある。\n・資金管理、等\n・自分に関してはどちらかというと逃避的 なのでイケイケエントリーしてしまう。\n・感情的な部分が出て、ルール通り損切りせずに待ってしまうことがある。" },
+                    { key: "__links__", label: "行動目標と成果目標の違いから分からない場合9つの行動戦略を何度も視聴する", color: "as-row-lightgreen", links: true }
+                ]
+            }
+        ];
+        const AS_MONTHS = [1,2,3,4,5,6,7,8,9,10,11,12];
+        let asCurrentYear = new Date().getFullYear();
+
+        function asGetYearData(year) {
+            const y = String(year);
+            if (!appState.actionStrategy.years[y]) appState.actionStrategy.years[y] = {};
+            return appState.actionStrategy.years[y];
+        }
+        function asGetMonthData(year, month) {
+            const yd = asGetYearData(year);
+            const m = String(month);
+            if (!yd[m]) yd[m] = {};
+            return yd[m];
+        }
+
+        let asSaveTimer = null;
+        function asScheduleSave() {
+            clearTimeout(asSaveTimer);
+            asSaveTimer = setTimeout(function() {
+                localStorage.setItem(STORAGE_KEY_MULTI, JSON.stringify(appState));
+            }, 500);
+        }
+
+        function renderActionStrategyTable() {
+            document.getElementById("as-year-label").textContent = asCurrentYear;
+            const activeNb = appState.notebooks[appState.activeNotebookId];
+            document.getElementById("as-notebook-label").textContent = activeNb ? `(${activeNb.name})` : "";
+            const links = appState.actionStrategy.links;
+            let html = "";
+
+            // 月ヘッダー行
+            html += `<tr><th class="as-label-col"></th>`;
+            AS_MONTHS.forEach(m => {
+                html += `<th class="as-month-col as-month-header">${asCurrentYear}年${m}月</th>`;
+            });
+            html += `</tr>`;
+
+            // 上部の小さな注意書き行（全月共通）
+            html += `<tr class="as-caption-row"><th class="as-label-col"></th>`;
+            AS_MONTHS.forEach(() => {
+                html += `<td>「良くなった点」にフォーカスして、「翌月の成長ポイント」を振り返る</td>`;
+            });
+            html += `</tr>`;
+
+            AS_ROW_GROUPS.forEach(group => {
+                html += `<tr class="as-section-row"><th class="as-label-col" colspan="1">${group.section}</th>`;
+                AS_MONTHS.forEach(() => { html += `<td style="background:#0e7490;"></td>`; });
+                html += `</tr>`;
+
+                group.rows.forEach(row => {
+                    html += `<tr class="${row.color}">`;
+                    html += `<th class="as-label-col as-row-label">${row.label.replace(/\n/g, "<br>")}</th>`;
+
+                    if (row.caption) {
+                        AS_MONTHS.forEach(m => {
+                            const text = `『${asCurrentYear}年${m}月の行動目標(前月)』を「9つの行動戦略」シートの「行動内容詳細」欄(毎月)に直接入力数式を無視して入力して確定させてください`;
+                            html += `<td style="font-size:0.68rem; color:#94a3b8; padding:8px 10px; line-height:1.5;">${text}</td>`;
+                        });
+                    } else if (row.links) {
+                        AS_MONTHS.forEach(() => {
+                            html += `<td class="as-links-row">
+                                <div>【トレード技術を向上させる為の9つの行動戦略】</div>
+                                <div>・動画<input type="text" class="mieruka-input as-link-input" data-link="video" value="${(links.video || "").replace(/"/g, "&quot;")}" placeholder="動画URLを入力"><button type="button" class="mieruka-mini-btn as-link-open-btn" data-link-open="video">開く</button></div>
+                                <div>・ブログ<input type="text" class="mieruka-input as-link-input" data-link="blog" value="${(links.blog || "").replace(/"/g, "&quot;")}" placeholder="ブログURLを入力"><button type="button" class="mieruka-mini-btn as-link-open-btn" data-link-open="blog">開く</button></div>
+                            </td>`;
+                        });
+                    } else {
+                        AS_MONTHS.forEach(m => {
+                            const md = asGetMonthData(asCurrentYear, m);
+                            const val = md[row.key] || "";
+                            html += `<td><textarea class="as-cell-input" data-row-key="${row.key}" data-month="${m}" placeholder="${(row.placeholder || "").replace(/"/g, "&quot;")}">${val.replace(/</g, "&lt;")}</textarea></td>`;
+                        });
+                    }
+                    html += `</tr>`;
+                });
+            });
+
+            document.getElementById("as-table").innerHTML = html;
+        }
+
+        function openActionStrategyModal() {
+            renderActionStrategyTable();
+            document.getElementById("action-strategy-overlay").classList.add("active");
+        }
+        function closeActionStrategyModal() {
+            document.getElementById("action-strategy-overlay").classList.remove("active");
+            localStorage.setItem(STORAGE_KEY_MULTI, JSON.stringify(appState));
+            if (document.body.classList.contains("popout-mode")) {
+                window.close();
+            }
+        }
+
+        document.getElementById("btn-open-action-strategy").addEventListener("click", openActionStrategyPopout);
+        document.getElementById("as-close-btn").addEventListener("click", closeActionStrategyModal);
+        document.getElementById("action-strategy-overlay").addEventListener("click", function(e) {
+            if (e.target.id === "action-strategy-overlay") closeActionStrategyModal();
+        });
+        document.getElementById("as-prev-year-btn").addEventListener("click", function() {
+            asCurrentYear -= 1;
+            renderActionStrategyTable();
+        });
+        document.getElementById("as-next-year-btn").addEventListener("click", function() {
+            asCurrentYear += 1;
+            renderActionStrategyTable();
+        });
+
+        document.getElementById("as-table").addEventListener("input", function(e) {
+            const target = e.target;
+            if (target.classList.contains("as-cell-input")) {
+                const md = asGetMonthData(asCurrentYear, target.getAttribute("data-month"));
+                md[target.getAttribute("data-row-key")] = target.value;
+                asScheduleSave();
+            } else if (target.classList.contains("as-link-input")) {
+                appState.actionStrategy.links[target.getAttribute("data-link")] = target.value;
+                document.querySelectorAll(`.as-link-input[data-link="${target.getAttribute("data-link")}"]`).forEach(el => {
+                    if (el !== target) el.value = target.value;
+                });
+                asScheduleSave();
+            }
+        });
+        document.getElementById("as-table").addEventListener("click", function(e) {
+            const btn = e.target.closest("[data-link-open]");
+            if (!btn) return;
+            const url = appState.actionStrategy.links[btn.getAttribute("data-link-open")];
+            if (url) window.open(url, "_blank", "noopener");
+        });
+
+        document.getElementById("new-column-type").addEventListener("change", function() {
+            document.getElementById("new-column-options-wrap").style.display = this.value === "select" ? "flex" : "none";
+        });
+
+        document.getElementById("btn-add-custom-column").addEventListener("click", function() {
+            const name = document.getElementById("new-column-name").value.trim();
+            if (!name) { alert("項目名を入力してください。"); return; }
+            const type = document.getElementById("new-column-type").value;
+            const options = type === "select"
+                ? document.getElementById("new-column-options").value.split(",").map(s => s.trim()).filter(Boolean)
+                : [];
+            if (type === "select" && options.length === 0) { alert("プルダウンの選択肢を入力してください。"); return; }
+
+            const col = { id: "custom_" + Date.now(), name: name, type: type, options: options };
+            appState.customColumns.push(col);
+            addCustomColumnToTable(col);
+            renderCustomColumnsList();
+            renderCustomColumnFilters();
+            saveAppState();
+            showToast(`項目「${name}」を追加しました`);
+
+            document.getElementById("new-column-name").value = "";
+            document.getElementById("new-column-options").value = "";
+        });
+
+        document.getElementById("custom-columns-list").addEventListener("click", function(e) {
+            const btn = e.target.closest("[data-remove-column]");
+            if (!btn) return;
+            const id = btn.getAttribute("data-remove-column");
+            const col = appState.customColumns.find(c => c.id === id);
+            if (!col) return;
+            if (!confirm(`項目「${col.name}」を削除します。この項目に入力されていたデータも失われます。よろしいですか？`)) return;
+            appState.customColumns = appState.customColumns.filter(c => c.id !== id);
+            table.deleteColumn(id);
+            renderCustomColumnsList();
+            renderCustomColumnFilters();
+            applyFilters();
+            saveAppState();
+            showToast(`項目「${col.name}」を削除しました`);
+        });
+
+        // 保存されている項目定義から列を復元する
+        appState.customColumns.forEach(addCustomColumnToTable);
+        renderCustomColumnFilters();
 
         // Initial Capital Change Event Listener
         document.getElementById("input-initial-capital").addEventListener("input", function() {
@@ -4759,7 +5483,104 @@
             recalcOptimalSizing();
             updateStats();
             updateSummaryTable();
+            initPopoutIfNeeded();
         });
+
+        // ===== 別ウィンドウ表示: エントリー/決済/見送り/見送り結果/気づき漏れログ・9つの行動戦略 =====
+        // これらのログ・行動戦略パネルは、メイン画面の上に重ねる代わりに新しいブラウザウィンドウで開く。
+        // 新しいウィンドウは同じファイルを再読込し、URLのハッシュから対象（どのトレードのどのログか／行動戦略か）を判定して
+        // 該当パネルだけを自動で開く（それ以外のメイン画面はCSSで非表示にする＝ .popout-mode）。
+        // データはlocalStorage（同一ファイルなので同一オリジン）を介して共有し、保存されたら元のウィンドウ側にも反映する。
+        function openMierukaLogPopout(row, forceTab, tabGroup) {
+            const data = row.getData();
+            const params = new URLSearchParams();
+            params.set("popout", "logmodal");
+            params.set("nb", appState.activeNotebookId);
+            params.set("rowid", data.id);
+            if (forceTab) params.set("tab", forceTab);
+            if (tabGroup) params.set("group", tabGroup);
+            saveAppState();
+            const url = location.href.split("#")[0] + "#" + params.toString();
+            window.open(url, "mieruka_popout_" + appState.activeNotebookId + "_" + data.id, "width=1100,height=880,noopener");
+        }
+
+        function openActionStrategyPopout() {
+            const params = new URLSearchParams();
+            params.set("popout", "actionstrategy");
+            params.set("nb", appState.activeNotebookId);
+            saveAppState();
+            const url = location.href.split("#")[0] + "#" + params.toString();
+            window.open(url, "action_strategy_popout", "width=1400,height=880,noopener");
+        }
+
+        // メイン画面（非ポップアウト）側: 他のポップアウトウィンドウでの保存をlocalStorage経由で検知し、表示に反映する
+        window.addEventListener("storage", function(e) {
+            if (e.key !== STORAGE_KEY_MULTI || document.body.classList.contains("popout-mode")) return;
+            const raw = localStorage.getItem(STORAGE_KEY_MULTI);
+            if (!raw) return;
+            try {
+                appState = JSON.parse(raw);
+                if (!Array.isArray(appState.customColumns)) appState.customColumns = [];
+                if (!appState.actionStrategy) appState.actionStrategy = { links: { video: "", blog: "https://mieruka-labo.com/9-action-strategy" }, years: {} };
+                const activeNb = appState.notebooks[appState.activeNotebookId];
+                if (activeNb) {
+                    table.setData(migrateLegacyDateTime(activeNb.data || [])).then(function() {
+                        updateStats();
+                        updateSummaryTable();
+                    });
+                }
+            } catch (err) {
+                console.error("他ウィンドウでの更新の反映に失敗しました:", err);
+            }
+        });
+
+        // 別ウィンドウとして開かれた場合の起動処理: URLハッシュを見て対象のログ/行動戦略パネルだけを自動表示する
+        // table の tableBuilt イベント後（初期データ読み込み完了後）に呼び出される
+        function initPopoutIfNeeded() {
+            if (!location.hash || location.hash.indexOf("popout=") === -1) return;
+            const params = new URLSearchParams(location.hash.slice(1));
+            const kind = params.get("popout");
+            if (!kind) return;
+
+            document.body.classList.add("popout-mode");
+
+            if (kind === "actionstrategy") {
+                const nb = params.get("nb");
+                if (nb && nb !== appState.activeNotebookId && appState.notebooks[nb]) {
+                    switchNotebook(nb);
+                }
+                openActionStrategyModal();
+                return;
+            }
+
+            if (kind === "logmodal") {
+                const nb = params.get("nb");
+                const rowIdRaw = params.get("rowid");
+                const rowId = rowIdRaw !== null && rowIdRaw !== "" && !isNaN(Number(rowIdRaw)) ? Number(rowIdRaw) : rowIdRaw;
+                const tab = params.get("tab") || null;
+                const group = params.get("group") || null;
+
+                function openTargetRow() {
+                    const targetRow = table.getRow(rowId);
+                    if (targetRow) {
+                        openMierukaModal(targetRow, tab, group);
+                    } else {
+                        showToast("対象のトレードが見つかりませんでした。ウィンドウを閉じてやり直してください。");
+                    }
+                }
+
+                if (nb && nb !== appState.activeNotebookId && appState.notebooks[nb]) {
+                    switchNotebook(nb);
+                    // switchNotebook の table.setData 完了を待ってから対象行を探す
+                    table.on("dataChanged", function onceChanged() {
+                        table.off("dataChanged", onceChanged);
+                        openTargetRow();
+                    });
+                } else {
+                    openTargetRow();
+                }
+            }
+        }
 
         // 集計表はフィルターが変わるたびにも再計算する（表示中のトレードを対象にするため）
         table.on("dataFiltered", function() {
@@ -4811,26 +5632,10 @@
 
         // Filter Handlers
         function applyFilters() {
-            const pairVal = document.getElementById("filter-pair").value;
-            const evalVal = document.getElementById("filter-eval").value;
-            const logTypeVal = document.getElementById("filter-log-type").value;
             const searchVal = document.getElementById("filter-search").value.trim().toLowerCase();
 
             table.clearFilter();
 
-            if (pairVal) {
-                table.addFilter("pair", "=", pairVal);
-            }
-            if (evalVal) {
-                table.addFilter("evaluation", "=", evalVal);
-            }
-            if (logTypeVal) {
-                table.addFilter(function(data) {
-                    if (logTypeVal === "settlement") return !!data.settlementLog;
-                    if (logTypeVal === "miss_result") return !!data.missResultLog;
-                    return !!(data.mieruka && data.mieruka.type === logTypeVal);
-                });
-            }
             if (searchVal) {
                 table.addFilter(function(data) {
                     const tagMatch = (data.tag || "").toLowerCase().includes(searchVal);
@@ -4871,6 +5676,146 @@
             if (!isNaN(nsMin)) table.addFilter(d => typeof d.netStrength === "number" && d.netStrength >= nsMin);
             const nsMax = parseFloat(nsMaxRaw);
             if (!isNaN(nsMax)) table.addFilter(d => typeof d.netStrength === "number" && d.netStrength <= nsMax);
+
+            // 追加した項目（カスタム列）の絞り込み
+            document.querySelectorAll(".custom-column-filter").forEach(function(el) {
+                const field = el.getAttribute("data-custom-field");
+                const val = el.value.trim();
+                if (!val) return;
+                if (el.tagName === "SELECT") {
+                    table.addFilter(field, "=", val);
+                } else {
+                    const needle = val.toLowerCase();
+                    table.addFilter(d => String(d[field] || "").toLowerCase().includes(needle));
+                }
+            });
+
+            // エントリーログの中身での絞り込み
+            function checkedValues(id) {
+                return Array.from(document.querySelectorAll(`#${id} input:checked`)).map(el => el.value);
+            }
+            function entryLogField(d, field) {
+                return (d.mieruka && d.mieruka.type === "entry" && d.mieruka.data) ? d.mieruka.data[field] : undefined;
+            }
+            function missLogField(d, field) {
+                return (d.mieruka && d.mieruka.type === "miss" && d.mieruka.data) ? d.mieruka.data[field] : undefined;
+            }
+            function noticeLogField(d, field) {
+                return (d.mieruka && d.mieruka.type === "notice" && d.mieruka.data) ? d.mieruka.data[field] : undefined;
+            }
+            function missResultLogField(d, field) {
+                return (d.missResultLog && d.missResultLog.data) ? d.missResultLog.data[field] : undefined;
+            }
+            // チェックした値のいずれかが、指定した複数フィールド（配列項目・単一値項目どちらでも可）のどれかに含まれていればヒットとする
+            function matchesAnyField(d, checkedVals, accessor, fields) {
+                return fields.some(function(f) {
+                    const val = accessor(d, f);
+                    if (Array.isArray(val)) return val.some(v => checkedVals.indexOf(v) !== -1);
+                    return checkedVals.indexOf(val) !== -1;
+                });
+            }
+
+            const econStarVals = checkedValues("filter-entry-econ-star");
+            if (econStarVals.length) table.addFilter(d => {
+                const arr = entryLogField(d, "entry_econ_star");
+                return Array.isArray(arr) && arr.some(v => econStarVals.indexOf(v) !== -1);
+            });
+
+            const econMajorVals = checkedValues("filter-entry-econ-major");
+            if (econMajorVals.length) table.addFilter(d => {
+                const arr = entryLogField(d, "entry_econ_major");
+                return Array.isArray(arr) && arr.some(v => econMajorVals.indexOf(v) !== -1);
+            });
+
+            // 監視状況: エントリーログ（entry_watch_state）・見送りログ（miss_watch_state / miss_watch_unneeded）・
+            // 気づき漏れログ（notice_situation）をまとめて1つの絞り込みにしている
+            const watchVals = checkedValues("filter-watch-state");
+            if (watchVals.length) table.addFilter(d => {
+                if (watchVals.indexOf(entryLogField(d, "entry_watch_state")) !== -1) return true;
+                if (watchVals.indexOf(missLogField(d, "miss_watch_state")) !== -1) return true;
+                if (watchVals.indexOf(missLogField(d, "miss_watch_unneeded")) !== -1) return true;
+                if (watchVals.indexOf(noticeLogField(d, "notice_situation")) !== -1) return true;
+                return false;
+            });
+
+            // 見送り結果（miss_result_correct・miss_result_incorrect・miss_result_neutralの3項目をまとめて絞り込み）
+            const missResultVals = checkedValues("filter-miss-result");
+            if (missResultVals.length) table.addFilter(d => matchesAnyField(d, missResultVals, missResultLogField, ["miss_result_correct", "miss_result_incorrect", "miss_result_neutral"]));
+
+            const trendStageVals = checkedValues("filter-entry-trend-stage");
+            if (trendStageVals.length) table.addFilter(d => trendStageVals.indexOf(entryLogField(d, "entry_trend_stage")) !== -1);
+
+            const corrMin = parseFloat(document.getElementById("filter-entry-correlation-min").value);
+            if (!isNaN(corrMin)) table.addFilter(d => { const v = parseFloat(entryLogField(d, "entry_correlation")); return !isNaN(v) && v >= corrMin; });
+            const corrMax = parseFloat(document.getElementById("filter-entry-correlation-max").value);
+            if (!isNaN(corrMax)) table.addFilter(d => { const v = parseFloat(entryLogField(d, "entry_correlation")); return !isNaN(v) && v <= corrMax; });
+
+            // 神器・エントリートリガー：チェックした項目は「値に関わらず選択されていること」をすべて満たす必要がある（AND）
+            const kamiFields = checkedValues("filter-entry-kami");
+            kamiFields.forEach(function(field) {
+                table.addFilter(d => !!entryLogField(d, field));
+            });
+            const triggerFields = checkedValues("filter-entry-trigger");
+            triggerFields.forEach(function(field) {
+                table.addFilter(d => !!entryLogField(d, field));
+            });
+
+            const timePassVals = checkedValues("filter-entry-time-pass");
+            if (timePassVals.length) table.addFilter(d => {
+                const arr = entryLogField(d, "entry_time_pass");
+                return Array.isArray(arr) && arr.some(v => timePassVals.indexOf(v) !== -1);
+            });
+
+            const RISK_FIELD_GROUPS = ["entry_risk_env", "entry_risk_structure", "entry_risk_time", "entry_risk_other"];
+            const riskVals = checkedValues("filter-entry-risk");
+            if (riskVals.length) table.addFilter(d => {
+                for (const f of RISK_FIELD_GROUPS) {
+                    const arr = entryLogField(d, f);
+                    if (Array.isArray(arr) && arr.some(v => riskVals.indexOf(v) !== -1)) return true;
+                }
+                return false;
+            });
+
+            const riskCountMin = parseFloat(document.getElementById("filter-entry-risk-count-min").value);
+            if (!isNaN(riskCountMin)) table.addFilter(d => {
+                let count = 0;
+                RISK_FIELD_GROUPS.forEach(function(f) {
+                    const arr = entryLogField(d, f);
+                    if (Array.isArray(arr)) count += arr.length;
+                });
+                return count >= riskCountMin;
+            });
+
+            const selfStateVals = checkedValues("filter-entry-self-state");
+            if (selfStateVals.length) table.addFilter(d => {
+                const arr = entryLogField(d, "entry_self_state");
+                return Array.isArray(arr) && arr.some(v => selfStateVals.indexOf(v) !== -1);
+            });
+        }
+
+        const ENTRY_FILTER_CHECKBOX_IDS = [
+            "filter-entry-econ-star", "filter-entry-econ-major", "filter-watch-state", "filter-entry-trend-stage",
+            "filter-entry-kami", "filter-entry-trigger", "filter-entry-time-pass",
+            "filter-entry-risk", "filter-entry-self-state",
+            "filter-miss-result"
+        ];
+        const ENTRY_FILTER_INPUT_IDS = [
+            "filter-entry-correlation-min", "filter-entry-correlation-max", "filter-entry-risk-count-min"
+        ];
+        ENTRY_FILTER_CHECKBOX_IDS.forEach(function(id) {
+            document.getElementById(id).addEventListener("change", applyFilters);
+        });
+        ENTRY_FILTER_INPUT_IDS.forEach(function(id) {
+            document.getElementById(id).addEventListener("input", applyFilters);
+        });
+
+        function clearEntryFilterInputs() {
+            ENTRY_FILTER_CHECKBOX_IDS.forEach(function(id) {
+                document.querySelectorAll(`#${id} input[type="checkbox"]`).forEach(cb => { cb.checked = false; });
+            });
+            ENTRY_FILTER_INPUT_IDS.forEach(function(id) {
+                document.getElementById(id).value = "";
+            });
         }
 
         const ADVANCED_FILTER_IDS = [
@@ -4895,6 +5840,7 @@
             ADVANCED_FILTER_CHECKBOX_IDS.forEach(function(id) {
                 document.querySelectorAll(`#${id} input[type="checkbox"]`).forEach(cb => { cb.checked = false; });
             });
+            document.querySelectorAll(".custom-column-filter").forEach(function(el) { el.value = ""; });
         }
 
         document.getElementById("btn-toggle-advanced-filter").addEventListener("click", function() {
@@ -4907,24 +5853,55 @@
         document.getElementById("btn-toggle-maintenance").addEventListener("click", function() {
             maintenanceMode = !maintenanceMode;
             this.classList.toggle("btn-active", maintenanceMode);
+            document.body.classList.toggle("maintenance-active", maintenanceMode);
         });
+
+        // メンテナンスモード×集計パネル: 集計表・黄色集計の各項目にカーソルを合わせると、算出元・計算方法を表示する
+        (function() {
+            let mntTipEl = null;
+            function ensureMntTipEl() {
+                if (!mntTipEl) {
+                    mntTipEl = document.createElement("div");
+                    mntTipEl.className = "stat-mnt-tooltip";
+                    document.body.appendChild(mntTipEl);
+                }
+                return mntTipEl;
+            }
+            function positionMntTip(e) {
+                const el = ensureMntTipEl();
+                el.style.left = (e.clientX + 14) + "px";
+                el.style.top = (e.clientY + 14) + "px";
+            }
+            document.querySelectorAll(".stat-card[data-mnt-tip]").forEach(function(card) {
+                card.addEventListener("mouseenter", function(e) {
+                    if (!maintenanceMode) return;
+                    const el = ensureMntTipEl();
+                    el.textContent = card.getAttribute("data-mnt-tip");
+                    el.style.display = "block";
+                    positionMntTip(e);
+                });
+                card.addEventListener("mousemove", function(e) {
+                    if (!maintenanceMode) return;
+                    positionMntTip(e);
+                });
+                card.addEventListener("mouseleave", function() {
+                    if (mntTipEl) mntTipEl.style.display = "none";
+                });
+            });
+        })();
 
         document.getElementById("btn-reset-advanced-filters").addEventListener("click", function() {
             clearAdvancedFilterInputs();
+            clearEntryFilterInputs();
             applyFilters();
         });
 
-        document.getElementById("filter-pair").addEventListener("change", applyFilters);
-        document.getElementById("filter-eval").addEventListener("change", applyFilters);
-        document.getElementById("filter-log-type").addEventListener("change", applyFilters);
         document.getElementById("filter-search").addEventListener("input", applyFilters);
 
         document.getElementById("btn-reset-filters").addEventListener("click", function() {
-            document.getElementById("filter-pair").value = "";
-            document.getElementById("filter-eval").value = "";
-            document.getElementById("filter-log-type").value = "";
             document.getElementById("filter-search").value = "";
             clearAdvancedFilterInputs();
+            clearEntryFilterInputs();
             table.clearFilter();
         });
 
