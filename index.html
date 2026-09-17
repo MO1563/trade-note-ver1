@@ -87,6 +87,7 @@
             color: var(--text-primary);
             padding: 20px;
             min-height: 100vh;
+            overflow-x: hidden;
             transition: background-color 0.35s ease, color 0.35s ease;
             letter-spacing: 0.01em;
         }
@@ -101,6 +102,7 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            overflow-x: hidden;
 
         }
 
@@ -633,17 +635,18 @@
         /* Tabulator Custom Styling & Spreadsheet Grid Horizontal Scroll */
         #trade-table-container {
             border-radius: 12px;
-            overflow-x: auto;
             border: 1px solid var(--border-color);
             box-shadow: var(--shadow-lg);
             background-color: var(--card-bg);
+            width: 100%;
+            min-width: 0;
+            overflow-x: auto;
         }
 
         .tabulator {
             background-color: var(--card-bg) !important;
             border: none !important;
             font-size: 0.875rem;
-            min-width: 2410px !important;
         }
 
         .tabulator-header {
@@ -1163,6 +1166,57 @@
         .as-links-row td { padding: 12px 14px; font-size: 0.8rem; line-height: 1.7; }
         .as-links-row input.mieruka-input { max-width: 420px; display: inline-block; margin-left: 6px; }
         .as-link-open-btn { margin-left: 6px; }
+
+        /* ===== 対処法シート ===== */
+        .cs-table {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+        }
+        .cs-table th, .cs-table td {
+            border: 1px solid var(--mk-border);
+            padding: 8px 10px;
+            vertical-align: top;
+        }
+        .cs-table thead th {
+            background: #0e7490;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .cs-col-item { width: 26%; }
+        .cs-col-rank { width: 14%; }
+        .cs-col-method { width: 55%; }
+        .cs-col-del { width: 40px; }
+        .cs-table td .mieruka-input, .cs-table td select.mieruka-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            padding: 4px 2px;
+        }
+        .cs-table td textarea.mieruka-input {
+            min-height: 44px;
+            resize: vertical;
+            line-height: 1.5;
+            font-family: inherit;
+        }
+        .cs-rank-select {
+            background: rgba(56, 189, 248, 0.10);
+        }
+        .cs-row-del-btn {
+            background: none;
+            border: none;
+            color: #f87171;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        .cs-row-del-btn:hover { color: #ef4444; }
 
 
         .mieruka-columns {
@@ -1893,11 +1947,17 @@
             </div>
         </div>
 
-        <!-- 9つの行動戦略: 絞り込み行の上に配置 -->
+        <!-- 9つの行動戦略・対処法シート: 絞り込み行の上に配置 -->
         <div class="control-panel" style="padding: 8px 16px;">
             <div class="filters-group">
                 <button class="btn btn-secondary" id="btn-open-action-strategy" style="padding: 8px 12px;" title="月別行動目標（9つの行動戦略）を記録します">
                     <i class="fa-solid fa-list-check"></i> 9つの行動戦略
+                </button>
+                <button class="btn btn-secondary" id="btn-open-coping-sheet" style="padding: 8px 12px;" title="「できない」が”できる”に変わる対処法シート">
+                    <i class="fa-solid fa-hand-holding-medical"></i> 対処法シート
+                </button>
+                <button class="btn btn-secondary" id="btn-toggle-nice-trade" style="padding: 8px 12px;" title="ナイストレードにチェックが入っているトレードのみ表示します">
+                    <i class="fa-solid fa-star"></i> ナイストレード集
                 </button>
             </div>
         </div>
@@ -2495,6 +2555,51 @@
         </div>
     </div>
 
+    <!-- 対処法シート: 「できない」が"できる"に変わる対処法シート -->
+    <div class="mieruka-overlay" id="coping-sheet-overlay">
+        <div class="mieruka-card">
+            <div class="mieruka-titlebar">
+                <h3>「できない」が"できる"に変わる対処法シート</h3>
+                <button class="mieruka-close" id="cs-close-btn">&times;</button>
+            </div>
+            <div class="mieruka-body" style="padding: 0;">
+                <div style="display:flex; align-items:center; gap:10px; padding: 14px 20px; border-bottom: 1px solid var(--mk-border); flex-wrap: wrap;">
+                    <button type="button" class="btn btn-secondary" id="cs-add-row-btn" style="padding: 6px 12px;"><i class="fa-solid fa-plus"></i> 行を追加</button>
+                    <span style="font-size:0.8rem; color:#8a93a6;">入力内容は自動保存されます（トレードノート本体とは別の記録です）</span>
+                </div>
+                <div style="display:flex; gap:0; height: calc(100vh - 130px); overflow: hidden;">
+                    <div style="flex: 1 1 65%; overflow:auto;">
+                        <table class="cs-table" id="cs-table">
+                            <thead>
+                                <tr>
+                                    <th class="cs-col-item">改善項目</th>
+                                    <th class="cs-col-rank">改善ランク</th>
+                                    <th class="cs-col-method">改善項目に対する対処ルールを作る</th>
+                                    <th class="cs-col-del"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="cs-table-body"></tbody>
+                        </table>
+                    </div>
+                    <div style="flex: 0 0 340px; max-width: 340px; overflow:auto; padding: 16px 18px; background: rgba(250, 204, 21, 0.06); border-left: 1px solid var(--mk-border); font-size: 0.82rem; line-height: 1.7; white-space: pre-line;">【使い方】
+(1) あなたがよくやってしまう問題を具体的に改善項目の欄に記入する
+(2) 「改善ランク(B列)欄」に9つの行動戦略シートを参考にSS・S・Aランクの改善優先度をつける
+(3) 「対処法(C列)欄」に改善項目に対する対処ルールを未来の自分に手紙を書くように具体的に書く
+(4) すべての項目の入力が済んだら、エントリー直前直後にチェックし、該当する改善項目があれば必ず実行できるように「対処法(C列)欄」セルをコピーして、トレード記録シートの該当欄に貼り付けどう対処すれば改善するのかを意識し続ける
+
+一番大事なのは認識し、実行すること。
+最初はわかってるのに対処できない！ということがほとんどだと思いますが、意識し続け実行し続ければ少しづつ改善していきます。
+改善しないのは認識しても対処しないからor対処法がわからないからです。
+
+失敗すること、負けることが悪いことではなく、対処しないことがFXで勝てない最大の要因です。
+対処法がわかっているのであれば対処し続けましょう。
+わからなければ、一人で悩まずわかる人にどんどん質問しましょう！
+それがFXで勝ち、自由なライフスタイルを手に入れる近道です！</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Fullscreen image lightbox: enlarges a chart image for later viewing -->
     <div class="image-lightbox-overlay" id="image-lightbox-overlay">
         <button type="button" class="image-lightbox-close" id="image-lightbox-close">&times;</button>
@@ -2883,6 +2988,7 @@
                 links: { video: "", blog: "https://mieruka-labo.com/9-action-strategy" },
                 years: {}
             },
+            copingSheet: { rows: [] },
             notebooks: {
                 "nb_main": {
                     id: "nb_main",
@@ -2935,6 +3041,10 @@
             }
             if (!appState.actionStrategy.years) {
                 appState.actionStrategy.years = {};
+            }
+
+            if (!appState.copingSheet || typeof appState.copingSheet !== "object" || !Array.isArray(appState.copingSheet.rows)) {
+                appState.copingSheet = { rows: [] };
             }
 
             if (!appState.notebooks[appState.activeNotebookId]) {
@@ -4820,6 +4930,23 @@
                     width: 190
                 },
                 {
+                    title: "ナイストレード",
+                    field: "niceTrade",
+                    hozAlign: "center",
+                    width: 120,
+                    headerSort: true,
+                    formatter: function(cell) {
+                        const checked = cell.getValue() === true;
+                        return `<input type="checkbox" class="nice-trade-checkbox" ${checked ? "checked" : ""} style="width:18px; height:18px; cursor:pointer;">`;
+                    },
+                    cellClick: function(e, cell) {
+                        if (e.target.tagName === "INPUT") {
+                            cell.setValue(!cell.getValue());
+                            saveAppState();
+                        }
+                    }
+                },
+                {
                     title: "",
                     formatter: function() {
                         return '<button class="btn-del-row" title="削除"><i class="fa-solid fa-trash-can"></i></button>';
@@ -4870,7 +4997,12 @@
         }
 
         function addCustomColumnToTable(col) {
-            table.addColumn(buildCustomColumnTabulatorDef(col), false, "chartsAfter");
+            const result = table.addColumn(buildCustomColumnTabulatorDef(col), false, "chartsAfter");
+            if (result && typeof result.then === "function") {
+                result.then(function() {
+                    table.redraw(true);
+                });
+            }
         }
 
         function renderCustomColumnsList() {
@@ -5083,6 +5215,95 @@
             if (!btn) return;
             const url = appState.actionStrategy.links[btn.getAttribute("data-link-open")];
             if (url) window.open(url, "_blank", "noopener");
+        });
+
+        // ===== 対処法シート =====
+        const CS_MIN_ROWS = 15;
+        let csSaveTimer = null;
+        function csScheduleSave() {
+            clearTimeout(csSaveTimer);
+            csSaveTimer = setTimeout(function() {
+                localStorage.setItem(STORAGE_KEY_MULTI, JSON.stringify(appState));
+            }, 500);
+        }
+        function csEnsureMinRows() {
+            while (appState.copingSheet.rows.length < CS_MIN_ROWS) {
+                appState.copingSheet.rows.push({ item: "", rank: "", method: "" });
+            }
+        }
+        function renderCopingSheetTable() {
+            csEnsureMinRows();
+            const rows = appState.copingSheet.rows;
+            let html = "";
+            rows.forEach(function(row, i) {
+                html += `<tr data-row-index="${i}">
+                    <td><textarea class="mieruka-input cs-item-input" data-row="${i}" data-field="item" placeholder="例: 損切りをずらしてしまう">${(row.item || "").replace(/</g, "&lt;")}</textarea></td>
+                    <td>
+                        <select class="mieruka-input cs-rank-select cs-rank-input" data-row="${i}" data-field="rank">
+                            <option value=""></option>
+                            <option value="SS" ${row.rank === "SS" ? "selected" : ""}>SS</option>
+                            <option value="S" ${row.rank === "S" ? "selected" : ""}>S</option>
+                            <option value="A" ${row.rank === "A" ? "selected" : ""}>A</option>
+                        </select>
+                    </td>
+                    <td><textarea class="mieruka-input cs-method-input" data-row="${i}" data-field="method" placeholder="例: 損切りラインを引いたら絶対に動かさない。動かしたくなったら一旦チャートから離れる">${(row.method || "").replace(/</g, "&lt;")}</textarea></td>
+                    <td style="text-align:center;"><button type="button" class="cs-row-del-btn" data-del-row="${i}" title="この行を削除"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>`;
+            });
+            document.getElementById("cs-table-body").innerHTML = html;
+        }
+        function openCopingSheetModal() {
+            renderCopingSheetTable();
+            document.getElementById("coping-sheet-overlay").classList.add("active");
+        }
+        function closeCopingSheetModal() {
+            document.getElementById("coping-sheet-overlay").classList.remove("active");
+            localStorage.setItem(STORAGE_KEY_MULTI, JSON.stringify(appState));
+            if (document.body.classList.contains("popout-mode")) {
+                window.close();
+            }
+        }
+        function openCopingSheetPopout() {
+            saveAppState();
+            const url = location.href.split("#")[0] + "#popout=copingsheet";
+            window.open(url, "coping_sheet_popout", "width=1300,height=880,noopener");
+        }
+
+        document.getElementById("btn-open-coping-sheet").addEventListener("click", openCopingSheetPopout);
+        document.getElementById("cs-close-btn").addEventListener("click", closeCopingSheetModal);
+        document.getElementById("coping-sheet-overlay").addEventListener("click", function(e) {
+            if (e.target.id === "coping-sheet-overlay") closeCopingSheetModal();
+        });
+        document.getElementById("cs-add-row-btn").addEventListener("click", function() {
+            appState.copingSheet.rows.push({ item: "", rank: "", method: "" });
+            renderCopingSheetTable();
+            csScheduleSave();
+        });
+        document.getElementById("cs-table-body").addEventListener("input", function(e) {
+            const target = e.target;
+            const field = target.getAttribute("data-field");
+            if (!field) return;
+            const idx = parseInt(target.getAttribute("data-row"), 10);
+            if (isNaN(idx) || !appState.copingSheet.rows[idx]) return;
+            appState.copingSheet.rows[idx][field] = target.value;
+            csScheduleSave();
+        });
+        document.getElementById("cs-table-body").addEventListener("change", function(e) {
+            const target = e.target;
+            if (!target.classList.contains("cs-rank-input")) return;
+            const idx = parseInt(target.getAttribute("data-row"), 10);
+            if (isNaN(idx) || !appState.copingSheet.rows[idx]) return;
+            appState.copingSheet.rows[idx].rank = target.value;
+            csScheduleSave();
+        });
+        document.getElementById("cs-table-body").addEventListener("click", function(e) {
+            const delBtn = e.target.closest("[data-del-row]");
+            if (!delBtn) return;
+            const idx = parseInt(delBtn.getAttribute("data-del-row"), 10);
+            if (isNaN(idx)) return;
+            appState.copingSheet.rows.splice(idx, 1);
+            renderCopingSheetTable();
+            csScheduleSave();
         });
 
         document.getElementById("new-column-type").addEventListener("change", function() {
@@ -5522,6 +5743,7 @@
                 appState = JSON.parse(raw);
                 if (!Array.isArray(appState.customColumns)) appState.customColumns = [];
                 if (!appState.actionStrategy) appState.actionStrategy = { links: { video: "", blog: "https://mieruka-labo.com/9-action-strategy" }, years: {} };
+                if (!appState.copingSheet || !Array.isArray(appState.copingSheet.rows)) appState.copingSheet = { rows: [] };
                 const activeNb = appState.notebooks[appState.activeNotebookId];
                 if (activeNb) {
                     table.setData(migrateLegacyDateTime(activeNb.data || [])).then(function() {
@@ -5550,6 +5772,11 @@
                     switchNotebook(nb);
                 }
                 openActionStrategyModal();
+                return;
+            }
+
+            if (kind === "copingsheet") {
+                openCopingSheetModal();
                 return;
             }
 
@@ -5631,10 +5858,15 @@
         }
 
         // Filter Handlers
+        let niceTradeOnly = false;
         function applyFilters() {
             const searchVal = document.getElementById("filter-search").value.trim().toLowerCase();
 
             table.clearFilter();
+
+            if (niceTradeOnly) {
+                table.addFilter(d => d.niceTrade === true);
+            }
 
             if (searchVal) {
                 table.addFilter(function(data) {
@@ -5902,7 +6134,15 @@
             document.getElementById("filter-search").value = "";
             clearAdvancedFilterInputs();
             clearEntryFilterInputs();
+            niceTradeOnly = false;
+            document.getElementById("btn-toggle-nice-trade").classList.remove("btn-active");
             table.clearFilter();
+        });
+
+        document.getElementById("btn-toggle-nice-trade").addEventListener("click", function() {
+            niceTradeOnly = !niceTradeOnly;
+            this.classList.toggle("btn-active", niceTradeOnly);
+            applyFilters();
         });
 
         document.getElementById("btn-toggle-summary").addEventListener("click", function() {
