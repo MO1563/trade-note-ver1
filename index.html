@@ -4,7 +4,7 @@
     <script>
         (function () {
             try {
-                var t = localStorage.getItem('trade_note_theme') || 'dark';
+                var t = localStorage.getItem('trade_note_theme') || 'light';
                 document.documentElement.setAttribute('data-theme', t);
             } catch (e) {}
         })();
@@ -45,14 +45,20 @@
             --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
             --scrollbar-thumb: #35353f;
             color-scheme: dark;
+            --mk-bg: #0b0f19;
+            --mk-panel: #101627;
+            --mk-border: #1f2b45;
+            --mk-cyan: #22d3ee;
+            --mk-pink: #f43f6e;
+            --mk-text: #e2e8f0;
         }
 
         :root[data-theme="light"] {
-            --bg-color: #f7f6f2;
-            --bg-color-alt: #f1efe8;
+            --bg-color: #ffffff;
+            --bg-color-alt: #fafafa;
             --card-bg: #ffffff;
-            --card-bg-alt: #faf9f5;
-            --input-bg: #f4f3ee;
+            --card-bg-alt: #fafafa;
+            --input-bg: #f5f5f5;
             --border-color: #e7e3d8;
             --border-soft: rgba(20, 20, 25, 0.06);
             --accent-blue: #2563eb;
@@ -71,6 +77,12 @@
             --shadow-lg: 0 24px 48px -16px rgba(20, 20, 25, 0.16);
             --scrollbar-thumb: #ddd9cc;
             color-scheme: light;
+            --mk-bg: #ffffff;
+            --mk-panel: #f5f5f5;
+            --mk-border: #e0e0e0;
+            --mk-cyan: #0891b2;
+            --mk-pink: #db2777;
+            --mk-text: #1a1a1f;
         }
 
         * {
@@ -974,13 +986,8 @@
         }
 
         .mieruka-card {
-            --mk-bg: #0b0f19;
-            --mk-panel: #101627;
-            --mk-border: #1f2b45;
-            --mk-cyan: #22d3ee;
-            --mk-pink: #f43f6e;
             background: var(--mk-bg);
-            color: #e2e8f0;
+            color: var(--mk-text);
             width: 100%;
             max-width: 100%;
             height: 100vh;
@@ -1035,7 +1042,7 @@
         }
         .mieruka-tab-btn:hover {
             background: rgba(255, 255, 255, 0.09);
-            color: #e2e8f0;
+            color: var(--mk-text, #e2e8f0);
         }
         .mieruka-tab-btn.active {
             background: rgba(255, 255, 255, 0.08);
@@ -1103,18 +1110,88 @@
             vertical-align: top;
             padding: 0;
         }
+        .as-colletter-row th {
+            background: #ffffff;
+            color: #94a3b8;
+            font-size: 0.68rem;
+            font-weight: 400;
+            text-align: center;
+            padding: 3px 0;
+            position: sticky;
+            top: 0;
+            z-index: 4;
+            position: relative;
+        }
+        .as-colletter-row th.as-rownum-col {
+            left: 0;
+            z-index: 5;
+        }
+        .as-table .as-rownum-col {
+            width: 34px;
+            min-width: 34px;
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: #ffffff;
+            color: #94a3b8;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 0.68rem;
+            font-weight: 400;
+            position: relative;
+        }
+        .as-col-resize-handle {
+            position: absolute;
+            top: 0;
+            right: -3px;
+            width: 6px;
+            height: 100%;
+            cursor: col-resize;
+            z-index: 6;
+        }
+        .as-col-resize-handle:hover, .as-col-resize-handle.as-resizing {
+            background: var(--mk-cyan, #22d3ee);
+            opacity: 0.5;
+        }
+        .as-row-resize-handle {
+            position: absolute;
+            left: 0;
+            bottom: -3px;
+            width: 100%;
+            height: 6px;
+            cursor: row-resize;
+            z-index: 6;
+        }
+        .as-row-resize-handle:hover, .as-row-resize-handle.as-resizing {
+            background: var(--mk-cyan, #22d3ee);
+            opacity: 0.5;
+        }
+        .as-table .as-step-col {
+            width: 64px;
+            min-width: 64px;
+            position: sticky;
+            left: 34px;
+            z-index: 3;
+            background: var(--mk-panel);
+            text-align: center;
+            vertical-align: middle;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--mk-text, #cbd5e1);
+        }
         .as-table .as-label-col {
             width: 190px;
             min-width: 190px;
             position: sticky;
-            left: 0;
+            left: 98px;
             z-index: 2;
             background: var(--mk-panel);
+            vertical-align: middle;
         }
         .as-table .as-month-col { width: 260px; min-width: 260px; }
         .as-section-row th {
-            background: #0e7490;
-            color: #ffffff;
+            background: #ffffff;
+            color: var(--mk-text, #1a1a1f);
             font-weight: 700;
             font-size: 0.85rem;
             padding: 8px 12px;
@@ -1123,8 +1200,8 @@
             left: 0;
         }
         .as-month-header {
-            background: #14532d;
-            color: #ffffff;
+            background: #ffffff;
+            color: var(--mk-text, #1a1a1f);
             font-weight: 700;
             font-size: 0.85rem;
             text-align: center;
@@ -1141,7 +1218,7 @@
             font-size: 0.82rem;
             font-weight: 700;
             padding: 10px 12px;
-            color: #e2e8f0;
+            color: var(--mk-text, #e2e8f0);
         }
         .as-row-blue .as-row-label, .as-row-blue { background: rgba(56, 189, 248, 0.10); }
         .as-row-yellow .as-row-label, .as-row-yellow { background: rgba(250, 204, 21, 0.10); }
@@ -1154,7 +1231,7 @@
             resize: vertical;
             background: transparent;
             border: none;
-            color: #e2e8f0;
+            color: var(--mk-text, #e2e8f0);
             font-size: 0.8rem;
             line-height: 1.55;
             padding: 10px 12px;
@@ -1163,9 +1240,42 @@
         .as-row-green .as-cell-input { min-height: 180px; }
         .as-cell-input:focus { outline: 1px solid var(--mk-cyan); outline-offset: -1px; }
         .as-cell-input::placeholder { color: #64748b; white-space: pre-line; }
+        .as-cell-input.as-placeholder-red::placeholder { color: #ef4444; white-space: pre-line; }
         .as-links-row td { padding: 12px 14px; font-size: 0.8rem; line-height: 1.7; }
         .as-links-row input.mieruka-input { max-width: 420px; display: inline-block; margin-left: 6px; }
         .as-link-open-btn { margin-left: 6px; }
+
+        .as-steps-guide {
+            margin: 18px 20px 20px 20px;
+            background: rgba(74, 222, 128, 0.12);
+            border: 1px solid rgba(74, 222, 128, 0.35);
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+        .as-steps-guide-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            color: var(--mk-text, #e2e8f0);
+        }
+        .as-steps-guide-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .as-steps-guide-table td {
+            border: 1px solid rgba(74, 222, 128, 0.35);
+            padding: 7px 12px;
+            font-size: 0.82rem;
+            line-height: 1.6;
+            vertical-align: top;
+            color: var(--mk-text, #e2e8f0);
+        }
+        .as-steps-guide-table td:first-child {
+            width: 70px;
+            text-align: center;
+            font-weight: 700;
+            white-space: nowrap;
+        }
 
         /* ===== 対処法シート ===== */
         .cs-table {
@@ -1196,7 +1306,7 @@
             width: 100%;
             background: transparent;
             border: none;
-            color: #e2e8f0;
+            color: var(--mk-text, #e2e8f0);
             font-size: 0.85rem;
             padding: 4px 2px;
         }
@@ -1242,7 +1352,7 @@
         .mieruka-col-title {
             font-size: 0.85rem;
             font-weight: 700;
-            color: #e2e8f0;
+            color: var(--mk-text, #e2e8f0);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -1278,7 +1388,7 @@
             width: 100%;
             background: var(--mk-bg);
             border: 1px solid var(--mk-border);
-            color: #e2e8f0;
+            color: var(--mk-text, #e2e8f0);
             border-radius: 6px;
             padding: 7px 10px;
             font-size: 0.82rem;
@@ -1309,7 +1419,7 @@
             min-height: 70px;
             background: var(--mk-bg);
             border: 1px solid var(--mk-border);
-            color: #e2e8f0;
+            color: var(--mk-text, #e2e8f0);
             border-radius: 6px;
             padding: 8px 10px;
             font-size: 0.82rem;
@@ -1347,7 +1457,7 @@
         .chip-btn:hover {
             background: rgba(255, 255, 255, 0.09);
             border-color: rgba(34, 211, 238, 0.5);
-            color: #e2e8f0;
+            color: var(--mk-text, #e2e8f0);
         }
         .chip-btn.active {
             background: rgba(34, 211, 238, 0.12);
@@ -1512,7 +1622,7 @@
         }
         .score-row-label {
             font-size: 0.75rem;
-            color: #e2e8f0;
+            color: var(--mk-text, #e2e8f0);
             flex: 1;
         }
         .score-row .chip-group { flex: 0 0 auto; }
@@ -1631,7 +1741,7 @@
         .chart-slot-label {
             font-size: 0.78rem;
             font-weight: 700;
-            color: #e2e8f0;
+            color: var(--mk-text, #e2e8f0);
         }
         .chart-slot-box {
             position: relative;
@@ -1709,7 +1819,7 @@
             font-size: 0.78rem;
             color: #9aa4b8;
         }
-        .chart-folder-bar strong { color: #e2e8f0; }
+        .chart-folder-bar strong { color: var(--mk-text, #e2e8f0); }
 
         /* Fullscreen image lightbox */
         .image-lightbox-overlay {
@@ -2475,6 +2585,7 @@
 
                 <!-- 見送り結果 -->
                 <div class="mieruka-panel" id="mk-panel-miss_result" data-panel="miss_result">
+                    <div class="mieruka-fullwidth" id="mk-miss-virtual" style="margin-top:14px;"></div>
                     <div class="mieruka-fullwidth" id="mk-miss-result" style="margin-top:14px;"></div>
                     <div class="mieruka-fullwidth" id="mk-miss-correct" style="margin-top:14px;"></div>
                     <div class="mieruka-fullwidth" id="mk-miss-incorrect" style="margin-top:14px;"></div>
@@ -2538,7 +2649,7 @@
     <div class="mieruka-overlay" id="action-strategy-overlay">
         <div class="mieruka-card">
             <div class="mieruka-titlebar">
-                <h3>9つの行動戦略（月別行動目標） <span id="as-notebook-label" style="font-size:0.8rem; font-weight:400; color:#8a93a6;"></span></h3>
+                <h3>9つの行動戦略（月別行動目標） <span id="as-notebook-label" style="font-size:1rem; font-weight:700; color:#ffffff; background:#dc2626; padding:3px 10px; border-radius:8px; vertical-align:middle;"></span></h3>
                 <button class="mieruka-close" id="as-close-btn">&times;</button>
             </div>
             <div class="mieruka-body" style="padding: 0;">
@@ -2550,6 +2661,23 @@
                 </div>
                 <div style="overflow:auto; height: calc(100vh - 130px);">
                     <table class="as-table" id="as-table"></table>
+                    <div class="as-steps-guide">
+                        <div class="as-steps-guide-title">9つの「行動戦略」構築手順</div>
+                        <table class="as-steps-guide-table">
+                            <tr><td>手順1</td><td>自分の弱点をわかる限り「全て書き出す」</td></tr>
+                            <tr><td>手順2</td><td>自分の弱点に「危険度ランク」S、A、Bをつける（S←危険度高い、危険度低い→B）</td></tr>
+                            <tr><td>手順3</td><td>「危険度ランク」をつけたら、「Sランクの弱点をピックアップ」する</td></tr>
+                            <tr><td>手順4</td><td>Sランクの弱点の中から「金額的に負けている一番の弱点」を見つけて「SSランク」に位置付ける</td></tr>
+                            <tr><td>手順5</td><td>「SSランクの弱点行動」をとってしまう原因を探る（すべて書き出す）</td></tr>
+                            <tr><td>手順6</td><td>明確にした原因で「どう対処すれば」弱点を克服できるのか、できる限り具体的な自分の行動戦略を立てる※成果目標ではなく行動目標</td></tr>
+                            <tr><td>手順7</td><td>「SSランクの弱点を克服する」達成期限を必ず設定する</td></tr>
+                            <tr><td>手順8</td><td>常に目に入るところに目標を掲げる（壁に貼る、スマホの待ち受けにするなど）</td></tr>
+                            <tr><td>手順9</td><td>友人や知人、パートナー（自分以外の人）に宣言して、協力してもらう</td></tr>
+                            <tr><td>手順10</td><td>自分の「SSランクの弱点」を克服したいために、どう行動しているかをブログや動画などでアウトプット（公開）する</td></tr>
+                            <tr><td>手順11</td><td>最低、月に1回見直し、「SSランクの弱点」が克服できたら次の「SSランクの弱点」を探し出す</td></tr>
+                            <tr><td>手順12</td><td>「手順4」に戻って、繰り返し行動し続ける</td></tr>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2559,7 +2687,7 @@
     <div class="mieruka-overlay" id="coping-sheet-overlay">
         <div class="mieruka-card">
             <div class="mieruka-titlebar">
-                <h3>「できない」が"できる"に変わる対処法シート</h3>
+                <h3>「できない」が"できる"に変わる対処法シート <span id="cs-notebook-label" style="font-size:0.8rem; font-weight:400; color:#8a93a6;"></span></h3>
                 <button class="mieruka-close" id="cs-close-btn">&times;</button>
             </div>
             <div class="mieruka-body" style="padding: 0;">
@@ -2583,17 +2711,17 @@
                     </div>
                     <div style="flex: 0 0 340px; max-width: 340px; overflow:auto; padding: 16px 18px; background: rgba(250, 204, 21, 0.06); border-left: 1px solid var(--mk-border); font-size: 0.82rem; line-height: 1.7; white-space: pre-line;">【使い方】
 (1) あなたがよくやってしまう問題を具体的に改善項目の欄に記入する
-(2) 「改善ランク(B列)欄」に9つの行動戦略シートを参考にSS・S・Aランクの改善優先度をつける
-(3) 「対処法(C列)欄」に改善項目に対する対処ルールを未来の自分に手紙を書くように具体的に書く
-(4) すべての項目の入力が済んだら、エントリー直前直後にチェックし、該当する改善項目があれば必ず実行できるように「対処法(C列)欄」セルをコピーして、トレード記録シートの該当欄に貼り付けどう対処すれば改善するのかを意識し続ける
+(2)「改善ランク欄」に９つの行動戦略シートを参考にSS・S・Aランクの改善優先度をつける
+(3)「改善項目に対する対処ルールを作る欄」に改善項目に対する対処ルールを未来の自分に手紙を書くように具体的に書く
+(4) すべての項目の入力が済んだら、エントリー直前直後にチェックし、該当する改善項目があれば必ず実行できるように「対処法(C列)欄」セルをコピーして、トレード記録シートの「エントリー前の根拠(Ｔ列)」欄に赤字で貼付けどう対処すれば改善するのかを意識し続ける。
 
 一番大事なのは認識し、実行すること。
 最初はわかってるのに対処できない！ということがほとんどだと思いますが、意識し続け実行し続ければ少しづつ改善していきます。
-改善しないのは認識しても対処しないからor対処法がわからないからです。
+改善しないのは認識指定のに対処しないからor対処法がわからないからです。
 
-失敗すること、負けることが悪いことではなく、対処しないことがFXで勝てない最大の要因です。
+失敗すること、負けることが悪いことではないく、対処しないことがFXで勝てない最大の要因です。
 対処法がわかっているのであれば対処し続けましょう。
-わからなければ、一人で悩まずわかる人にどんどん質問しましょう！
+わからなければ、一人で悩まずにわかる人にどんどん質問しましょう！
 それがFXで勝ち、自由なライフスタイルを手に入れる近道です！</div>
                 </div>
             </div>
@@ -2985,10 +3113,10 @@
             activeNotebookId: "nb_main",
             customColumns: [],
             actionStrategy: {
-                links: { video: "", blog: "https://mieruka-labo.com/9-action-strategy" },
-                years: {}
+                links: { video: "https://www.youtube.com/live/TJDCXd3Qtoc", blog: "https://mieruka-labo.com/9-action-strategy" },
+                byNotebook: {}
             },
-            copingSheet: { rows: [] },
+            copingSheet: { byNotebook: {} },
             notebooks: {
                 "nb_main": {
                     id: "nb_main",
@@ -3034,17 +3162,42 @@
             }
 
             if (!appState.actionStrategy || typeof appState.actionStrategy !== "object") {
-                appState.actionStrategy = { links: { video: "", blog: "https://mieruka-labo.com/9-action-strategy" }, years: {} };
+                appState.actionStrategy = { links: { video: "https://www.youtube.com/live/TJDCXd3Qtoc", blog: "https://mieruka-labo.com/9-action-strategy" }, byNotebook: {} };
             }
             if (!appState.actionStrategy.links) {
                 appState.actionStrategy.links = { video: "", blog: "https://mieruka-labo.com/9-action-strategy" };
             }
-            if (!appState.actionStrategy.years) {
-                appState.actionStrategy.years = {};
+            if (!appState.actionStrategy.byNotebook || typeof appState.actionStrategy.byNotebook !== "object") {
+                appState.actionStrategy.byNotebook = {};
+            }
+            // 旧バージョン（全ノート共通の1つのデータだった頃）からの移行: 既存の years をアクティブノートの分として引き継ぐ
+            if (appState.actionStrategy.years && typeof appState.actionStrategy.years === "object") {
+                const targetNb = appState.activeNotebookId || "nb_main";
+                if (!appState.actionStrategy.byNotebook[targetNb]) {
+                    appState.actionStrategy.byNotebook[targetNb] = { years: appState.actionStrategy.years };
+                }
+                delete appState.actionStrategy.years;
+            }
+            if (!appState.actionStrategy.byNotebook[appState.activeNotebookId]) {
+                appState.actionStrategy.byNotebook[appState.activeNotebookId] = { years: {} };
             }
 
-            if (!appState.copingSheet || typeof appState.copingSheet !== "object" || !Array.isArray(appState.copingSheet.rows)) {
-                appState.copingSheet = { rows: [] };
+            if (!appState.copingSheet || typeof appState.copingSheet !== "object") {
+                appState.copingSheet = { byNotebook: {} };
+            }
+            if (!appState.copingSheet.byNotebook || typeof appState.copingSheet.byNotebook !== "object") {
+                appState.copingSheet.byNotebook = {};
+            }
+            // 旧バージョン（全ノート共通の1つのデータだった頃）からの移行: 既存の rows をアクティブノートの分として引き継ぐ
+            if (Array.isArray(appState.copingSheet.rows)) {
+                const csTargetNb = appState.activeNotebookId || "nb_main";
+                if (!appState.copingSheet.byNotebook[csTargetNb]) {
+                    appState.copingSheet.byNotebook[csTargetNb] = { rows: appState.copingSheet.rows };
+                }
+                delete appState.copingSheet.rows;
+            }
+            if (!appState.copingSheet.byNotebook[appState.activeNotebookId] || !Array.isArray(appState.copingSheet.byNotebook[appState.activeNotebookId].rows)) {
+                appState.copingSheet.byNotebook[appState.activeNotebookId] = { rows: [] };
             }
 
             if (!appState.notebooks[appState.activeNotebookId]) {
@@ -3485,6 +3638,7 @@
                     <div>${fieldLabel("決済日時")}${dateInputHtml("entry_exit_dt")}</div>
                     <div>${fieldLabel("決済価格")}${numberInputHtml("entry_exit_price", "例: 150.500")}</div>
                 </div>
+                ${fieldLabel("スワップ(円)")}${numberInputHtml("entry_swap", "例: 150")}
                 ${fieldLabel("あなた自身はどんなトレードだったと思いますか？")}
                 ${chipGroupHtml("entry_review_type", ["環境認識甘い", "アリエン", "ビビり決済", "損切り設定ミス", "資金管理ミス", "上位足リスク", "7波以降リスク", "レイトエントリー", "レイト決済", "相関リスク", "3大指標ゴリ押し", "テールイベント"], true, "pink")}
                 ${chipGroupHtml("entry_review_nice", ["ナイストレード"], false, "pink")}
@@ -3504,6 +3658,16 @@
                 <div class="mieruka-row2">
                     <div>${fieldLabel("SL価格")}${numberInputHtml("miss_sl_price", "例: 149.800")}</div>
                     <div>${fieldLabel("SLまでのpips")}<div class="mieruka-readout" id="miss-sl-pips-display">-</div></div>
+                </div>
+            `;
+        }
+
+        function missVirtualExitHtml() {
+            return `
+                <div class="mieruka-col-title">仮想決済（エントリーしていた場合）</div>
+                <div class="mieruka-row2">
+                    <div>${fieldLabel("仮想決済日時")}${dateInputHtml("miss_virtual_exit_dt")}</div>
+                    <div>${fieldLabel("仮想決済価格")}${numberInputHtml("miss_virtual_exit_price", "例: 150.800")}</div>
                 </div>
             `;
         }
@@ -3567,10 +3731,6 @@
         function missIncorrectHtml() {
             return `
                 <div class="mieruka-col-title">見送りが不正解だった場合</div>
-                <div class="mieruka-row2">
-                    <div>${fieldLabel("仮想決済日時（エントリーしていた場合）")}${dateInputHtml("miss_virtual_exit_dt")}</div>
-                    <div>${fieldLabel("仮想決済価格")}${numberInputHtml("miss_virtual_exit_price", "例: 150.800")}</div>
-                </div>
                 ${fieldLabel("何がズレてた？")}
                 ${chipGroupHtml("miss_wrong_reason", ["見送りの判定が過剰だった", "リスク評価が主観寄りだった（怖い等）", "監視が甘くて”気づき漏れ”だった", "トリガー理解が曖昧だった", "時間感覚が足りなかった（自国時間・直近波など）", "その他"], true, "pink")}
                 <input type="text" class="mieruka-input" data-field="miss_wrong_reason_other" data-other-for="miss_wrong_reason" placeholder="その他の理由を入力" style="display:none; margin-top:6px;">
@@ -3586,6 +3746,10 @@
                 ${fieldLabel("日時")}${dateInputHtml("notice_dt")}
                 ${pairBlockHtml("notice")}
                 ${fieldLabel("価格")}${numberInputHtml("notice_price", "例: 150.250")}
+                <div class="mieruka-row2">
+                    <div>${fieldLabel("仮想決済日時（エントリーしていた場合）")}${dateInputHtml("notice_virtual_exit_dt")}</div>
+                    <div>${fieldLabel("仮想決済価格")}${numberInputHtml("notice_virtual_exit_price", "例: 150.800")}</div>
+                </div>
             `;
         }
 
@@ -3615,6 +3779,7 @@
             document.getElementById("mk-miss-reason").innerHTML = missReasonHtml();
             document.getElementById("mk-miss-watch").innerHTML = missWatchHtml();
             document.getElementById("mk-miss-result").innerHTML = missResultHtml();
+            document.getElementById("mk-miss-virtual").innerHTML = missVirtualExitHtml();
             document.getElementById("mk-miss-correct").innerHTML = missCorrectHtml();
             document.getElementById("mk-miss-incorrect").innerHTML = missIncorrectHtml();
 
@@ -3863,6 +4028,10 @@
             if (data.entry_exit_price !== undefined && data.entry_exit_price !== "") {
                 const p = parseFloat(data.entry_exit_price);
                 if (!isNaN(p)) update.exit = p;
+            }
+            if (data.entry_swap !== undefined && data.entry_swap !== "") {
+                const s = parseFloat(data.entry_swap);
+                if (!isNaN(s)) update.swap = s;
             }
             return update;
         }
@@ -4775,6 +4944,14 @@
                     headerTooltip: maintenanceTooltip("自動計算：(決済価格－エントリー価格)をペアごとのpips換算で算出（Sellは符号反転）")
                 },
                 {
+                    title: "伸ばし損ねpips",
+                    field: "missedPips",
+                    editor: "number",
+                    editorParams: { step: "0.1" },
+                    hozAlign: "right",
+                    width: 110
+                },
+                {
                     title: "Lot",
                     field: "lot",
                     editor: "number",
@@ -4849,7 +5026,9 @@
                     editorParams: { step: "1" },
                     formatter: profitFormatter,
                     hozAlign: "right",
-                    width: 105
+                    width: 105,
+                    tooltip: maintenanceTooltip("決済ログの「スワップ(円)」から自動入力されます（手入力も可能）"),
+                    headerTooltip: maintenanceTooltip("決済ログの「スワップ(円)」から自動入力されます（手入力も可能）")
                 },
                 {
                     title: "強さタグ",
@@ -5061,42 +5240,57 @@
             {
                 section: "手順6【行動戦略立案】",
                 rows: [
-                    { key: "__caption__", label: "今解決すべきSS課題と行動目標要約を記入", color: "as-row-yellow", caption: true },
-                    { key: "ssCause", label: "SSランクの原因", color: "as-row-blue",
-                      placeholder: "(記入例)\n・チームイベントに参加すると、適切な間隔をおいて適切なトレードをしていたのに、頻繁に時間帯を狭めてルールのトレードをしてしまう\n・そして深夜な時間帯の中に合わせてルールのトレードをしてしまう\n・自分の資産管理を徹底したトレードの為に精神的にエネルギーを浪費する。" },
-                    { key: "ssOvercome", label: "SSランクを克服する為の具体的な行動目標\n（成果目標はNG）", color: "as-row-blue",
-                      placeholder: "(記入例)\n・自らの利益を求めているかどうかの客観視の為に、メンタルセルフチェックを毎日朝から行い、どのような気持ちでチャートを見ているかを把握する\n・資金管理で1トレードが損失1〜1.5%のトレードを行い、そのトレード結果を100回、1000回といてエントリー根拠を追っていることを体感する→損失許容計算シートを使う" },
-                    { key: "memo", label: "備考（覚書メモ）", color: "as-row-yellow",
-                      placeholder: "(記入例)\n・二回以上のエントリーのみに絞り、慎重な鋭いトレードをしない。\n・エントリー前に、このトレードが将来のトレードなのか自分自身に確認してからエントリーする" }
+                    { key: "ssSummary", label: "今解決すべきSS課題と行動目標要約を記入", color: "as-row-yellow", dynamicPlaceholder: true, redPlaceholder: true, step: "", labelBg: "green" },
+                    { key: "ssCause", label: "SSランクの原因", color: "as-row-blue", janOnly: true, step: "手順5", labelBg: "navy",
+                      placeholder: "（記入例）\n・テールイベントが発生するのは、適切な損切をしていて適切なトレードをしていても、損切が続いた際に利益を求めて根拠の甘いトレードをしてしまう。\n・そして更に損切が続きその結果としてルール外のトレードをしてしまう。\n・その為に資金管理を徹底したトレードの改善だけにエネルギーを注力する。" },
+                    { key: "ssOvercome", label: "SSランクを克服する為の具体的な行動目標\n（成果目標はＮＧ）", color: "as-row-blue", janOnly: true, step: "手順3～4", labelBg: "navy",
+                      placeholder: "（記入例）\n・目先の利益を求めているかどうかの客観視のために、メンタルセルフチェックを常日頃から行い、どのような気持ちでチャートを見ているかを俯瞰する\n・資金管理で1トレードが損失1～1.5％のトレードを行う、そのトレード結果を100回、1000回と行いでエントリー根拠を追っていることを体感する→損失許容計算シートを使う" },
+                    { key: "memo", label: "備考（覚書メモ）", color: "as-row-yellow", janOnly: true, step: "", labelBg: "yellow",
+                      placeholder: "（記入例）\n・二強以上のエントリーのみに絞り、根拠の甘いトレードをしない。\n・エントリー前に、このトレードが何強のトレードなのか自問自答してからエントリーする" }
                 ]
             },
             {
-                section: "手順2【行動分析結果】",
+                section: "【行動分析結果】",
+                stepLabel: "手順2",
                 rows: [
-                    { key: "sRank", label: "Sランク", color: "as-row-blue",
+                    { key: "sRank", label: "Sランク", color: "as-row-blue", janOnly: true, labelBg: "navy",
                       placeholder: "(記入例)\n・ルールイベントをなくす。\n・トレードノートの継続。\n・投資を出し切るということが頭では理解しても、体感としてイメージができておらず、トレードで空回りをしてしまうことがある。\n・仕事のストレスをトレードに持ち込んでいる。\n・他人のトレード結果が気になり、自分もこんなトレードをしました!と言いたい自己顕示欲がある" },
-                    { key: "aRank", label: "Aランク", color: "as-row-blue",
+                    { key: "aRank", label: "Aランク", color: "as-row-blue", janOnly: true, labelBg: "navy",
                       placeholder: "(記入例)\n・他人のトレードの損切りや他の人のトレード成績が気になり、100回、1000回のトレードでエントリー根拠を選んでいくということが出来ていない。\n・自分に関してはどちらかというと逃避的 なのでイケイケエントリーしてしまう。\n・感情的な部分が出て、ルール通り損切りせずに待ってしまうことがある。" },
-                    { key: "bRank", label: "Bランク", color: "as-row-blue", placeholder: "(記入例)" },
-                    { key: "other", label: "その他気づいた事", color: "as-row-blue", placeholder: "(記入例)" }
+                    { key: "bRank", label: "Bランク", color: "as-row-blue", placeholder: "(記入例)", janOnly: true, labelBg: "navy" },
+                    { key: "other", label: "その他気づいた事", color: "as-row-blue", placeholder: "(記入例)", janOnly: true, labelBg: "navy" }
                 ]
             },
             {
-                section: "手順1【行動分析結果】",
+                section: "【行動分析結果】",
+                stepLabel: "手順1",
                 rows: [
-                    { key: "weaknesses", label: "自分の弱点をわかる限り\n「全て書き出す」", color: "as-row-green",
-                      placeholder: "(記入例)\n・損切りが浅くと自分の利益を求めて、根拠の甘いトレードをしてしまう\n→さらに損切りになり、結果としてルールイベントを引き起こす要因となっている\n・相場に翻弄されてしまう\n・トレードノートをつけるのが苦手\n・仕事のストレスをトレードに持ち込んでいる\n・他のトレードの損切りや他の人のトレード結果が気になり、100回、1000回のトレードでエントリー根拠を追っていくということが出来ていない\n・他のトレードや他人のトレード結果を見て、自分も という気持ちが出てしまい、アリコンしてしまう。\n・投資を出し切るということが頭では理解しても、体感としてイメージができておらず、トレードで空回りをしてしまうことがある。\n・資金管理、等\n・自分に関してはどちらかというと逃避的 なのでイケイケエントリーしてしまう。\n・感情的な部分が出て、ルール通り損切りせずに待ってしまうことがある。" },
-                    { key: "__links__", label: "行動目標と成果目標の違いから分からない場合9つの行動戦略を何度も視聴する", color: "as-row-lightgreen", links: true }
+                    { key: "weaknesses", label: "自分の弱点をわかる限り\n「全て書き出す」", color: "as-row-lightgreen", janOnly: true, labelBg: "green",
+                      placeholder: "（記入例）\n・損切りが続くと目先の利益を求めて、根拠の甘いトレードをしてしまう\n→さらに損切になり、結果としてテールイベントを引き起こす要因となっている\n・相場に期待を持ってしまっている\n・トレードノートつけるの苦手\n・仕事のストレスをトレードに持ち込んでいる\n・前のトレードの損切や他の人のトレード成績が気になり、100回、1000回のトレードでエントリー根拠を追っていくということが出来ていない。\n・前のトレードや他の人のトレード結果を見て、自分も　という気持ちが出てしまい、アリエンをしてしまう。\n・技術を出し切るということが頭では理解しても、体感としてイメージができておらず、トレードで金額を気にしてしまうことがある。\n・資金管理、雑\n・自信に関してはどちらかというと過剰側　なのでイケイケエントリーしてしまう\n・自信過剰な部分が出て、ルール通り損切りせずに持ってしまうことがある。" },
+                    { key: "__links__", label: "行動目標と成果目標の違いから分からない場合9つの行動戦略を何度も視聴する", color: "as-row-lightgreen", links: true, labelBg: "green" }
                 ]
             }
         ];
         const AS_MONTHS = [1,2,3,4,5,6,7,8,9,10,11,12];
         let asCurrentYear = new Date().getFullYear();
+        // 列幅（ドラッグで調整可能）: [手順列, ラベル列, 1月〜12月]
+        let asColWidths = [64, 190, 260, 260, 260, 260, 260, 260, 260, 260, 260, 260, 260, 260];
 
+        function asGetNotebookStrategy() {
+            const nbId = appState.activeNotebookId;
+            if (!appState.actionStrategy.byNotebook[nbId]) {
+                appState.actionStrategy.byNotebook[nbId] = { years: {} };
+            }
+            if (!appState.actionStrategy.byNotebook[nbId].years) {
+                appState.actionStrategy.byNotebook[nbId].years = {};
+            }
+            return appState.actionStrategy.byNotebook[nbId];
+        }
         function asGetYearData(year) {
             const y = String(year);
-            if (!appState.actionStrategy.years[y]) appState.actionStrategy.years[y] = {};
-            return appState.actionStrategy.years[y];
+            const nbStrategy = asGetNotebookStrategy();
+            if (!nbStrategy.years[y]) nbStrategy.years[y] = {};
+            return nbStrategy.years[y];
         }
         function asGetMonthData(year, month) {
             const yd = asGetYearData(year);
@@ -5119,29 +5313,60 @@
             document.getElementById("as-notebook-label").textContent = activeNb ? `(${activeNb.name})` : "";
             const links = appState.actionStrategy.links;
             let html = "";
+            let asRowNum = 1;
+            function asColLetter(idx) {
+                let n = idx, s = "";
+                do {
+                    s = String.fromCharCode(65 + (n % 26)) + s;
+                    n = Math.floor(n / 26) - 1;
+                } while (n >= 0);
+                return s;
+            }
 
-            // 月ヘッダー行
-            html += `<tr><th class="as-label-col"></th>`;
+            // 列幅を反映するcolgroup（0:行番号列＝固定, 1:手順列, 2:ラベル列, 3〜:各月）
+            html += `<colgroup><col style="width:34px">`;
+            asColWidths.forEach(w => { html += `<col style="width:${w}px">`; });
+            html += `</colgroup>`;
+
+            // 列アルファベット行（エクセル風、右端をドラッグして列幅を調整できる）
+            html += `<tr class="as-colletter-row"><th class="as-rownum-col"></th>`;
+            for (let c = 0; c < 2 + AS_MONTHS.length; c++) {
+                html += `<th>${asColLetter(c)}<span class="as-col-resize-handle" data-col="${c}"></span></th>`;
+            }
+            html += `</tr>`;
+
+            // 月ヘッダー行（縦スクロールでも常に見えるよう sticky top）
+            const R1_TOP = "20px";
+            html += `<tr><th class="as-rownum-col" style="position:sticky; top:${R1_TOP}; z-index:6;">${asRowNum++}</th><th class="as-step-col" style="background:#ffffff; position:sticky; top:${R1_TOP}; z-index:6;"></th><th class="as-label-col" style="background:#ffffff; position:sticky; top:${R1_TOP}; z-index:6;"></th>`;
             AS_MONTHS.forEach(m => {
-                html += `<th class="as-month-col as-month-header">${asCurrentYear}年${m}月</th>`;
+                html += `<th class="as-month-col as-month-header" style="position:sticky; top:${R1_TOP}; z-index:5;">${asCurrentYear}年${m}月</th>`;
             });
             html += `</tr>`;
 
-            // 上部の小さな注意書き行（全月共通）
-            html += `<tr class="as-caption-row"><th class="as-label-col"></th>`;
+            // 行動内容詳細行（1列目:手順6／2列目:【行動戦略立案】は白背景、縦スクロールでも常に見えるよう sticky top）
+            const R2_TOP = "54px";
+            html += `<tr><th class="as-rownum-col" style="position:sticky; top:${R2_TOP}; z-index:6;">${asRowNum++}</th><th class="as-step-col" style="background:#ffffff; position:sticky; top:${R2_TOP}; z-index:6; vertical-align:middle;">手順6</th><th class="as-label-col" style="background:#ffffff; font-weight:700; font-size:0.8rem; padding:8px 10px; vertical-align:middle; position:sticky; top:${R2_TOP}; z-index:6;">【行動戦略立案】</th>`;
             AS_MONTHS.forEach(() => {
-                html += `<td>「良くなった点」にフォーカスして、「翌月の成長ポイント」を振り返る</td>`;
+                html += `<td style="background:#15803d; color:#ffffff; font-weight:700; font-size:0.8rem; text-align:center; padding:8px 6px; position:sticky; top:${R2_TOP}; z-index:5;">行動内容詳細</td>`;
             });
             html += `</tr>`;
 
-            AS_ROW_GROUPS.forEach(group => {
-                html += `<tr class="as-section-row"><th class="as-label-col" colspan="1">${group.section}</th>`;
-                AS_MONTHS.forEach(() => { html += `<td style="background:#0e7490;"></td>`; });
-                html += `</tr>`;
+            AS_ROW_GROUPS.forEach((group, groupIdx) => {
+                if (groupIdx !== 0) {
+                    html += `<tr class="as-section-row"><th class="as-rownum-col">${asRowNum++}</th><th class="as-step-col" style="background:#ffffff;">${group.stepLabel || ""}</th><th class="as-label-col" colspan="1">${group.section}</th>`;
+                    AS_MONTHS.forEach(() => { html += `<td style="background:#ffffff;"></td>`; });
+                    html += `</tr>`;
+                }
 
                 group.rows.forEach(row => {
                     html += `<tr class="${row.color}">`;
-                    html += `<th class="as-label-col as-row-label">${row.label.replace(/\n/g, "<br>")}</th>`;
+                    html += `<th class="as-rownum-col">${asRowNum++}</th>`;
+                    html += `<th class="as-step-col">${row.step || ""}</th>`;
+                    const LABEL_BG_COLORS = { green: "#15803d", navy: "#1e3a5f", yellow: "#a16207" };
+                    const labelBgStyle = row.labelBg && LABEL_BG_COLORS[row.labelBg]
+                        ? ` style="background:${LABEL_BG_COLORS[row.labelBg]}; color:#ffffff;"`
+                        : "";
+                    html += `<th class="as-label-col as-row-label"${labelBgStyle}>${row.label.replace(/\n/g, "<br>")}</th>`;
 
                     if (row.caption) {
                         AS_MONTHS.forEach(m => {
@@ -5149,7 +5374,11 @@
                             html += `<td style="font-size:0.68rem; color:#94a3b8; padding:8px 10px; line-height:1.5;">${text}</td>`;
                         });
                     } else if (row.links) {
-                        AS_MONTHS.forEach(() => {
+                        AS_MONTHS.forEach(m => {
+                            if (m !== 1) {
+                                html += `<td></td>`;
+                                return;
+                            }
                             html += `<td class="as-links-row">
                                 <div>【トレード技術を向上させる為の9つの行動戦略】</div>
                                 <div>・動画<input type="text" class="mieruka-input as-link-input" data-link="video" value="${(links.video || "").replace(/"/g, "&quot;")}" placeholder="動画URLを入力"><button type="button" class="mieruka-mini-btn as-link-open-btn" data-link-open="video">開く</button></div>
@@ -5160,7 +5389,14 @@
                         AS_MONTHS.forEach(m => {
                             const md = asGetMonthData(asCurrentYear, m);
                             const val = md[row.key] || "";
-                            html += `<td><textarea class="as-cell-input" data-row-key="${row.key}" data-month="${m}" placeholder="${(row.placeholder || "").replace(/"/g, "&quot;")}">${val.replace(/</g, "&lt;")}</textarea></td>`;
+                            let ph = row.placeholder || "";
+                            if (row.dynamicPlaceholder) {
+                                ph = `『${asCurrentYear}年${m}月の行動目標要約』を「9つの行動戦略」シートの「行動内容詳細」欄(6行目)に直接記入(数式を無視して入力)して確定させてください`;
+                            } else if (row.janOnly && m !== 1) {
+                                ph = "";
+                            }
+                            const phClass = row.redPlaceholder ? "as-cell-input as-placeholder-red" : "as-cell-input";
+                            html += `<td><textarea class="${phClass}" data-row-key="${row.key}" data-month="${m}" placeholder="${ph.replace(/"/g, "&quot;")}">${val.replace(/</g, "&lt;")}</textarea></td>`;
                         });
                     }
                     html += `</tr>`;
@@ -5217,6 +5453,35 @@
             if (url) window.open(url, "_blank", "noopener");
         });
 
+        // 列幅ドラッグ調整（エクセル風。列アルファベット行の右端をドラッグ）
+        (function() {
+            let dragging = null;
+            let startX = 0;
+            let startWidth = 0;
+            document.getElementById("as-table").addEventListener("mousedown", function(e) {
+                const handle = e.target.closest(".as-col-resize-handle");
+                if (!handle) return;
+                e.preventDefault();
+                dragging = parseInt(handle.getAttribute("data-col"), 10);
+                startX = e.clientX;
+                startWidth = asColWidths[dragging];
+                handle.classList.add("as-resizing");
+            });
+            document.addEventListener("mousemove", function(e) {
+                if (dragging === null) return;
+                const newWidth = Math.max(40, startWidth + (e.clientX - startX));
+                asColWidths[dragging] = newWidth;
+                const table = document.getElementById("as-table");
+                const col = table.querySelector(`colgroup col:nth-child(${dragging + 2})`);
+                if (col) col.style.width = newWidth + "px";
+            });
+            document.addEventListener("mouseup", function() {
+                if (dragging === null) return;
+                dragging = null;
+                document.querySelectorAll(".as-col-resize-handle.as-resizing").forEach(el => el.classList.remove("as-resizing"));
+            });
+        })();
+
         // ===== 対処法シート =====
         const CS_MIN_ROWS = 15;
         let csSaveTimer = null;
@@ -5226,14 +5491,24 @@
                 localStorage.setItem(STORAGE_KEY_MULTI, JSON.stringify(appState));
             }, 500);
         }
+        function csRows() {
+            const nbId = appState.activeNotebookId;
+            if (!appState.copingSheet.byNotebook[nbId] || !Array.isArray(appState.copingSheet.byNotebook[nbId].rows)) {
+                appState.copingSheet.byNotebook[nbId] = { rows: [] };
+            }
+            return appState.copingSheet.byNotebook[nbId].rows;
+        }
         function csEnsureMinRows() {
-            while (appState.copingSheet.rows.length < CS_MIN_ROWS) {
-                appState.copingSheet.rows.push({ item: "", rank: "", method: "" });
+            const rows = csRows();
+            while (rows.length < CS_MIN_ROWS) {
+                rows.push({ item: "", rank: "", method: "" });
             }
         }
         function renderCopingSheetTable() {
             csEnsureMinRows();
-            const rows = appState.copingSheet.rows;
+            const activeNb = appState.notebooks[appState.activeNotebookId];
+            document.getElementById("cs-notebook-label").textContent = activeNb ? `(${activeNb.name})` : "";
+            const rows = csRows();
             let html = "";
             rows.forEach(function(row, i) {
                 html += `<tr data-row-index="${i}">
@@ -5264,8 +5539,11 @@
             }
         }
         function openCopingSheetPopout() {
+            const params = new URLSearchParams();
+            params.set("popout", "copingsheet");
+            params.set("nb", appState.activeNotebookId);
             saveAppState();
-            const url = location.href.split("#")[0] + "#popout=copingsheet";
+            const url = location.href.split("#")[0] + "#" + params.toString();
             window.open(url, "coping_sheet_popout", "width=1300,height=880,noopener");
         }
 
@@ -5275,7 +5553,7 @@
             if (e.target.id === "coping-sheet-overlay") closeCopingSheetModal();
         });
         document.getElementById("cs-add-row-btn").addEventListener("click", function() {
-            appState.copingSheet.rows.push({ item: "", rank: "", method: "" });
+            csRows().push({ item: "", rank: "", method: "" });
             renderCopingSheetTable();
             csScheduleSave();
         });
@@ -5284,16 +5562,18 @@
             const field = target.getAttribute("data-field");
             if (!field) return;
             const idx = parseInt(target.getAttribute("data-row"), 10);
-            if (isNaN(idx) || !appState.copingSheet.rows[idx]) return;
-            appState.copingSheet.rows[idx][field] = target.value;
+            const rows = csRows();
+            if (isNaN(idx) || !rows[idx]) return;
+            rows[idx][field] = target.value;
             csScheduleSave();
         });
         document.getElementById("cs-table-body").addEventListener("change", function(e) {
             const target = e.target;
             if (!target.classList.contains("cs-rank-input")) return;
             const idx = parseInt(target.getAttribute("data-row"), 10);
-            if (isNaN(idx) || !appState.copingSheet.rows[idx]) return;
-            appState.copingSheet.rows[idx].rank = target.value;
+            const rows = csRows();
+            if (isNaN(idx) || !rows[idx]) return;
+            rows[idx].rank = target.value;
             csScheduleSave();
         });
         document.getElementById("cs-table-body").addEventListener("click", function(e) {
@@ -5301,7 +5581,7 @@
             if (!delBtn) return;
             const idx = parseInt(delBtn.getAttribute("data-del-row"), 10);
             if (isNaN(idx)) return;
-            appState.copingSheet.rows.splice(idx, 1);
+            csRows().splice(idx, 1);
             renderCopingSheetTable();
             csScheduleSave();
         });
@@ -5742,8 +6022,9 @@
             try {
                 appState = JSON.parse(raw);
                 if (!Array.isArray(appState.customColumns)) appState.customColumns = [];
-                if (!appState.actionStrategy) appState.actionStrategy = { links: { video: "", blog: "https://mieruka-labo.com/9-action-strategy" }, years: {} };
-                if (!appState.copingSheet || !Array.isArray(appState.copingSheet.rows)) appState.copingSheet = { rows: [] };
+                if (!appState.actionStrategy) appState.actionStrategy = { links: { video: "https://www.youtube.com/live/TJDCXd3Qtoc", blog: "https://mieruka-labo.com/9-action-strategy" }, byNotebook: {} };
+                if (!appState.actionStrategy.byNotebook) appState.actionStrategy.byNotebook = {};
+                if (!appState.copingSheet || !appState.copingSheet.byNotebook) appState.copingSheet = { byNotebook: {} };
                 const activeNb = appState.notebooks[appState.activeNotebookId];
                 if (activeNb) {
                     table.setData(migrateLegacyDateTime(activeNb.data || [])).then(function() {
@@ -5776,6 +6057,10 @@
             }
 
             if (kind === "copingsheet") {
+                const nb = params.get("nb");
+                if (nb && nb !== appState.activeNotebookId && appState.notebooks[nb]) {
+                    switchNotebook(nb);
+                }
                 openCopingSheetModal();
                 return;
             }
@@ -6088,22 +6373,22 @@
             document.body.classList.toggle("maintenance-active", maintenanceMode);
         });
 
-        // メンテナンスモード×集計パネル: 集計表・黄色集計の各項目にカーソルを合わせると、算出元・計算方法を表示する
+        // メンテナンスモード×集計パネル／Mierukaログ入力: 各項目にカーソルを合わせると説明を表示する共通ツールチップ
+        let mntTipEl = null;
+        function ensureMntTipEl() {
+            if (!mntTipEl) {
+                mntTipEl = document.createElement("div");
+                mntTipEl.className = "stat-mnt-tooltip";
+                document.body.appendChild(mntTipEl);
+            }
+            return mntTipEl;
+        }
+        function positionMntTip(e) {
+            const el = ensureMntTipEl();
+            el.style.left = (e.clientX + 14) + "px";
+            el.style.top = (e.clientY + 14) + "px";
+        }
         (function() {
-            let mntTipEl = null;
-            function ensureMntTipEl() {
-                if (!mntTipEl) {
-                    mntTipEl = document.createElement("div");
-                    mntTipEl.className = "stat-mnt-tooltip";
-                    document.body.appendChild(mntTipEl);
-                }
-                return mntTipEl;
-            }
-            function positionMntTip(e) {
-                const el = ensureMntTipEl();
-                el.style.left = (e.clientX + 14) + "px";
-                el.style.top = (e.clientY + 14) + "px";
-            }
             document.querySelectorAll(".stat-card[data-mnt-tip]").forEach(function(card) {
                 card.addEventListener("mouseenter", function(e) {
                     if (!maintenanceMode) return;
@@ -6119,6 +6404,77 @@
                 card.addEventListener("mouseleave", function() {
                     if (mntTipEl) mntTipEl.style.display = "none";
                 });
+            });
+        })();
+
+        // メンテナンスモード×Mierukaログ: エントリー/決済/見送り/見送り結果/気づき漏れの各入力項目にカーソルを合わせると、
+        // 保存時にトレードノートのどの列に反映されるかを表示する（見送り結果はどの列にも反映されないので対象なし）
+        const MNT_LOG_FIELD_MAP = {
+            entry_pair: "通貨ペア", entry_pair_custom: "通貨ペア",
+            entry_side: "ポジション（Buy/Sell）",
+            entry_entry_dt: "日付・時間",
+            entry_entry_price: "エントリー価格（リスク(p)の算出にも使われます）",
+            entry_exec_lot: "Lot",
+            entry_usdjpy_rate: "ドル円レート",
+            entry_sl_price: "リスク(p)（エントリー価格との差から算出）",
+            entry_tf: "軸足タグ",
+            entry_trendline: "強さタグ（得点合計）", entry_zone: "強さタグ（得点合計）", entry_cloud: "強さタグ（得点合計）",
+            entry_trig_diag: "強さタグ（得点合計）", entry_trig_horiz: "強さタグ（得点合計）",
+            entry_trig_line: "強さタグ（得点合計）", entry_trig_dispersion: "強さタグ（得点合計）",
+
+            entry_exit_dt: "決済",
+            entry_exit_price: "決済（収益(円)の算出にも使われます）",
+            entry_swap: "スワップ(円)",
+
+            miss_pair: "通貨ペア", miss_pair_custom: "通貨ペア",
+            miss_side: "ポジション（Buy/Sell）",
+            miss_dt: "日付・時間",
+            miss_price: "エントリー価格",
+            miss_sl_price: "リスク(p)（価格との差から算出）",
+            miss_tf: "軸足タグ",
+            miss_trendline: "強さタグ（得点合計）", miss_zone: "強さタグ（得点合計）", miss_cloud: "強さタグ（得点合計）",
+            miss_trig_diag: "強さタグ（得点合計）", miss_trig_horiz: "強さタグ（得点合計）",
+            miss_trig_line: "強さタグ（得点合計）", miss_trig_dispersion: "強さタグ（得点合計）",
+
+            notice_pair: "通貨ペア", notice_pair_custom: "通貨ペア",
+            notice_side: "ポジション（Buy/Sell）",
+            notice_dt: "日付・時間",
+            notice_price: "エントリー価格",
+            notice_tf: "軸足タグ",
+            notice_trendline: "強さタグ（得点合計）", notice_zone: "強さタグ（得点合計）", notice_cloud: "強さタグ（得点合計）",
+            notice_trig_diag: "強さタグ（得点合計）", notice_trig_horiz: "強さタグ（得点合計）",
+            notice_trig_line: "強さタグ（得点合計）", notice_trig_dispersion: "強さタグ（得点合計）"
+        };
+        (function() {
+            const overlay = document.getElementById("mieruka-overlay");
+            function findMappedKey(target) {
+                const fieldEl = target.closest("[data-field]");
+                if (fieldEl && MNT_LOG_FIELD_MAP[fieldEl.getAttribute("data-field")]) {
+                    return fieldEl.getAttribute("data-field");
+                }
+                const groupEl = target.closest(".chip-group[data-group]");
+                if (groupEl && MNT_LOG_FIELD_MAP[groupEl.getAttribute("data-group")]) {
+                    return groupEl.getAttribute("data-group");
+                }
+                return null;
+            }
+            overlay.addEventListener("mouseover", function(e) {
+                if (!maintenanceMode) return;
+                const key = findMappedKey(e.target);
+                if (!key) return;
+                const el = ensureMntTipEl();
+                el.textContent = `保存すると、トレードノートの「${MNT_LOG_FIELD_MAP[key]}」欄に自動反映されます`;
+                el.style.display = "block";
+                positionMntTip(e);
+            });
+            overlay.addEventListener("mousemove", function(e) {
+                if (!maintenanceMode || !mntTipEl || mntTipEl.style.display !== "block") return;
+                positionMntTip(e);
+            });
+            overlay.addEventListener("mouseout", function(e) {
+                if (findMappedKey(e.target) && mntTipEl) {
+                    mntTipEl.style.display = "none";
+                }
             });
         })();
 
@@ -6185,7 +6541,7 @@
         }
 
         (function initTheme() {
-            const saved = localStorage.getItem(THEME_STORAGE_KEY) || "dark";
+            const saved = localStorage.getItem(THEME_STORAGE_KEY) || "light";
             document.documentElement.setAttribute("data-theme", saved);
             applyThemeIcon(saved);
         })();
