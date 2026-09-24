@@ -77,12 +77,35 @@
             --shadow-lg: 0 24px 48px -16px rgba(20, 20, 25, 0.16);
             --scrollbar-thumb: #ddd9cc;
             color-scheme: light;
+        }
+
+        /* 9つの行動戦略／対処法シートのポップアップだけ、ライトテーマ時に白背景にする。
+           他のMierukaログ（エントリー/決済/見送り/気づき漏れ）とチャート添付ポップアップは
+           常にダーク固定（:root の --mk-* デフォルトのまま）に戻す。 */
+        :root[data-theme="light"] #action-strategy-overlay .mieruka-card,
+        :root[data-theme="light"] #coping-sheet-overlay .mieruka-card {
             --mk-bg: #ffffff;
             --mk-panel: #f5f5f5;
             --mk-border: #e0e0e0;
             --mk-cyan: #0891b2;
             --mk-pink: #db2777;
             --mk-text: #1a1a1f;
+        }
+        :root[data-theme="light"] body.popout-mode.popout-light-mk {
+            background: #ffffff;
+        }
+
+        /* ナイストレード集は、ダーク/ライトどちらのテーマでも常に白背景にする */
+        #nice-trade-overlay .mieruka-card {
+            --mk-bg: #ffffff;
+            --mk-panel: #f5f5f5;
+            --mk-border: #e0e0e0;
+            --mk-cyan: #0891b2;
+            --mk-pink: #db2777;
+            --mk-text: #1a1a1f;
+        }
+        body.popout-mode.popout-white-mk {
+            background: #ffffff;
         }
 
         * {
@@ -1110,6 +1133,15 @@
             vertical-align: top;
             padding: 0;
         }
+        .as-sticky-r1, .as-sticky-r2, .as-sticky-r3 {
+            position: sticky;
+            z-index: 5;
+        }
+        .as-sticky-r1.as-rownum-col, .as-sticky-r1.as-step-col, .as-sticky-r1.as-label-col,
+        .as-sticky-r2.as-rownum-col, .as-sticky-r2.as-step-col, .as-sticky-r2.as-label-col,
+        .as-sticky-r3.as-rownum-col, .as-sticky-r3.as-step-col, .as-sticky-r3.as-label-col {
+            z-index: 6;
+        }
         .as-colletter-row th {
             background: #ffffff;
             color: #94a3b8;
@@ -1120,7 +1152,6 @@
             position: sticky;
             top: 0;
             z-index: 4;
-            position: relative;
         }
         .as-colletter-row th.as-rownum-col {
             left: 0;
@@ -1138,7 +1169,6 @@
             vertical-align: middle;
             font-size: 0.68rem;
             font-weight: 400;
-            position: relative;
         }
         .as-col-resize-handle {
             position: absolute;
@@ -1225,6 +1255,7 @@
         .as-row-green .as-row-label, .as-row-green { background: rgba(21, 128, 61, 0.28); }
         .as-row-green .as-row-label { color: #ffffff; }
         .as-row-lightgreen .as-row-label, .as-row-lightgreen { background: rgba(74, 222, 128, 0.10); }
+        .as-row-gray .as-row-label, .as-row-gray { background: rgba(148, 163, 184, 0.15); }
         .as-cell-input {
             width: 100%;
             min-height: 120px;
@@ -1298,10 +1329,24 @@
             top: 0;
             z-index: 1;
         }
+        .cs-table thead th.cs-col-item,
+        .cs-table thead th.cs-col-rank,
+        .cs-table thead th.cs-col-method,
+        .cs-table thead th.cs-col-del {
+            background: #FC0FC0;
+        }
         .cs-col-item { width: 26%; }
         .cs-col-rank { width: 14%; }
         .cs-col-method { width: 55%; }
         .cs-col-del { width: 40px; }
+        .cs-table tbody td.cs-item-cell,
+        .cs-table tbody td.cs-method-cell {
+            background: #ffffff;
+        }
+        .cs-table tbody td.cs-rank-cell {
+            background: #FFC0CB;
+            text-align: center;
+        }
         .cs-table td .mieruka-input, .cs-table td select.mieruka-input {
             width: 100%;
             background: transparent;
@@ -1310,15 +1355,45 @@
             font-size: 0.85rem;
             padding: 4px 2px;
         }
+        .cs-table tbody td.cs-item-cell .mieruka-input,
+        .cs-table tbody td.cs-method-cell .mieruka-input {
+            color: #1a1a1f;
+        }
         .cs-table td textarea.mieruka-input {
             min-height: 44px;
             resize: vertical;
             line-height: 1.5;
             font-family: inherit;
         }
-        .cs-rank-select {
-            background: rgba(56, 189, 248, 0.10);
+        .cs-table td select.mieruka-input.cs-rank-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: auto;
+            margin: 0;
+            display: block;
+            border: none;
+            text-align: center;
+            text-align-last: center;
+            font-size: 3.4rem;
+            font-weight: 900;
+            line-height: 1.15;
+            padding: 4px 0;
+            cursor: pointer;
+            background-color: transparent;
+            color: #64748b;
         }
+        .cs-table td select.mieruka-input.cs-rank-select.cs-rank-SS {
+            color: #dc2626;
+        }
+        .cs-table td select.mieruka-input.cs-rank-select.cs-rank-S {
+            color: #000000;
+        }
+        .cs-table td select.mieruka-input.cs-rank-select.cs-rank-A {
+            color: #16a34a;
+        }
+        .cs-rank-select option { color: #1a1a1f; }
         .cs-row-del-btn {
             background: none;
             border: none;
@@ -1327,6 +1402,84 @@
             font-size: 0.95rem;
         }
         .cs-row-del-btn:hover { color: #ef4444; }
+        .cs-row-highlight td { animation: cs-row-flash 1.1s ease-in-out 2; }
+        @keyframes cs-row-flash {
+            0%, 100% { box-shadow: none; }
+            50% { box-shadow: inset 0 0 0 9999px rgba(252, 15, 192, 0.35); }
+        }
+        .coping-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            color: #db2777;
+            font-weight: 700;
+        }
+        .coping-name-cell i { color: #db2777; }
+        .coping-name-cell span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        #coping-sheet-overlay.picking #cs-picking-banner { display: flex; }
+        .cs-pick-btn {
+            display: none;
+            margin-top: 6px;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border: none;
+            border-radius: 6px;
+            background: #FC0FC0;
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .cs-pick-btn:hover { background: #d90ea6; }
+        #coping-sheet-overlay.picking .cs-pick-btn { display: inline-flex; }
+
+        /* ===== ナイストレード集 ===== */
+        .nt-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .nt-table th, .nt-table td {
+            border: 1px solid var(--mk-border);
+            padding: 8px 10px;
+            vertical-align: middle;
+            font-size: 0.85rem;
+            color: var(--mk-text, #e2e8f0);
+        }
+        .nt-table thead th {
+            background: #0e7490;
+            color: #ffffff;
+            font-weight: 700;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            white-space: nowrap;
+        }
+        .nt-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.03); }
+        .nt-charts-cell {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .nt-chart-thumb {
+            width: 56px;
+            height: 56px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid var(--mk-border);
+            cursor: zoom-in;
+        }
+        .nt-empty-row td {
+            text-align: center;
+            color: #8a93a6;
+            padding: 24px 10px;
+        }
 
 
         .mieruka-columns {
@@ -1861,6 +2014,40 @@
             z-index: 10901;
         }
         .image-lightbox-close:hover { background: rgba(255,255,255,0.2); }
+        .image-lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.25);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10901;
+        }
+        .image-lightbox-nav:hover { background: rgba(255,255,255,0.2); }
+        .image-lightbox-prev { left: 20px; }
+        .image-lightbox-next { right: 20px; }
+        .image-lightbox-counter {
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 4px 14px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            z-index: 10901;
+        }
         .chart-slot-hint {
             font-size: 0.68rem;
             color: #64748b;
@@ -2066,7 +2253,7 @@
                 <button class="btn btn-secondary" id="btn-open-coping-sheet" style="padding: 8px 12px;" title="「できない」が”できる”に変わる対処法シート">
                     <i class="fa-solid fa-hand-holding-medical"></i> 対処法シート
                 </button>
-                <button class="btn btn-secondary" id="btn-toggle-nice-trade" style="padding: 8px 12px;" title="ナイストレードにチェックが入っているトレードのみ表示します">
+                <button class="btn btn-secondary" id="btn-toggle-nice-trade" style="padding: 8px 12px;" title="ナイストレードにチェックが入っているトレードだけを別ウィンドウにまとめて表示します">
                     <i class="fa-solid fa-star"></i> ナイストレード集
                 </button>
             </div>
@@ -2144,12 +2331,11 @@
                     <input type="time" id="filter-time-to" class="form-control">
                 </div>
                 <div class="filter-field-group">
-                    <label>ポジション</label>
-                    <select id="filter-position" class="form-control">
-                        <option value="">すべて</option>
-                        <option value="Buy">Buy</option>
-                        <option value="Sell">Sell</option>
-                    </select>
+                    <label>ポジション（複数選択可）</label>
+                    <div id="filter-position" class="filter-checkbox-list" style="min-width: 90px;">
+                        <label><input type="checkbox" value="Buy"> Buy</label>
+                        <label><input type="checkbox" value="Sell"> Sell</label>
+                    </div>
                 </div>
                 <div class="filter-field-group">
                     <label>タグ（複数選択可）</label>
@@ -2177,43 +2363,41 @@
                     </div>
                 </div>
                 <div class="filter-field-group">
-                    <label>強さタグ</label>
-                    <select id="filter-strength-tag" class="form-control">
-                        <option value="">すべて</option>
-                        <option value="根拠あいまい">根拠あいまい</option>
-                        <option value="根拠1強">根拠1強</option>
-                        <option value="根拠1.25強">根拠1.25強</option>
-                        <option value="根拠1.5強">根拠1.5強</option>
-                        <option value="根拠1.75強">根拠1.75強</option>
-                        <option value="根拠2強">根拠2強</option>
-                        <option value="根拠2.25強">根拠2.25強</option>
-                        <option value="根拠2.5強">根拠2.5強</option>
-                        <option value="根拠2.75強">根拠2.75強</option>
-                        <option value="根拠3強">根拠3強</option>
-                        <option value="根拠3.25強">根拠3.25強</option>
-                        <option value="根拠3.5強">根拠3.5強</option>
-                        <option value="根拠3.75強">根拠3.75強</option>
-                        <option value="根拠4強以上">根拠4強以上</option>
-                    </select>
+                    <label>強さタグ（複数選択可）</label>
+                    <div id="filter-strength-tag" class="filter-checkbox-list" style="min-width: 160px;">
+                        <label><input type="checkbox" value="根拠あいまい"> 根拠あいまい</label>
+                        <label><input type="checkbox" value="根拠1強"> 根拠1強</label>
+                        <label><input type="checkbox" value="根拠1.25強"> 根拠1.25強</label>
+                        <label><input type="checkbox" value="根拠1.5強"> 根拠1.5強</label>
+                        <label><input type="checkbox" value="根拠1.75強"> 根拠1.75強</label>
+                        <label><input type="checkbox" value="根拠2強"> 根拠2強</label>
+                        <label><input type="checkbox" value="根拠2.25強"> 根拠2.25強</label>
+                        <label><input type="checkbox" value="根拠2.5強"> 根拠2.5強</label>
+                        <label><input type="checkbox" value="根拠2.75強"> 根拠2.75強</label>
+                        <label><input type="checkbox" value="根拠3強"> 根拠3強</label>
+                        <label><input type="checkbox" value="根拠3.25強"> 根拠3.25強</label>
+                        <label><input type="checkbox" value="根拠3.5強"> 根拠3.5強</label>
+                        <label><input type="checkbox" value="根拠3.75強"> 根拠3.75強</label>
+                        <label><input type="checkbox" value="根拠4強以上"> 根拠4強以上</label>
+                    </div>
                 </div>
                 <div class="filter-field-group">
-                    <label>弱さタグ</label>
-                    <select id="filter-weak-tag" class="form-control">
-                        <option value="">すべて</option>
-                        <option value="リスク無し">リスク無し</option>
-                        <option value="リスク0.25弱">リスク0.25弱</option>
-                        <option value="リスク0.50弱">リスク0.50弱</option>
-                        <option value="リスク0.75弱">リスク0.75弱</option>
-                        <option value="リスク1.00弱">リスク1.00弱</option>
-                        <option value="リスク1.25弱">リスク1.25弱</option>
-                        <option value="リスク1.50弱">リスク1.50弱</option>
-                        <option value="リスク1.75弱">リスク1.75弱</option>
-                        <option value="リスク2.00弱">リスク2.00弱</option>
-                        <option value="リスク2.25弱">リスク2.25弱</option>
-                        <option value="リスク2.50弱">リスク2.50弱</option>
-                        <option value="リスク2.75弱">リスク2.75弱</option>
-                        <option value="リスク3.00弱以上">リスク3.00弱以上</option>
-                    </select>
+                    <label>弱さタグ（複数選択可）</label>
+                    <div id="filter-weak-tag" class="filter-checkbox-list" style="min-width: 160px;">
+                        <label><input type="checkbox" value="リスク無し"> リスク無し</label>
+                        <label><input type="checkbox" value="リスク0.25弱"> リスク0.25弱</label>
+                        <label><input type="checkbox" value="リスク0.50弱"> リスク0.50弱</label>
+                        <label><input type="checkbox" value="リスク0.75弱"> リスク0.75弱</label>
+                        <label><input type="checkbox" value="リスク1.00弱"> リスク1.00弱</label>
+                        <label><input type="checkbox" value="リスク1.25弱"> リスク1.25弱</label>
+                        <label><input type="checkbox" value="リスク1.50弱"> リスク1.50弱</label>
+                        <label><input type="checkbox" value="リスク1.75弱"> リスク1.75弱</label>
+                        <label><input type="checkbox" value="リスク2.00弱"> リスク2.00弱</label>
+                        <label><input type="checkbox" value="リスク2.25弱"> リスク2.25弱</label>
+                        <label><input type="checkbox" value="リスク2.50弱"> リスク2.50弱</label>
+                        <label><input type="checkbox" value="リスク2.75弱"> リスク2.75弱</label>
+                        <label><input type="checkbox" value="リスク3.00弱以上"> リスク3.00弱以上</label>
+                    </div>
                 </div>
                 <div class="filter-field-group">
                     <label>強数（以上）</label>
@@ -2287,7 +2471,7 @@
                     <input type="number" id="filter-entry-correlation-max" class="form-control" step="0.01" style="width: 90px;">
                 </div>
                 <div class="filter-field-group">
-                    <label>環境足該当3種の神器（選択済みのものにチェック）</label>
+                    <label>環境足該当3種の神器（複数選択可）</label>
                     <div id="filter-entry-kami" class="filter-checkbox-list" style="min-width: 160px;">
                         <label><input type="checkbox" value="entry_trendline"> トレンドライン</label>
                         <label><input type="checkbox" value="entry_zone"> 直撃エリア</label>
@@ -2295,7 +2479,7 @@
                     </div>
                 </div>
                 <div class="filter-field-group">
-                    <label>エントリートリガー（選択済みのものにチェック）</label>
+                    <label>エントリートリガー（複数選択可）</label>
                     <div id="filter-entry-trigger" class="filter-checkbox-list" style="min-width: 200px;">
                         <label><input type="checkbox" value="entry_trig_diag"> 斜めの攻防4点目ブレイク</label>
                         <label><input type="checkbox" value="entry_trig_horiz"> 水平の攻防3点目ブレイク</label>
@@ -2687,13 +2871,16 @@
     <div class="mieruka-overlay" id="coping-sheet-overlay">
         <div class="mieruka-card">
             <div class="mieruka-titlebar">
-                <h3>「できない」が"できる"に変わる対処法シート <span id="cs-notebook-label" style="font-size:0.8rem; font-weight:400; color:#8a93a6;"></span></h3>
+                <h3 style="color:#FC0FC0;">「できない」が"できる"に変わる対処法シート <span id="cs-notebook-label" style="font-size:1rem; font-weight:700; color:#ffffff; background:#dc2626; padding:3px 10px; border-radius:8px; vertical-align:middle;"></span></h3>
                 <button class="mieruka-close" id="cs-close-btn">&times;</button>
             </div>
             <div class="mieruka-body" style="padding: 0;">
                 <div style="display:flex; align-items:center; gap:10px; padding: 14px 20px; border-bottom: 1px solid var(--mk-border); flex-wrap: wrap;">
                     <button type="button" class="btn btn-secondary" id="cs-add-row-btn" style="padding: 6px 12px;"><i class="fa-solid fa-plus"></i> 行を追加</button>
                     <span style="font-size:0.8rem; color:#8a93a6;">入力内容は自動保存されます（トレードノート本体とは別の記録です）</span>
+                </div>
+                <div id="cs-picking-banner" style="display:none; align-items:center; gap:8px; padding: 10px 20px; background: rgba(252,15,192,0.12); border-bottom: 1px solid var(--mk-border); font-size:0.85rem; color:#FC0FC0; font-weight:700;">
+                    <i class="fa-solid fa-hand-pointer"></i> 使いたい対処ルールの「この対処法を使う」を押すと、ログの対処法欄に入力されます
                 </div>
                 <div style="display:flex; gap:0; height: calc(100vh - 130px); overflow: hidden;">
                     <div style="flex: 1 1 65%; overflow:auto;">
@@ -2713,7 +2900,7 @@
 (1) あなたがよくやってしまう問題を具体的に改善項目の欄に記入する
 (2)「改善ランク欄」に９つの行動戦略シートを参考にSS・S・Aランクの改善優先度をつける
 (3)「改善項目に対する対処ルールを作る欄」に改善項目に対する対処ルールを未来の自分に手紙を書くように具体的に書く
-(4) すべての項目の入力が済んだら、エントリー直前直後にチェックし、該当する改善項目があれば必ず実行できるように「対処法(C列)欄」セルをコピーして、トレード記録シートの「エントリー前の根拠(Ｔ列)」欄に赤字で貼付けどう対処すれば改善するのかを意識し続ける。
+(4) すべての項目の入力が済んだら、エントリー直前直後にチェックし、該当する改善項目があれば必ず実行できるように、エントリーシートの対処法ボタンから該当対処法を選択し、どう対処すれば改善するのかを意識し続ける。
 
 一番大事なのは認識し、実行すること。
 最初はわかってるのに対処できない！ということがほとんどだと思いますが、意識し続け実行し続ければ少しづつ改善していきます。
@@ -2728,10 +2915,45 @@
         </div>
     </div>
 
+    <!-- ナイストレード集: ナイストレードにチェックが入ったトレードの決済後チャート・成績をまとめて表示 -->
+    <div class="mieruka-overlay" id="nice-trade-overlay">
+        <div class="mieruka-card">
+            <div class="mieruka-titlebar">
+                <h3><i class="fa-solid fa-star"></i> ナイストレード集 <span id="nt-notebook-label" style="font-size:1rem; font-weight:700; color:#ffffff; background:#dc2626; padding:3px 10px; border-radius:8px; vertical-align:middle;"></span></h3>
+                <button class="mieruka-close" id="nt-close-btn">&times;</button>
+            </div>
+            <div class="mieruka-body" style="padding: 0;">
+                <div style="display:flex; align-items:center; gap:10px; padding: 14px 20px; border-bottom: 1px solid var(--mk-border); flex-wrap: wrap;">
+                    <span style="font-size:0.8rem; color:#8a93a6;">ナイストレードにチェックが入っているトレードの決済後チャート・獲得pips・ロット・収益・強さタグをまとめて表示します（画像はクリックで拡大表示）。</span>
+                </div>
+                <div style="overflow:auto; height: calc(100vh - 90px); padding: 16px 20px;">
+                    <table class="nt-table" id="nt-table">
+                        <thead>
+                            <tr>
+                                <th>日付/時間</th>
+                                <th>ペア</th>
+                                <th>ポジション</th>
+                                <th>決済後チャート</th>
+                                <th>獲得pips</th>
+                                <th>ロット</th>
+                                <th>収益(円)</th>
+                                <th>強さタグ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="nt-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Fullscreen image lightbox: enlarges a chart image for later viewing -->
     <div class="image-lightbox-overlay" id="image-lightbox-overlay">
         <button type="button" class="image-lightbox-close" id="image-lightbox-close">&times;</button>
+        <button type="button" class="image-lightbox-nav image-lightbox-prev" id="image-lightbox-prev" title="前の写真">&#8249;</button>
         <img id="image-lightbox-img" src="" alt="拡大表示">
+        <button type="button" class="image-lightbox-nav image-lightbox-next" id="image-lightbox-next" title="次の写真">&#8250;</button>
+        <div class="image-lightbox-counter" id="image-lightbox-counter"></div>
     </div>
 
     <!-- Toast Notification -->
@@ -3604,8 +3826,9 @@
                     <input type="text" class="mieruka-input" data-field="entry_watch_state_other" data-other-for="entry_watch_state" placeholder="その他の状況を入力" style="display:none; margin-top:6px;">
                 </div>
                 <div class="mieruka-subsection">
-                    <div class="mieruka-mini-label">対処法 <button type="button" class="mieruka-mini-btn">対処法シート</button></div>
+                    <div class="mieruka-mini-label">対処法 <button type="button" class="mieruka-mini-btn" id="entry-coping-sheet-btn">対処法シート</button></div>
                     ${textareaHtml("entry_coping", "対処法を入力（削除任意）")}
+                    <input type="hidden" data-field="entry_coping_name" value="">
                 </div>
             `;
         }
@@ -4007,6 +4230,9 @@
             if (data.entry_tf && ENTRY_TF_TO_AXIS_TAG[data.entry_tf]) {
                 update.axisTag = ENTRY_TF_TO_AXIS_TAG[data.entry_tf];
             }
+
+            // 対処法シートで選んだ対処ルールの「名前」（改善項目）をトレードノート本体の対処法列に反映。未選択なら「無し」
+            update.copingName = (data.entry_coping_name || "").trim() || "無し";
 
             const scoreFields = ["entry_trendline", "entry_zone", "entry_cloud", "entry_trig_diag", "entry_trig_horiz", "entry_trig_line", "entry_trig_dispersion"];
             let hasAnyScore = false;
@@ -4663,7 +4889,11 @@
             if (zoomBtn) {
                 const key = zoomBtn.getAttribute("data-zoom");
                 const val = chartWorkingData[key];
-                if (val) openImageLightbox(val);
+                if (val) {
+                    const filledKeys = CHART_SLOTS.map(s => s.key).filter(k => chartWorkingData[k]);
+                    const list = filledKeys.map(k => chartWorkingData[k]);
+                    openImageLightbox(val, list, filledKeys.indexOf(key));
+                }
                 return;
             }
             const box = e.target.closest(".chart-slot-box");
@@ -4676,10 +4906,38 @@
         });
 
         // Fullscreen image lightbox: lets a saved chart image be reviewed enlarged, without
-        // triggering the "replace image" file picker that a plain click on the slot opens
-        function openImageLightbox(src) {
-            document.getElementById("image-lightbox-img").src = src;
+        // triggering the "replace image" file picker that a plain click on the slot opens.
+        // Optionally accepts a list of images (same gallery) and a starting index so the
+        // person can move to the next/previous photo without closing the enlarged view.
+        let lightboxImages = [];
+        let lightboxIndex = 0;
+        function openImageLightbox(src, list, index) {
+            if (Array.isArray(list) && list.length) {
+                lightboxImages = list;
+                lightboxIndex = (typeof index === "number" && index >= 0) ? index : Math.max(0, list.indexOf(src));
+            } else {
+                lightboxImages = [src];
+                lightboxIndex = 0;
+            }
+            renderLightboxImage();
             document.getElementById("image-lightbox-overlay").classList.add("active");
+        }
+        function renderLightboxImage() {
+            document.getElementById("image-lightbox-img").src = lightboxImages[lightboxIndex] || "";
+            const multi = lightboxImages.length > 1;
+            document.getElementById("image-lightbox-prev").style.display = multi ? "flex" : "none";
+            document.getElementById("image-lightbox-next").style.display = multi ? "flex" : "none";
+            document.getElementById("image-lightbox-counter").textContent = multi ? `${lightboxIndex + 1} / ${lightboxImages.length}` : "";
+        }
+        function lightboxShowPrev() {
+            if (lightboxImages.length < 2) return;
+            lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length;
+            renderLightboxImage();
+        }
+        function lightboxShowNext() {
+            if (lightboxImages.length < 2) return;
+            lightboxIndex = (lightboxIndex + 1) % lightboxImages.length;
+            renderLightboxImage();
         }
         function closeImageLightbox() {
             document.getElementById("image-lightbox-overlay").classList.remove("active");
@@ -4692,10 +4950,19 @@
             e.stopPropagation();
             closeImageLightbox();
         });
+        document.getElementById("image-lightbox-prev").addEventListener("click", function(e) {
+            e.stopPropagation();
+            lightboxShowPrev();
+        });
+        document.getElementById("image-lightbox-next").addEventListener("click", function(e) {
+            e.stopPropagation();
+            lightboxShowNext();
+        });
         document.addEventListener("keydown", function(e) {
-            if (e.key === "Escape" && document.getElementById("image-lightbox-overlay").classList.contains("active")) {
-                closeImageLightbox();
-            }
+            if (!document.getElementById("image-lightbox-overlay").classList.contains("active")) return;
+            if (e.key === "Escape") closeImageLightbox();
+            else if (e.key === "ArrowLeft") lightboxShowPrev();
+            else if (e.key === "ArrowRight") lightboxShowNext();
         });
 
         document.getElementById("chart-slots-grid").addEventListener("change", function(e) {
@@ -5073,6 +5340,30 @@
                     width: 250
                 },
                 {
+                    title: "対処法",
+                    field: "copingName",
+                    editor: false,
+                    formatter: function(cell) {
+                        const v = cell.getValue();
+                        const name = (v && String(v).trim()) ? String(v).trim() : "";
+                        if (!name || name === "無し") return "無し";
+                        const div = document.createElement("div");
+                        div.className = "coping-name-cell";
+                        div.title = "タップして対処法シートを開く";
+                        div.innerHTML = `<i class="fa-solid fa-hand-holding-medical"></i> <span>${name.replace(/</g, "&lt;")}</span>`;
+                        return div;
+                    },
+                    cellClick: function(e, cell) {
+                        const v = cell.getValue();
+                        const name = (v && String(v).trim()) ? String(v).trim() : "";
+                        if (!name || name === "無し") return;
+                        openCopingSheetPopout(name);
+                    },
+                    tooltip: maintenanceTooltip("エントリーログで対処法シートから対処ルールを選ぶと、その改善項目名が自動入力されます（未選択の場合は「無し」）。名前が入っている場合はタップで対処法シートが開きます"),
+                    headerTooltip: maintenanceTooltip("エントリーログで対処法シートから対処ルールを選ぶと、その改善項目名が自動入力されます（未選択の場合は「無し」）"),
+                    width: 150
+                },
+                {
                     title: "決済後の感情＆振り返り",
                     field: "settlementLog",
                     editor: false,
@@ -5240,7 +5531,7 @@
             {
                 section: "手順6【行動戦略立案】",
                 rows: [
-                    { key: "ssSummary", label: "今解決すべきSS課題と行動目標要約を記入", color: "as-row-yellow", dynamicPlaceholder: true, redPlaceholder: true, step: "", labelBg: "green" },
+                    { key: "ssSummary", label: "今解決すべきSS課題と行動目標要約を記入", color: "as-row-gray", dynamicPlaceholder: true, redPlaceholder: true, step: "", labelBg: "green" },
                     { key: "ssCause", label: "SSランクの原因", color: "as-row-blue", janOnly: true, step: "手順5", labelBg: "navy",
                       placeholder: "（記入例）\n・テールイベントが発生するのは、適切な損切をしていて適切なトレードをしていても、損切が続いた際に利益を求めて根拠の甘いトレードをしてしまう。\n・そして更に損切が続きその結果としてルール外のトレードをしてしまう。\n・その為に資金管理を徹底したトレードの改善だけにエネルギーを注力する。" },
                     { key: "ssOvercome", label: "SSランクを克服する為の具体的な行動目標\n（成果目標はＮＧ）", color: "as-row-blue", janOnly: true, step: "手順3～4", labelBg: "navy",
@@ -5310,7 +5601,7 @@
         function renderActionStrategyTable() {
             document.getElementById("as-year-label").textContent = asCurrentYear;
             const activeNb = appState.notebooks[appState.activeNotebookId];
-            document.getElementById("as-notebook-label").textContent = activeNb ? `(${activeNb.name})` : "";
+            document.getElementById("as-notebook-label").textContent = activeNb ? activeNb.name : "";
             const links = appState.actionStrategy.links;
             let html = "";
             let asRowNum = 1;
@@ -5335,19 +5626,26 @@
             }
             html += `</tr>`;
 
-            // 月ヘッダー行（縦スクロールでも常に見えるよう sticky top）
-            const R1_TOP = "20px";
-            html += `<tr><th class="as-rownum-col" style="position:sticky; top:${R1_TOP}; z-index:6;">${asRowNum++}</th><th class="as-step-col" style="background:#ffffff; position:sticky; top:${R1_TOP}; z-index:6;"></th><th class="as-label-col" style="background:#ffffff; position:sticky; top:${R1_TOP}; z-index:6;"></th>`;
+            // 振り返り行（新規・月ヘッダーの上）: C〜N列に自由入力できる
+            html += `<tr><th class="as-rownum-col as-sticky-r1">${asRowNum++}</th><th class="as-step-col as-sticky-r1" style="background:#ffffff;"></th><th class="as-label-col as-sticky-r1" style="background:#ffffff;"></th>`;
             AS_MONTHS.forEach(m => {
-                html += `<th class="as-month-col as-month-header" style="position:sticky; top:${R1_TOP}; z-index:5;">${asCurrentYear}年${m}月</th>`;
+                const md = asGetMonthData(asCurrentYear, m);
+                const val = md.monthlyFocus || "";
+                html += `<td class="as-sticky-r1" style="background:#ffffff;"><textarea class="as-cell-input" data-row-key="monthlyFocus" data-month="${m}" placeholder="「良くなった点」にフォーカスして、「前月の成長ポイント」を振り返る" style="min-height:44px;">${val.replace(/</g, "&lt;")}</textarea></td>`;
+            });
+            html += `</tr>`;
+
+            // 月ヘッダー行（縦スクロールでも常に見えるよう sticky top）
+            html += `<tr><th class="as-rownum-col as-sticky-r2">${asRowNum++}</th><th class="as-step-col as-sticky-r2" style="background:#ffffff;"></th><th class="as-label-col as-sticky-r2" style="background:#ffffff;"></th>`;
+            AS_MONTHS.forEach(m => {
+                html += `<th class="as-month-col as-month-header as-sticky-r2">${asCurrentYear}年${m}月</th>`;
             });
             html += `</tr>`;
 
             // 行動内容詳細行（1列目:手順6／2列目:【行動戦略立案】は白背景、縦スクロールでも常に見えるよう sticky top）
-            const R2_TOP = "54px";
-            html += `<tr><th class="as-rownum-col" style="position:sticky; top:${R2_TOP}; z-index:6;">${asRowNum++}</th><th class="as-step-col" style="background:#ffffff; position:sticky; top:${R2_TOP}; z-index:6; vertical-align:middle;">手順6</th><th class="as-label-col" style="background:#ffffff; font-weight:700; font-size:0.8rem; padding:8px 10px; vertical-align:middle; position:sticky; top:${R2_TOP}; z-index:6;">【行動戦略立案】</th>`;
+            html += `<tr><th class="as-rownum-col as-sticky-r3">${asRowNum++}</th><th class="as-step-col as-sticky-r3" style="background:#ffffff; vertical-align:middle;">手順6</th><th class="as-label-col as-sticky-r3" style="background:#ffffff; font-weight:700; font-size:0.8rem; padding:8px 10px; vertical-align:middle;">【行動戦略立案】</th>`;
             AS_MONTHS.forEach(() => {
-                html += `<td style="background:#15803d; color:#ffffff; font-weight:700; font-size:0.8rem; text-align:center; padding:8px 6px; position:sticky; top:${R2_TOP}; z-index:5;">行動内容詳細</td>`;
+                html += `<td class="as-sticky-r3" style="background:#15803d; color:#ffffff; font-weight:700; font-size:0.8rem; text-align:center; padding:8px 6px;">行動内容詳細</td>`;
             });
             html += `</tr>`;
 
@@ -5359,12 +5657,17 @@
                 }
 
                 group.rows.forEach(row => {
+                    const thisRowNum = asRowNum;
                     html += `<tr class="${row.color}">`;
                     html += `<th class="as-rownum-col">${asRowNum++}</th>`;
                     html += `<th class="as-step-col">${row.step || ""}</th>`;
-                    const LABEL_BG_COLORS = { green: "#15803d", navy: "#1e3a5f", yellow: "#a16207" };
+                    const LABEL_BG_COLORS = {
+                        green: { bg: "#15803d", text: "#ffffff" },
+                        navy: { bg: "#1e3a5f", text: "#ffffff" },
+                        yellow: { bg: "#fef3c7", text: "var(--mk-text, #1a1a1f)" }
+                    };
                     const labelBgStyle = row.labelBg && LABEL_BG_COLORS[row.labelBg]
-                        ? ` style="background:${LABEL_BG_COLORS[row.labelBg]}; color:#ffffff;"`
+                        ? ` style="background:${LABEL_BG_COLORS[row.labelBg].bg}; color:${LABEL_BG_COLORS[row.labelBg].text};"`
                         : "";
                     html += `<th class="as-label-col as-row-label"${labelBgStyle}>${row.label.replace(/\n/g, "<br>")}</th>`;
 
@@ -5391,7 +5694,7 @@
                             const val = md[row.key] || "";
                             let ph = row.placeholder || "";
                             if (row.dynamicPlaceholder) {
-                                ph = `『${asCurrentYear}年${m}月の行動目標要約』を「9つの行動戦略」シートの「行動内容詳細」欄(6行目)に直接記入(数式を無視して入力)して確定させてください`;
+                                ph = `『${asCurrentYear}年${m}月の行動目標要約』を「9つの行動戦略」シートの「行動内容詳細」欄(${thisRowNum}行目)に直接記入(数式を無視して入力)して確定させてください`;
                             } else if (row.janOnly && m !== 1) {
                                 ph = "";
                             }
@@ -5404,6 +5707,24 @@
             });
 
             document.getElementById("as-table").innerHTML = html;
+            asApplyStickyRowOffsets();
+        }
+
+        // 縦スクロール時に振り返り行(1行目)・月ヘッダー行(2行目)・行動内容詳細行(3行目)を実際の高さに合わせて固定表示する
+        function asApplyStickyRowOffsets() {
+            const table = document.getElementById("as-table");
+            const colletterRow = table.querySelector(".as-colletter-row");
+            const row1Cell = table.querySelector(".as-sticky-r1");
+            const row2Cell = table.querySelector(".as-sticky-r2");
+            if (!colletterRow || !row1Cell || !row2Cell) return;
+            const r1Top = colletterRow.offsetHeight;
+            const row1Height = row1Cell.closest("tr").offsetHeight;
+            const r2Top = r1Top + row1Height;
+            const row2Height = row2Cell.closest("tr").offsetHeight;
+            const r3Top = r2Top + row2Height;
+            table.querySelectorAll(".as-sticky-r1").forEach(el => { el.style.top = r1Top + "px"; });
+            table.querySelectorAll(".as-sticky-r2").forEach(el => { el.style.top = r2Top + "px"; });
+            table.querySelectorAll(".as-sticky-r3").forEach(el => { el.style.top = r3Top + "px"; });
         }
 
         function openActionStrategyModal() {
@@ -5507,50 +5828,171 @@
         function renderCopingSheetTable() {
             csEnsureMinRows();
             const activeNb = appState.notebooks[appState.activeNotebookId];
-            document.getElementById("cs-notebook-label").textContent = activeNb ? `(${activeNb.name})` : "";
+            document.getElementById("cs-notebook-label").textContent = activeNb ? activeNb.name : "";
             const rows = csRows();
             let html = "";
             rows.forEach(function(row, i) {
                 html += `<tr data-row-index="${i}">
-                    <td><textarea class="mieruka-input cs-item-input" data-row="${i}" data-field="item" placeholder="例: 損切りをずらしてしまう">${(row.item || "").replace(/</g, "&lt;")}</textarea></td>
-                    <td>
-                        <select class="mieruka-input cs-rank-select cs-rank-input" data-row="${i}" data-field="rank">
+                    <td class="cs-item-cell"><textarea class="mieruka-input cs-item-input" data-row="${i}" data-field="item" placeholder="">${(row.item || "").replace(/</g, "&lt;")}</textarea></td>
+                    <td class="cs-rank-cell">
+                        <select class="mieruka-input cs-rank-select cs-rank-input cs-rank-${row.rank || "none"}" data-row="${i}" data-field="rank">
                             <option value=""></option>
                             <option value="SS" ${row.rank === "SS" ? "selected" : ""}>SS</option>
                             <option value="S" ${row.rank === "S" ? "selected" : ""}>S</option>
                             <option value="A" ${row.rank === "A" ? "selected" : ""}>A</option>
                         </select>
                     </td>
-                    <td><textarea class="mieruka-input cs-method-input" data-row="${i}" data-field="method" placeholder="例: 損切りラインを引いたら絶対に動かさない。動かしたくなったら一旦チャートから離れる">${(row.method || "").replace(/</g, "&lt;")}</textarea></td>
-                    <td style="text-align:center;"><button type="button" class="cs-row-del-btn" data-del-row="${i}" title="この行を削除"><i class="fa-solid fa-trash"></i></button></td>
+                    <td class="cs-method-cell">
+                        <textarea class="mieruka-input cs-method-input" data-row="${i}" data-field="method" placeholder="">${(row.method || "").replace(/</g, "&lt;")}</textarea>
+                        <button type="button" class="cs-pick-btn" data-pick-row="${i}"><i class="fa-solid fa-arrow-right-to-bracket"></i> この対処法を使う</button>
+                    </td>
+                    <td class="cs-del-cell" style="text-align:center;"><button type="button" class="cs-row-del-btn" data-del-row="${i}" title="この行を削除"><i class="fa-solid fa-trash"></i></button></td>
                 </tr>`;
             });
             document.getElementById("cs-table-body").innerHTML = html;
         }
+        let copingSheetPickerTarget = null;
         function openCopingSheetModal() {
             renderCopingSheetTable();
             document.getElementById("coping-sheet-overlay").classList.add("active");
         }
         function closeCopingSheetModal() {
             document.getElementById("coping-sheet-overlay").classList.remove("active");
+            document.getElementById("coping-sheet-overlay").classList.remove("picking");
+            copingSheetPickerTarget = null;
             localStorage.setItem(STORAGE_KEY_MULTI, JSON.stringify(appState));
-            if (document.body.classList.contains("popout-mode")) {
+            if (document.body.classList.contains("popout-mode") && document.body.dataset.popoutKind === "copingsheet") {
                 window.close();
             }
         }
-        function openCopingSheetPopout() {
+        function openCopingSheetForPicker(fieldId) {
+            copingSheetPickerTarget = fieldId;
+            document.getElementById("coping-sheet-overlay").classList.add("picking");
+            openCopingSheetModal();
+        }
+        // トレードノート本体の「対処法」列アイコンから開いたとき、該当する改善項目の行までスクロールして一瞬ハイライトする
+        function csHighlightRowByItem(itemName) {
+            const rows = csRows();
+            const idx = rows.findIndex(r => (r.item || "").trim() === itemName.trim());
+            if (idx === -1) return;
+            setTimeout(function() {
+                const tr = document.querySelector(`#cs-table-body tr[data-row-index="${idx}"]`);
+                if (!tr) return;
+                tr.scrollIntoView({ behavior: "smooth", block: "center" });
+                tr.classList.add("cs-row-highlight");
+                setTimeout(function() { tr.classList.remove("cs-row-highlight"); }, 2200);
+            }, 80);
+        }
+        function openCopingSheetPopout(highlightName) {
             const params = new URLSearchParams();
             params.set("popout", "copingsheet");
             params.set("nb", appState.activeNotebookId);
+            if (highlightName) params.set("highlight", highlightName);
             saveAppState();
             const url = location.href.split("#")[0] + "#" + params.toString();
             window.open(url, "coping_sheet_popout", "width=1300,height=880,noopener");
         }
 
-        document.getElementById("btn-open-coping-sheet").addEventListener("click", openCopingSheetPopout);
+        document.getElementById("btn-open-coping-sheet").addEventListener("click", function() { openCopingSheetPopout(); });
+        const entryCopingSheetBtn = document.getElementById("entry-coping-sheet-btn");
+        if (entryCopingSheetBtn) {
+            entryCopingSheetBtn.addEventListener("click", function() {
+                openCopingSheetForPicker("entry_coping");
+            });
+        }
         document.getElementById("cs-close-btn").addEventListener("click", closeCopingSheetModal);
         document.getElementById("coping-sheet-overlay").addEventListener("click", function(e) {
             if (e.target.id === "coping-sheet-overlay") closeCopingSheetModal();
+        });
+
+        // ===== ナイストレード集 =====
+        function ntFormatDateTime(d) {
+            if (!d.date) return "";
+            return d.date + (d.time ? " " + d.time : "");
+        }
+        function renderNiceTradesTable() {
+            const tbody = document.getElementById("nt-table-body");
+            const rows = (table.getData() || []).filter(d => d.niceTrade === true);
+            if (!rows.length) {
+                tbody.innerHTML = '<tr class="nt-empty-row"><td colspan="8">ナイストレードにチェックが入ったトレードはまだありません。</td></tr>';
+                return;
+            }
+            rows.sort((a, b) => ntFormatDateTime(b).localeCompare(ntFormatDateTime(a)));
+            tbody.innerHTML = rows.map(function(d) {
+                const chartsCellId = "nt-charts-" + d.id;
+                const pipsStr = (d.pips !== undefined && d.pips !== null && d.pips !== "") ? String(d.pips) : "";
+                const lotStr = (d.lot !== undefined && d.lot !== null && d.lot !== "") ? String(d.lot) : "";
+                const profitStr = (d.profit !== undefined && d.profit !== null && d.profit !== "") ? String(d.profit) : "";
+                return `<tr>
+                    <td>${escapeHtml(ntFormatDateTime(d))}</td>
+                    <td>${escapeHtml(d.pair || "")}</td>
+                    <td>${escapeHtml(d.position || "")}</td>
+                    <td><div class="nt-charts-cell" id="${chartsCellId}"><span style="color:#8a93a6; font-size:0.75rem;">読込中...</span></div></td>
+                    <td>${escapeHtml(pipsStr)}</td>
+                    <td>${escapeHtml(lotStr)}</td>
+                    <td>${escapeHtml(profitStr)}</td>
+                    <td>${escapeHtml(d.tfTag || "")}</td>
+                </tr>`;
+            }).join("");
+
+            // 決済後チャート画像はIndexedDBに保存されているため、行描画後に非同期で読み込んでサムネイル表示する。
+            // 表示順（行→スロットの順）をあらかじめ確定させ、その順番で1つのギャラリーとして拡大表示できるようにする。
+            const ntGallery = []; // 表示順に並んだ画像データ（未読込/失敗分はnullのまま残す）
+            rows.forEach(function(d) {
+                const refs = d.chartsAfter || {};
+                const cell = document.getElementById("nt-charts-" + d.id);
+                if (!cell) return;
+                const slotKeys = CHART_SLOTS.map(s => s.key).filter(k => refs[k]);
+                if (!slotKeys.length) {
+                    cell.innerHTML = '<span style="color:#8a93a6; font-size:0.75rem;">画像なし</span>';
+                    return;
+                }
+                cell.innerHTML = "";
+                slotKeys.forEach(function(key) {
+                    const galleryIdx = ntGallery.length;
+                    ntGallery.push(null);
+                    const img = document.createElement("img");
+                    img.className = "nt-chart-thumb";
+                    const slotInfo = CHART_SLOTS.find(s => s.key === key);
+                    img.title = slotInfo ? slotInfo.label : "";
+                    cell.appendChild(img);
+                    img.addEventListener("click", function() {
+                        const filled = ntGallery.map((src, i) => ({ src: src, i: i })).filter(x => x.src);
+                        const pos = filled.findIndex(x => x.i === galleryIdx);
+                        if (pos === -1) return; // まだ読み込み中
+                        openImageLightbox(filled[pos].src, filled.map(x => x.src), pos);
+                    });
+                    mkIdbGet(refs[key]).then(function(dataUrl) {
+                        if (!dataUrl) { img.remove(); return; }
+                        ntGallery[galleryIdx] = dataUrl;
+                        img.src = dataUrl;
+                    }).catch(function() { img.remove(); });
+                });
+            });
+        }
+        function openNiceTradesModal() {
+            const activeNb = appState.notebooks[appState.activeNotebookId];
+            document.getElementById("nt-notebook-label").textContent = activeNb ? activeNb.name : "";
+            renderNiceTradesTable();
+            document.getElementById("nice-trade-overlay").classList.add("active");
+        }
+        function closeNiceTradesModal() {
+            document.getElementById("nice-trade-overlay").classList.remove("active");
+            if (document.body.classList.contains("popout-mode")) {
+                window.close();
+            }
+        }
+        function openNiceTradesPopout() {
+            const params = new URLSearchParams();
+            params.set("popout", "nicetrades");
+            params.set("nb", appState.activeNotebookId);
+            saveAppState();
+            const url = location.href.split("#")[0] + "#" + params.toString();
+            window.open(url, "nice_trades_popout", "width=1200,height=880,noopener");
+        }
+        document.getElementById("nt-close-btn").addEventListener("click", closeNiceTradesModal);
+        document.getElementById("nice-trade-overlay").addEventListener("click", function(e) {
+            if (e.target.id === "nice-trade-overlay") closeNiceTradesModal();
         });
         document.getElementById("cs-add-row-btn").addEventListener("click", function() {
             csRows().push({ item: "", rank: "", method: "" });
@@ -5574,9 +6016,28 @@
             const rows = csRows();
             if (isNaN(idx) || !rows[idx]) return;
             rows[idx].rank = target.value;
+            target.classList.remove("cs-rank-SS", "cs-rank-S", "cs-rank-A", "cs-rank-none");
+            target.classList.add(target.value ? "cs-rank-" + target.value : "cs-rank-none");
             csScheduleSave();
         });
         document.getElementById("cs-table-body").addEventListener("click", function(e) {
+            const pickBtn = e.target.closest("[data-pick-row]");
+            if (pickBtn) {
+                if (!copingSheetPickerTarget) return;
+                const idx = parseInt(pickBtn.getAttribute("data-pick-row"), 10);
+                const rows = csRows();
+                if (isNaN(idx) || !rows[idx]) return;
+                const methodText = rows[idx].method || "";
+                setMierukaFieldValue(copingSheetPickerTarget, methodText);
+                const targetEl = document.querySelector(`.mieruka-overlay [data-field="${copingSheetPickerTarget}"]`);
+                if (targetEl) targetEl.dispatchEvent(new Event("input"));
+                // 対処法の「名前」（改善項目）もあわせてトレードノート本体の対処法列に使えるよう記録しておく
+                const nameFieldId = copingSheetPickerTarget + "_name";
+                const nameEl = document.querySelector(`.mieruka-overlay [data-field="${nameFieldId}"]`);
+                if (nameEl) nameEl.value = rows[idx].item || "";
+                closeCopingSheetModal();
+                return;
+            }
             const delBtn = e.target.closest("[data-del-row]");
             if (!delBtn) return;
             const idx = parseInt(delBtn.getAttribute("data-del-row"), 10);
@@ -6046,8 +6507,10 @@
             if (!kind) return;
 
             document.body.classList.add("popout-mode");
+            document.body.dataset.popoutKind = kind;
 
             if (kind === "actionstrategy") {
+                document.body.classList.add("popout-light-mk");
                 const nb = params.get("nb");
                 if (nb && nb !== appState.activeNotebookId && appState.notebooks[nb]) {
                     switchNotebook(nb);
@@ -6057,11 +6520,30 @@
             }
 
             if (kind === "copingsheet") {
+                document.body.classList.add("popout-light-mk");
                 const nb = params.get("nb");
                 if (nb && nb !== appState.activeNotebookId && appState.notebooks[nb]) {
                     switchNotebook(nb);
                 }
                 openCopingSheetModal();
+                const highlightName = params.get("highlight");
+                if (highlightName) csHighlightRowByItem(highlightName);
+                return;
+            }
+
+            if (kind === "nicetrades") {
+                document.body.classList.add("popout-white-mk");
+                const nb = params.get("nb");
+                if (nb && nb !== appState.activeNotebookId && appState.notebooks[nb]) {
+                    switchNotebook(nb);
+                    // switchNotebook の table.setData 完了を待ってからナイストレード集を描画する
+                    table.on("dataChanged", function onceChanged() {
+                        table.off("dataChanged", onceChanged);
+                        openNiceTradesModal();
+                    });
+                } else {
+                    openNiceTradesModal();
+                }
                 return;
             }
 
@@ -6125,7 +6607,8 @@
                 weakTag: "",
                 netStrength: null,
                 axisTag: "",
-                emotion: ""
+                emotion: "",
+                copingName: "無し"
             }, true).then(row => {
                 row.getElement().scrollIntoView({ behavior: "smooth" });
             });
@@ -6143,15 +6626,10 @@
         }
 
         // Filter Handlers
-        let niceTradeOnly = false;
         function applyFilters() {
             const searchVal = document.getElementById("filter-search").value.trim().toLowerCase();
 
             table.clearFilter();
-
-            if (niceTradeOnly) {
-                table.addFilter(d => d.niceTrade === true);
-            }
 
             if (searchVal) {
                 table.addFilter(function(data) {
@@ -6171,10 +6649,10 @@
             const dateTo = document.getElementById("filter-date-to").value;
             const timeFrom = document.getElementById("filter-time-from").value;
             const timeTo = document.getElementById("filter-time-to").value;
-            const positionVal = document.getElementById("filter-position").value;
+            const positionVals = Array.from(document.querySelectorAll("#filter-position input:checked")).map(el => el.value);
             const tagVals = Array.from(document.querySelectorAll("#filter-tag input:checked")).map(el => el.value);
-            const strengthVal = document.getElementById("filter-strength-tag").value;
-            const weakVal = document.getElementById("filter-weak-tag").value;
+            const strengthVals = Array.from(document.querySelectorAll("#filter-strength-tag input:checked")).map(el => el.value);
+            const weakVals = Array.from(document.querySelectorAll("#filter-weak-tag input:checked")).map(el => el.value);
             const nsMinRaw = document.getElementById("filter-netstrength-min").value;
             const nsMaxRaw = document.getElementById("filter-netstrength-max").value;
             const axisVals = Array.from(document.querySelectorAll("#filter-axis-tag input:checked")).map(el => el.value);
@@ -6183,10 +6661,10 @@
             if (dateTo) table.addFilter(d => !!d.date && d.date <= dateTo);
             if (timeFrom) table.addFilter(d => !!d.time && d.time >= timeFrom);
             if (timeTo) table.addFilter(d => !!d.time && d.time <= timeTo);
-            if (positionVal) table.addFilter("position", "=", positionVal);
+            if (positionVals.length) table.addFilter(d => positionVals.indexOf(d.position) !== -1);
             if (tagVals.length) table.addFilter(d => tagVals.indexOf(d.tag) !== -1);
-            if (strengthVal) table.addFilter("tfTag", "=", strengthVal);
-            if (weakVal) table.addFilter("weakTag", "=", weakVal);
+            if (strengthVals.length) table.addFilter(d => strengthVals.indexOf(d.tfTag) !== -1);
+            if (weakVals.length) table.addFilter(d => weakVals.indexOf(d.weakTag) !== -1);
             if (axisVals.length) table.addFilter(d => axisVals.indexOf(d.axisTag) !== -1);
 
             const nsMin = parseFloat(nsMinRaw);
@@ -6337,10 +6815,9 @@
 
         const ADVANCED_FILTER_IDS = [
             "filter-date-from", "filter-date-to", "filter-time-from", "filter-time-to",
-            "filter-position", "filter-strength-tag", "filter-weak-tag",
             "filter-netstrength-min", "filter-netstrength-max"
         ];
-        const ADVANCED_FILTER_CHECKBOX_IDS = ["filter-tag", "filter-axis-tag"];
+        const ADVANCED_FILTER_CHECKBOX_IDS = ["filter-position", "filter-tag", "filter-strength-tag", "filter-weak-tag", "filter-axis-tag"];
 
         ADVANCED_FILTER_IDS.forEach(function(id) {
             const el = document.getElementById(id);
@@ -6490,16 +6967,10 @@
             document.getElementById("filter-search").value = "";
             clearAdvancedFilterInputs();
             clearEntryFilterInputs();
-            niceTradeOnly = false;
-            document.getElementById("btn-toggle-nice-trade").classList.remove("btn-active");
             table.clearFilter();
         });
 
-        document.getElementById("btn-toggle-nice-trade").addEventListener("click", function() {
-            niceTradeOnly = !niceTradeOnly;
-            this.classList.toggle("btn-active", niceTradeOnly);
-            applyFilters();
-        });
+        document.getElementById("btn-toggle-nice-trade").addEventListener("click", openNiceTradesPopout);
 
         document.getElementById("btn-toggle-summary").addEventListener("click", function() {
             const wrap = document.getElementById("summary-toggle-wrap");
