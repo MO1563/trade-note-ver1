@@ -107,6 +107,38 @@
         body.popout-mode.popout-white-mk {
             background: #ffffff;
         }
+        /* 集計の各表を単独ウィンドウで開いたときの表示 */
+        body.summary-popout-mode > *:not(.container) { display: none !important; }
+        body.summary-popout-mode .container > *:not(#summary-toggle-wrap):not(#summary-popout-close-btn) { display: none !important; }
+        body.summary-popout-mode .container { max-width: none; padding: 0; }
+        body.summary-popout-mode #summary-toggle-wrap {
+            display: block !important;
+            position: fixed;
+            inset: 0;
+            overflow: auto;
+            background: var(--bg-color);
+            padding: 20px;
+            z-index: 9999;
+        }
+        body.summary-popout-mode #summary-toggle-wrap > .summary-panel { display: none; }
+        body.summary-popout-mode #summary-toggle-wrap > .summary-panel.summary-popout-target { display: block; }
+        body.summary-popout-mode .summary-popout-btn { display: none; }
+        #summary-popout-close-btn {
+            display: none;
+            position: fixed;
+            top: 14px;
+            right: 18px;
+            z-index: 10000;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-color);
+            box-shadow: var(--shadow-sm);
+        }
+        body.summary-popout-mode #summary-popout-close-btn { display: block; }
 
         * {
             box-sizing: border-box;
@@ -289,11 +321,39 @@
         .summary-panel-title {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 8px;
             font-weight: 700;
             font-size: 1rem;
             color: var(--accent-gold);
             margin-bottom: 12px;
+        }
+        .summary-panel-title-text { display: flex; align-items: center; gap: 8px; }
+        .summary-panel-title-actions { display: flex; align-items: center; gap: 6px; }
+        .summary-popout-btn, .summary-collapse-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 4px 8px;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 0.8rem;
+            line-height: 1;
+        }
+        .summary-popout-btn:hover, .summary-collapse-btn:hover { background-color: var(--bg-color-alt); }
+        .summary-collapse-btn i { transition: transform 0.15s ease; }
+        .summary-panel.collapsed .summary-collapse-btn i { transform: rotate(180deg); }
+        .summary-panel.collapsed > *:not(.summary-panel-title) { display: none !important; }
+        #summary-panel-yellow {
+            background-color: #fffbe6;
+        }
+        #summary-panel-yellow .stat-card {
+            background-color: rgba(255, 255, 255, 0.55);
+        }
+        #summary-panel-yellow .summary-panel-title-text,
+        #summary-panel-yellow .stat-label,
+        #summary-panel-yellow .stat-value {
+            color: #4a3b00;
         }
         .summary-panel .stats-grid .stat-card {
             padding: 12px 14px;
@@ -301,6 +361,78 @@
         .summary-panel .stat-value {
             font-size: 1.15rem;
         }
+
+
+        /* ===== 集計ポップアップ: 推移グラフ ===== */
+        #summary-chart-panel { display: none; margin-top: 16px; }
+        body.summary-popout-mode.summary-chart-on #summary-toggle-wrap > #summary-chart-panel { display: block; }
+        body.summary-chart-on .stat-card.chart-selectable { cursor: pointer; user-select: none; }
+        body.summary-chart-on .stat-card.chart-selectable:focus-visible { outline: 2px solid var(--accent-gold); outline-offset: 2px; }
+        .stat-card.chart-selected {
+            border-color: var(--chart-color, var(--accent-gold));
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--chart-color, var(--accent-gold)) 28%, transparent), var(--shadow-md);
+        }
+        .stat-card.chart-selected::before { background: var(--chart-color, var(--accent-gold)); opacity: 1; height: 4px; }
+        .sc-controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+        .sc-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .sc-row-label { font-size: 0.78rem; color: var(--text-secondary); font-weight: 600; min-width: 4.5em; }
+        .sc-seg { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+        .sc-seg button {
+            background: var(--card-bg-alt);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 6px;
+            padding: 5px 11px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .sc-seg button:hover { border-color: var(--accent-gold); }
+        .sc-seg button.active { background: var(--accent-gold); border-color: var(--accent-gold); color: #fff; font-weight: 600; }
+        .sc-clear-btn {
+            background: none; border: 1px solid var(--border-color); border-radius: 6px;
+            padding: 4px 10px; font-size: 0.78rem; cursor: pointer; color: var(--text-primary); font-family: inherit;
+        }
+        .sc-clear-btn:hover { background: var(--bg-color-alt); }
+        #summary-chart-note { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.6; }
+        #summary-chart-note .sc-warn { color: var(--accent-yellow); font-weight: 600; }
+        .sc-empty { padding: 36px 12px; text-align: center; color: var(--text-muted); font-size: 0.9rem; border: 1px dashed var(--border-color); border-radius: 10px; }
+        .sc-canvas-wrap { position: relative; width: 100%; }
+        .sc-canvas-wrap + .sc-canvas-wrap { margin-top: 14px; }
+
+
+        /* ===== タグ別集計ポップアップ: グラフ ===== */
+        #tag-chart-panel { display: none; margin-top: 16px; }
+        body.summary-popout-mode.summary-tagchart-on #summary-toggle-wrap > #tag-chart-panel { display: block; }
+        .tc-section-title { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin: 14px 0 4px; }
+        .tc-section-sub { font-size: 0.76rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.6; }
+        .tc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 14px; }
+        .tc-cell { background: var(--card-bg-alt); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px 12px; min-width: 0; }
+        .tc-cell-title { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+        .tc-cell-title small { font-weight: 400; color: var(--text-muted); margin-left: 6px; }
+        .tc-canvas-wrap { position: relative; width: 100%; }
+        .tc-empty { padding: 30px 8px; text-align: center; color: var(--text-muted); font-size: 0.82rem; }
+
+        /* ===== 通貨ペア別集計ポップアップ: グラフ ===== */
+        #pair-chart-panel { display: none; margin-top: 16px; }
+        body.summary-popout-mode.summary-paircharts-on #summary-toggle-wrap > #pair-chart-panel { display: block; }
+
+
+        /* ===== CSV取り込みダイアログ ===== */
+        .csvimp-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 10050; display: flex; align-items: center; justify-content: center; padding: 16px; }
+        .csvimp-card { background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 14px; box-shadow: var(--shadow-lg); width: 640px; max-width: 100%; max-height: 90vh; overflow: auto; padding: 20px 22px; }
+        .csvimp-card h3 { margin: 0 0 4px; font-size: 1.1rem; }
+        .csvimp-file { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px; word-break: break-all; }
+        .csvimp-block { margin: 10px 0; font-size: 0.84rem; line-height: 1.7; }
+        .csvimp-block b { color: var(--text-primary); }
+        .csvimp-muted { color: var(--text-secondary); }
+        .csvimp-warn { color: var(--accent-yellow); }
+        .csvimp-err { color: var(--accent-red); font-weight: 600; }
+        .csvimp-opt { display: block; margin: 6px 0; font-size: 0.86rem; cursor: pointer; }
+        .csvimp-opt input { margin-right: 6px; }
+        .csvimp-sub { margin-left: 22px; font-size: 0.78rem; color: var(--text-secondary); }
+        .csvimp-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 16px; }
+        .csvimp-list { max-height: 120px; overflow: auto; border: 1px solid var(--border-soft); border-radius: 8px; padding: 6px 10px; margin-top: 4px; font-size: 0.78rem; }
 
         .period-summary-scroll {
             overflow-x: auto;
@@ -1480,6 +1612,15 @@
             color: #8a93a6;
             padding: 24px 10px;
         }
+        .tagsum-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 7px;
+            vertical-align: middle;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
+        }
 
 
         .mieruka-columns {
@@ -2153,6 +2294,8 @@
             transform: translateY(0);
         }
     </style>
+    <!-- Google Identity Services: Google Drive OAuth -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <div class="container">
@@ -2186,6 +2329,10 @@
                 <button class="btn btn-secondary" id="btn-export-csv">
                     <i class="fa-solid fa-file-csv"></i> CSV出力
                 </button>
+                <button class="btn btn-secondary" id="btn-import-csv" title="スプレッドシートなどのCSVを、このノートに取り込みます">
+                    <i class="fa-solid fa-file-import"></i> CSV取り込み
+                </button>
+                <input type="file" id="csv-import-file" accept=".csv,.tsv,.txt,text/csv" style="display:none">
                 <button class="btn btn-danger" id="btn-clear-all">
                     <i class="fa-solid fa-rotate-left"></i> リセット
                 </button>
@@ -2558,10 +2705,16 @@
         </div>
 
         <!-- 集計表・黄色集計: 「集計」ボタンで表示切替 -->
+        <button type="button" id="summary-popout-close-btn"><i class="fa-solid fa-xmark"></i> 閉じる</button>
         <div id="summary-toggle-wrap" style="display:none;">
         <!-- 期間切替: 全体／年間／月間、選んだ期間の集計に絞り込む -->
         <div class="summary-panel">
-            <div class="summary-panel-title"><i class="fa-solid fa-calendar-check"></i> 集計期間</div>
+            <div class="summary-panel-title">
+                <span class="summary-panel-title-text"><i class="fa-solid fa-calendar-check"></i> 集計期間</span>
+                <span class="summary-panel-title-actions">
+                    <button type="button" class="summary-collapse-btn" title="開閉"><i class="fa-solid fa-chevron-up"></i></button>
+                </span>
+            </div>
             <div class="period-mode-row">
                 <button type="button" class="btn btn-secondary period-mode-btn btn-active" data-mode="all">全体</button>
                 <button type="button" class="btn btn-secondary period-mode-btn" data-mode="year">年間</button>
@@ -2571,8 +2724,14 @@
             <div id="summary-period-current" class="period-current-label"></div>
         </div>
         <!-- 集計表: aggregate stats over the currently displayed (filtered) trades -->
-        <div class="summary-panel">
-            <div class="summary-panel-title"><i class="fa-solid fa-table-list"></i> 集計表</div>
+        <div class="summary-panel" id="summary-panel-table">
+            <div class="summary-panel-title">
+                <span class="summary-panel-title-text"><i class="fa-solid fa-table-list"></i> 集計表</span>
+                <span class="summary-panel-title-actions">
+                    <button type="button" class="summary-popout-btn" data-summary-popout="summarytable" title="別ウィンドウで開く"><i class="fa-solid fa-up-right-from-square"></i></button>
+                    <button type="button" class="summary-collapse-btn" title="開閉"><i class="fa-solid fa-chevron-up"></i></button>
+                </span>
+            </div>
             <div class="stats-grid" id="summary-stats-grid">
                 <div class="stat-card" data-mnt-tip="現在表示中（フィルター後）のトレード行数の合計です。">
                     <div class="stat-info">
@@ -2600,14 +2759,26 @@
                 </div>
                 <div class="stat-card" data-mnt-tip="評価が「勝ち」「勝ち黄」の行のPips列を合計した値です。">
                     <div class="stat-info">
-                        <span class="stat-label">獲得pips数</span>
+                        <span class="stat-label">勝ちpips</span>
                         <span class="stat-value" id="summary-win-pips">0.0 pips</span>
                     </div>
                 </div>
                 <div class="stat-card" data-mnt-tip="評価が「負け」「負け黄」の行のPips列を合計した値です。">
                     <div class="stat-info">
-                        <span class="stat-label">ロスpips数</span>
+                        <span class="stat-label">負けpips</span>
                         <span class="stat-value" id="summary-loss-pips">0.0 pips</span>
+                    </div>
+                </div>
+                <div class="stat-card" data-mnt-tip="表示中の全トレードの伸ばし損ねpips列を合計した値です。">
+                    <div class="stat-info">
+                        <span class="stat-label">伸ばし損ねpips</span>
+                        <span class="stat-value" id="summary-missed-pips">0.0 pips</span>
+                    </div>
+                </div>
+                <div class="stat-card" data-mnt-tip="黄色未エントリー系4タグを除く全トレードについて、Pips列の合計から伸ばし損ねpips列の合計を引いた値です（タグ別集計のロスpipsを合算したもの）。">
+                    <div class="stat-info">
+                        <span class="stat-label">ロス合計pips</span>
+                        <span class="stat-value" id="summary-loss-pips-total">0.0 pips</span>
                     </div>
                 </div>
                 <div class="stat-card" data-mnt-tip="表示中の全トレードのLot列の平均値です。">
@@ -2634,12 +2805,66 @@
                         <span class="stat-value" id="summary-avg-loss">-</span>
                     </div>
                 </div>
+                <div class="stat-card" data-mnt-tip="タグが「ビビリ決済」の行数 ÷ 表示中の総トレード数 × 100。">
+                    <div class="stat-info">
+                        <span class="stat-label">ビビリ率</span>
+                        <span class="stat-value" id="bibiri-rate">-</span>
+                    </div>
+                </div>
+                <div class="stat-card" data-mnt-tip="表示中の全トレードのスワップ(円)列を合計した値です。">
+                    <div class="stat-info">
+                        <span class="stat-label">総スワップ</span>
+                        <span class="stat-value" id="summary-total-swap">¥0</span>
+                    </div>
+                </div>
+                <div class="stat-card" data-mnt-tip="プロフィットファクター＝総利益（勝ちトレードの収益合計） ÷ 総損失の絶対値（負けトレードの収益合計の絶対値）。">
+                    <div class="stat-info">
+                        <span class="stat-label">P/F（プロフィットファクター）</span>
+                        <span class="stat-value" id="summary-profit-factor">-</span>
+                    </div>
+                </div>
+                <div class="stat-card" data-mnt-tip="プロフィットレシオ＝平均利益 ÷ 平均損失の絶対値。">
+                    <div class="stat-info">
+                        <span class="stat-label">P/R（プロフィットレシオ）</span>
+                        <span class="stat-value" id="summary-profit-ratio">-</span>
+                    </div>
+                </div>
+                <div class="stat-card" data-mnt-tip="絞り期間総収益 ÷ 絞り期間開始残高 × 100。全体集計のときは期間の開始がないため計算されません。">
+                    <div class="stat-info">
+                        <span class="stat-label">絞り期間利率</span>
+                        <span class="stat-value" id="summary-period-return-rate">-</span>
+                    </div>
+                </div>
+                <div class="stat-card" data-mnt-tip="初期資金＋（絞った期間より前の全トレードの収支合計）。全体集計のときは初期資金そのものになります。">
+                    <div class="stat-info">
+                        <span class="stat-label">絞り期間開始残高</span>
+                        <span class="stat-value" id="summary-period-start-balance">¥0</span>
+                    </div>
+                </div>
+                <div class="stat-card" data-mnt-tip="絞り期間開始残高＋絞り期間総収益。">
+                    <div class="stat-info">
+                        <span class="stat-label">絞り期間終了残高</span>
+                        <span class="stat-value" id="summary-period-end-balance">¥0</span>
+                    </div>
+                </div>
+                <div class="stat-card" data-mnt-tip="絞った期間に表示されているトレードの収益(円)列を合計した値です。">
+                    <div class="stat-info">
+                        <span class="stat-label">絞り期間総収益</span>
+                        <span class="stat-value" id="summary-period-total-profit">¥0</span>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- 黄色集計: 勝ち黄／負け黄トレードと、黄色未エントリー（見送ってしまった黄色パターン）の集計 -->
-        <div class="summary-panel">
-            <div class="summary-panel-title"><i class="fa-solid fa-circle-half-stroke"></i> 黄色集計</div>
+        <div class="summary-panel" id="summary-panel-yellow">
+            <div class="summary-panel-title">
+                <span class="summary-panel-title-text"><i class="fa-solid fa-circle-half-stroke"></i> 黄色集計</span>
+                <span class="summary-panel-title-actions">
+                    <button type="button" class="summary-popout-btn" data-summary-popout="summaryyellow" title="別ウィンドウで開く"><i class="fa-solid fa-up-right-from-square"></i></button>
+                    <button type="button" class="summary-collapse-btn" title="開閉"><i class="fa-solid fa-chevron-up"></i></button>
+                </span>
+            </div>
             <div class="stats-grid" id="yellow-stats-grid">
                 <div class="stat-card" data-mnt-tip="黄色トレード数（勝ち黄＋負け黄）÷（黄色トレード数＋黄色未エントリー数）× 100。黄色未エントリーはタグが「黄色未エントリー」系4種の行です。">
                     <div class="stat-info">
@@ -2695,6 +2920,12 @@
                         <span class="stat-value" id="yellow-miss-rate">-</span>
                     </div>
                 </div>
+                <div class="stat-card" data-mnt-tip="タグが「黄色未エントリー」系4種のいずれかに該当する行数です。">
+                    <div class="stat-info">
+                        <span class="stat-label">黄色逃し数</span>
+                        <span class="stat-value" id="yellow-missed-count">0</span>
+                    </div>
+                </div>
                 <div class="stat-card" data-mnt-tip="黄色未エントリー（4種のタグ）に該当する行のPips列を合計した値です。">
                     <div class="stat-info">
                         <span class="stat-label">逃し黄色総pips数</span>
@@ -2707,13 +2938,147 @@
                         <span class="stat-value" id="yellow-total-profit">¥0</span>
                     </div>
                 </div>
-                <div class="stat-card" data-mnt-tip="タグが「ビビリ決済」の行数 ÷ 表示中の総トレード数 × 100。">
-                    <div class="stat-info">
-                        <span class="stat-label">ビビリ率</span>
-                        <span class="stat-value" id="bibiri-rate">-</span>
-                    </div>
-                </div>
             </div>
+        </div>
+
+        <!-- タグ別集計: タグごとの勝敗数・勝率・平均ロット・合計pips・合計収益 -->
+        <div class="summary-panel" id="summary-panel-tagsum">
+            <div class="summary-panel-title">
+                <span class="summary-panel-title-text"><i class="fa-solid fa-tags"></i> タグ別集計</span>
+                <span class="summary-panel-title-actions">
+                    <button type="button" class="summary-popout-btn" data-summary-popout="summarytag" title="別ウィンドウで開く"><i class="fa-solid fa-up-right-from-square"></i></button>
+                    <button type="button" class="summary-collapse-btn" title="開閉"><i class="fa-solid fa-chevron-up"></i></button>
+                </span>
+            </div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:8px;">勝ち数／負け数は「評価」列が「勝ち・勝ち黄」／「負け・負け黄」の行を集計しています。ロスpips＝合計pips－合計伸ばし損ねpips（同じタグの行を対象に集計）。ロス仮想収支＝そのタグの収支(円)合計。ロス抜き仮想収支＝総収支－ロス仮想収支。合計行の勝ち数・負け数・勝率・平均ロットは「黄色未エントリー」系4タグを除いたトレードで計算し、ロスpips・ロス仮想収支・ロス抜き仮想収支はさらに「ナイストレード！」も除いたトレードで計算しています（合計pips・合計収益(円)は全トレードが対象です）。</div>
+            <div class="period-summary-scroll">
+                <table class="period-summary-table" id="tag-summary-table">
+                    <thead>
+                        <tr>
+                            <th>タグ</th>
+                            <th>勝ち数</th>
+                            <th>負け数</th>
+                            <th>勝率</th>
+                            <th>平均ロット</th>
+                            <th>合計pips</th>
+                            <th>ロスpips</th>
+                            <th>ロス仮想収支</th>
+                            <th>ロス抜き仮想収支</th>
+                            <th>合計収益(円)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tag-summary-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 通貨ペア別集計: ペアごとの利益/損失pips・金額・エントリ回数・勝率 -->
+        <div class="summary-panel" id="summary-panel-pairsum">
+            <div class="summary-panel-title">
+                <span class="summary-panel-title-text"><i class="fa-solid fa-coins"></i> 通貨ペア別集計</span>
+                <span class="summary-panel-title-actions">
+                    <button type="button" class="summary-popout-btn" data-summary-popout="summarypair" title="別ウィンドウで開く"><i class="fa-solid fa-up-right-from-square"></i></button>
+                    <button type="button" class="summary-collapse-btn" title="開閉"><i class="fa-solid fa-chevron-up"></i></button>
+                </span>
+            </div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:8px;">収益(円)がプラスの行を勝ち、0以下の行を負けとして集計しています。損失pips・損失金額は絶対値で表示しています。</div>
+            <div class="period-summary-scroll">
+                <table class="period-summary-table" id="pair-summary-table">
+                    <thead>
+                        <tr>
+                            <th>通貨ペア</th>
+                            <th>利益pips</th>
+                            <th>利益金額</th>
+                            <th>損失pips</th>
+                            <th>損失金額</th>
+                            <th>合計pips</th>
+                            <th>合計金額</th>
+                            <th>エントリ回数</th>
+                            <th>勝率</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pair-summary-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+
+
+        <!-- 通貨ペア別グラフ: 通貨ペア別集計を別ウィンドウで開いたときだけ表示 -->
+        <div class="summary-panel" id="pair-chart-panel">
+            <div class="summary-panel-title">
+                <span class="summary-panel-title-text"><i class="fa-solid fa-chart-column"></i> 通貨ペア別グラフ</span>
+            </div>
+            <div class="tc-section-sub" id="pc-note"></div>
+            <div class="sc-controls">
+                <div class="sc-row"><span class="sc-row-label">エントリ回数の表示</span>
+                    <span class="sc-seg" id="pc-seg-view">
+                        <button type="button" data-pc-view="bar">横棒（多い順）</button>
+                        <button type="button" data-pc-view="pie">円グラフ</button>
+                    </span></div>
+            </div>
+            <div class="tc-grid" id="pc-grid"></div>
+        </div>
+
+        <!-- タグ別グラフ: タグ別集計を別ウィンドウで開いたときだけ表示 -->
+        <div class="summary-panel" id="tag-chart-panel">
+            <div class="summary-panel-title">
+                <span class="summary-panel-title-text"><i class="fa-solid fa-chart-pie"></i> タグ別グラフ</span>
+            </div>
+            <div class="sc-controls">
+                <div class="sc-row"><span class="sc-row-label">割合の表示</span>
+                    <span class="sc-seg" id="tc-seg-view">
+                        <button type="button" data-tc-view="pie">円グラフ</button>
+                        <button type="button" data-tc-view="bar">横棒（多い順）</button>
+                    </span></div>
+            </div>
+            <div class="tc-section-title">タグの占める割合</div>
+            <div class="tc-section-sub" id="tc-share-note"></div>
+            <div class="tc-grid" id="tc-share-grid"></div>
+            <div class="tc-section-title">タグごとの指標（紫の棒＝合計）</div>
+            <div class="tc-section-sub">表の「合計（全トレード）」行と同じ計算です。緑＝プラス、赤＝マイナス、青＝勝率・平均ロット。</div>
+            <div class="tc-grid" id="tc-metric-grid"></div>
+        </div>
+
+        <!-- 推移グラフ: 集計表／黄色集計を別ウィンドウで開いたときだけ表示（カードを押して項目を選ぶ） -->
+        <div class="summary-panel" id="summary-chart-panel">
+            <div class="summary-panel-title">
+                <span class="summary-panel-title-text"><i class="fa-solid fa-chart-line"></i> 推移グラフ</span>
+                <span class="summary-panel-title-actions">
+                    <button type="button" class="sc-clear-btn" id="sc-clear-btn">選択をすべて解除</button>
+                </span>
+            </div>
+            <div class="sc-controls">
+                <div class="sc-row"><span class="sc-row-label">横軸の単位</span>
+                    <span class="sc-seg" id="sc-seg-gran">
+                        <button type="button" data-sc-gran="month">月</button>
+                        <button type="button" data-sc-gran="week">週</button>
+                        <button type="button" data-sc-gran="day">日</button>
+                        <button type="button" data-sc-gran="h4">4時間</button>
+                        <button type="button" data-sc-gran="h1">1時間</button>
+                        <button type="button" data-sc-gran="m15">15分</button>
+                        <button type="button" data-sc-gran="m5">5分</button>
+                    </span></div>
+                <div class="sc-row"><span class="sc-row-label">集計方法</span>
+                    <span class="sc-seg" id="sc-seg-mode">
+                        <button type="button" data-sc-mode="period">区間ごと</button>
+                        <button type="button" data-sc-mode="cum">累計（開始からの通算）</button>
+                    </span></div>
+                <div class="sc-row"><span class="sc-row-label">単位が違う場合</span>
+                    <span class="sc-seg" id="sc-seg-layout">
+                        <button type="button" data-sc-layout="auto">自動</button>
+                        <button type="button" data-sc-layout="overlay">1つに重ねる（軸を分ける）</button>
+                        <button type="button" data-sc-layout="split">単位ごとに上下に分ける</button>
+                    </span></div>
+                <div class="sc-row"><span class="sc-row-label">グラフの形</span>
+                    <span class="sc-seg" id="sc-seg-type">
+                        <button type="button" data-sc-type="auto">自動</button>
+                        <button type="button" data-sc-type="line">折れ線</button>
+                        <button type="button" data-sc-type="bar">棒</button>
+                    </span></div>
+            </div>
+            <div id="summary-chart-note"></div>
+            <div id="summary-chart-body"></div>
         </div>
         </div>
 
@@ -2807,6 +3172,77 @@
         </div>
     </div>
 
+    <!-- Google Drive settings modal -->
+    <div class="mieruka-overlay" id="google-drive-settings-overlay" style="z-index:10600;">
+        <div class="mieruka-card" style="max-width: 620px; height:auto; max-height:90vh; margin:auto; border-radius:14px; border:1px solid var(--mk-border);">
+            <div class="mieruka-titlebar">
+                <h3><i class="fa-brands fa-google-drive"></i> Google Drive設定</h3>
+                <button class="mieruka-close" id="google-drive-settings-close">&times;</button>
+            </div>
+            <div class="mieruka-body">
+                <div style="line-height:1.8; font-size:.86rem;">
+                    <p style="margin-bottom:10px;">Google Driveへ画像を保存するには、Google Cloudで作成した「ウェブアプリ」のOAuthクライアントIDが必要です。</p>
+                    <button type="button" class="mieruka-btn-clear" id="google-drive-oauth-help-btn" style="margin:2px 0 12px;">
+                        <i class="fa-solid fa-circle-info"></i> Google CloudでOAuthクライアントIDを1つ作る
+                    </button>
+                    <div id="google-drive-oauth-help" style="display:none; margin:0 0 14px; padding:14px 16px; border:1px solid #334155; border-radius:10px; background:#0f172a; color:#e2e8f0; font-size:.82rem; line-height:1.8;">
+                        <div style="font-weight:700; font-size:.92rem; margin-bottom:8px;">OAuthクライアントIDの作成手順</div>
+                        <ol style="margin:0 0 8px 20px; padding:0;">
+                            <li><b>Google Cloud Console</b>を開き、Googleアカウントでログインします。</li>
+                            <li>プロジェクトを1つ選択します。初めてなら新しいプロジェクトを作成します。</li>
+                            <li>左メニューから <b>Google Auth Platform → クライアント</b> を開きます。</li>
+                            <li><b>クライアントを作成</b>を押します。</li>
+                            <li>アプリケーションの種類で <b>ウェブアプリケーション</b> を選びます。</li>
+                            <li>名前は「見える化Laboトレードノート」など、分かりやすい名前を入力します。</li>
+                            <li><b>承認済みのJavaScript生成元</b>に、このHTMLを実際に開くサイトの「ドメイン（オリジン）」を登録します。</li>
+                            <li><b>作成</b>を押し、表示された <b>クライアントID</b>（末尾が <code>.apps.googleusercontent.com</code>）をコピーします。</li>
+                            <li>この画面の下にある「Google OAuth クライアントID」へ貼り付けて「設定を保存」を押します。</li>
+                        </ol>
+                        <div style="margin-top:8px; padding:9px 10px; border-radius:8px; background:#172033;">
+                            <b>重要：</b>「承認済みのJavaScript生成元」は、HTMLをどこから開くかによって変わります。GitHub Pagesなら <code>https://〇〇.github.io</code> のように登録します。ローカルの <code>file://</code> で直接開く場合は設定方法が異なるため、まずGitHub PagesなどWeb上で開く方法を推奨します。
+                        </div>
+                        <div style="margin-top:8px; color:#94a3b8;">Google公式の現在の手順では「Google Auth Platform → クライアント → クライアントを作成 → ウェブアプリケーション」です。</div>
+                    </div>
+                    <label style="display:block; margin-bottom:6px; font-weight:700;">Google OAuth クライアントID</label>
+                    <input id="google-drive-client-id" class="form-control" style="width:100%;" placeholder="xxxxx.apps.googleusercontent.com">
+                    <p style="margin-top:8px; color:#94a3b8; font-size:.75rem;">このHTMLはローカルで動作するため、クライアントシークレットは使用しません。クライアントIDはブラウザ側に保存されます。</p>
+                </div>
+                <div class="mieruka-actions" style="margin-top:16px;">
+                    <button type="button" class="mieruka-btn-save" id="google-drive-settings-save">設定を保存</button>
+                    <button type="button" class="mieruka-btn-clear" id="google-drive-settings-cancel">キャンセル</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Drive設定ボタンのフォールバック。メインスクリプトの初期化でエラーが起きても設定画面を開けるようにする。
+        window.__openGoogleDriveSettingsFallback = function() {
+            var overlay = document.getElementById("google-drive-settings-overlay");
+            var input = document.getElementById("google-drive-client-id");
+            if (!overlay) return false;
+            try {
+                if (input) input.value = localStorage.getItem("trade_note_google_drive_client_id_v1") || "";
+            } catch (e) {}
+            overlay.classList.add("active");
+            return false;
+        };
+    </script>
+    <script>
+        (function () {
+            var btn = document.getElementById("google-drive-oauth-help-btn");
+            var help = document.getElementById("google-drive-oauth-help");
+            if (!btn || !help) return;
+            btn.addEventListener("click", function () {
+                var open = help.style.display !== "none";
+                help.style.display = open ? "none" : "block";
+                btn.innerHTML = open
+                    ? '<i class="fa-solid fa-circle-info"></i> Google CloudでOAuthクライアントIDを1つ作る'
+                    : '<i class="fa-solid fa-circle-xmark"></i> OAuthクライアントIDの作成手順を閉じる';
+            });
+        })();
+    </script>
+
     <!-- Chart attachment modal (before-entry / after-exit charts) -->
     <div class="mieruka-overlay" id="chart-overlay">
         <div class="mieruka-card" style="max-width: 900px;">
@@ -2818,7 +3254,8 @@
                 <div class="chart-slot-hint">画像をクリックして選択、または画像をコピーしてから枠内をクリックし Ctrl+V（⌘+V）で貼り付けできます。虫眼鏡アイコンをクリックすると画面いっぱいに拡大表示できます。</div>
                 <div class="chart-folder-bar">
                     <span>保存先フォルダ: <strong id="chart-folder-name">未選択</strong></span>
-                    <button type="button" class="mieruka-mini-btn" id="chart-folder-select-btn">フォルダを選択</button>
+                    <button type="button" class="mieruka-mini-btn" id="google-drive-settings-btn" onclick="window.__openGoogleDriveSettingsFallback && window.__openGoogleDriveSettingsFallback(); return false;"><i class="fa-brands fa-google-drive"></i> Drive設定</button>
+                    <button type="button" class="mieruka-mini-btn" id="chart-folder-select-btn">PCフォルダ</button>
                 </div>
                 <div class="chart-slots-grid" id="chart-slots-grid" style="margin-top: 10px;"></div>
                 <div class="mieruka-actions">
@@ -2965,6 +3402,8 @@
 
     <!-- Tabulator JS CDN -->
     <script src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
+    <!-- Chart.js: 集計ポップアップの推移グラフ用 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
     <script>
         // Custom Fail-Proof Dropdown Editor Component for Tabulator
@@ -3069,8 +3508,8 @@
         }
 
         // Select Editors Instances
-        const pairSelectEditor = createSelectEditor([
-            "",
+        // トレードノート本体の「ペア」列で選択できる通貨ペア一覧（通貨ペア別集計もこれと同じ一覧を使う）
+        const TRADE_NOTE_PAIR_LIST = [
             "USDJPY",
             "EURUSD",
             "GBPUSD",
@@ -3103,7 +3542,8 @@
             "NI225",
             "US500",
             "USOIL"
-        ]);
+        ];
+        const pairSelectEditor = createSelectEditor(["", ...TRADE_NOTE_PAIR_LIST]);
         const posSelectEditor = createSelectEditor(["", "Buy", "Sell"]);
         const evalSelectEditor = createSelectEditor(["", "勝ち", "勝ち黄", "負け", "負け黄", "建値", "未決済"]);
         const TAG_COLOR_CLASS = {
@@ -3552,6 +3992,22 @@
         // 手入力の「リスク(p)」列（想定リスク幅）を使う。口座残高も、その行自身の損益はまだ
         // 確定していない前提で、他の全トレードの損益だけを反映した「その行のトレード前時点の残高」を使う。
         // 許容損失率は強数が2未満なら1%、2以上なら2%。
+        // 適正ロット・適正収益の計算本体（recalcOptimalSizing とCSV取り込みで共用）
+        function optimalSizingFor(data, balanceBeforeThisTrade) {
+            let optimalLot = null;
+            let optimalProfit = null;
+            const riskPips = parseFloat(data.riskPips);
+            if (!isNaN(riskPips) && riskPips !== 0 && balanceBeforeThisTrade > 0) {
+                const pair = (data.pair || "").toUpperCase();
+                const ratePerPip = ratePerPipForPair(pair, parseFloat(data.usdJpyRate));
+                const ns = data.netStrength;
+                const riskRate = (typeof ns === "number" && ns >= 2) ? 0.02 : 0.01;
+                const riskAmount = balanceBeforeThisTrade * riskRate;
+                optimalLot = Math.round((riskAmount / (Math.abs(riskPips) * ratePerPip)) * 100) / 100;
+                optimalProfit = Math.round(riskPips * optimalLot * ratePerPip);
+            }
+            return { optimalLot: optimalLot, optimalProfit: optimalProfit };
+        }
         function recalcOptimalSizing() {
             if (!table) return;
             const capValInput = parseFloat(document.getElementById("input-initial-capital").value);
@@ -3571,15 +4027,9 @@
                 const ownProfit = parseFloat(data.profit);
                 const balanceBeforeThisTrade = initialCapital + totalProfit - (!isNaN(ownProfit) ? ownProfit : 0);
 
-                if (!isNaN(riskPips) && riskPips !== 0 && balanceBeforeThisTrade > 0) {
-                    const pair = (data.pair || "").toUpperCase();
-                    const ratePerPip = ratePerPipForPair(pair, parseFloat(data.usdJpyRate));
-                    const ns = data.netStrength;
-                    const riskRate = (typeof ns === "number" && ns >= 2) ? 0.02 : 0.01;
-                    const riskAmount = balanceBeforeThisTrade * riskRate;
-                    optimalLot = Math.round((riskAmount / (Math.abs(riskPips) * ratePerPip)) * 100) / 100;
-                    optimalProfit = Math.round(riskPips * optimalLot * ratePerPip);
-                }
+                const sized = optimalSizingFor(data, balanceBeforeThisTrade);
+                optimalLot = sized.optimalLot;
+                optimalProfit = sized.optimalProfit;
 
                 if (data.optimalLot !== optimalLot || data.optimalProfit !== optimalProfit) {
                     row.update({ optimalLot: optimalLot, optimalProfit: optimalProfit });
@@ -3862,9 +4312,11 @@
                     <div>${fieldLabel("決済価格")}${numberInputHtml("entry_exit_price", "例: 150.500")}</div>
                 </div>
                 ${fieldLabel("スワップ(円)")}${numberInputHtml("entry_swap", "例: 150")}
+                <div id="settle-missed-pips-wrap" style="display:none;">
+                    ${fieldLabel("伸ばし損ねpips")}${numberInputHtml("entry_missed_pips", "例: 5.0")}
+                </div>
                 ${fieldLabel("あなた自身はどんなトレードだったと思いますか？")}
-                ${chipGroupHtml("entry_review_type", ["環境認識甘い", "アリエン", "ビビり決済", "損切り設定ミス", "資金管理ミス", "上位足リスク", "7波以降リスク", "レイトエントリー", "レイト決済", "相関リスク", "3大指標ゴリ押し", "テールイベント"], true, "pink")}
-                ${chipGroupHtml("entry_review_nice", ["ナイストレード"], false, "pink")}
+                ${chipGroupHtml("entry_review_type", ["ナイストレード！", "テールイベント", "ダメトレ", "環境足弱い", "アリエン", "損切り貧乏判定", "上位足リスク", "相関リスク", "ビビリ決済", "損切り設定ミス", "資金管理ミス", "レイトエントリ・決済", "3大指標", "戻りすぎ", "7波以降対処ミス", "その他"], true, "pink")}
                 <div>${fieldLabel("トレード終了後の感想")}${textareaHtml("entry_review_feeling", "ここは「本人認識」を残す項目です。正解を書く必要はありません。", 300)}</div>
                 <div>${fieldLabel("一番後悔したこと（必須）")}${textareaHtml("entry_review_regret", "例：「ここを逃したら今日はチャンスがない」と思って飛びついた", 150)}</div>
                 <div>${fieldLabel("次回どうする？（必須）")}${textareaHtml("entry_review_next", "例：遅れたら入らない、一度席を立つ、逆指値を置く", 100)}</div>
@@ -3898,6 +4350,8 @@
         function missResultHtml() {
             return `
                 <div class="mieruka-col-title">見送り結果</div>
+                ${fieldLabel("タグ")}
+                ${chipGroupHtml("miss_result_tag", ["入ろうと思っていた", "気づいてて入れなかった", "あえて見送った"], false, "yellow")}
                 ${fieldLabel("見送りで正解")}
                 ${chipGroupHtml("miss_result_correct", ["型が来なかった", "見送り理由が確認した"], false)}
                 ${fieldLabel("見送りは不正解")}
@@ -4157,6 +4611,7 @@
                 clearMierukaPanel("settlement");
                 prefillBasicFromTrade("settlement", data);
             }
+            updateMissedPipsFieldVisibility();
             if (mr) {
                 populateMierukaPanel("miss_result", mr.data);
             } else {
@@ -4249,6 +4704,24 @@
         }
 
         // 決済ログの決済価格をトレードノートの「決済」列にも反映する
+        // 伸ばし損ねpipsを決済ログで入力できるのは、「あなた自身はどんなトレードだったと思いますか？」で
+        // このいずれかのタグが選ばれているときのみ
+        const MISSED_PIPS_LOG_TAGS = ["損切り貧乏判定", "損切り設定ミス", "ビビリ決済"];
+        function updateMissedPipsFieldVisibilityFromChips(group) {
+            const wrap = document.getElementById("settle-missed-pips-wrap");
+            if (!wrap) return;
+            const activeValues = Array.from(group.querySelectorAll(".chip-btn.active")).map(function(b) { return b.getAttribute("data-value"); });
+            const shouldShow = MISSED_PIPS_LOG_TAGS.some(function(t) { return activeValues.indexOf(t) !== -1; });
+            wrap.style.display = shouldShow ? "" : "none";
+            if (!shouldShow) {
+                const input = wrap.querySelector('[data-field="entry_missed_pips"]');
+                if (input) input.value = "";
+            }
+        }
+        function updateMissedPipsFieldVisibility() {
+            const group = document.querySelector('.chip-group[data-group="entry_review_type"]');
+            if (group) updateMissedPipsFieldVisibilityFromChips(group);
+        }
         function buildTradeUpdateFromSettlementLog(data) {
             const update = {};
             if (data.entry_exit_price !== undefined && data.entry_exit_price !== "") {
@@ -4258,6 +4731,15 @@
             if (data.entry_swap !== undefined && data.entry_swap !== "") {
                 const s = parseFloat(data.entry_swap);
                 if (!isNaN(s)) update.swap = s;
+            }
+            // 伸ばし損ねpipsは「あなた自身はどんなトレードだったと思いますか？」で対象タグ
+            // （損切り貧乏判定／損切り設定ミス／ビビリ決済）のいずれかが選ばれているときだけ
+            // 決済ログの入力欄に出るので、そのときだけトレードノート本体にも反映する
+            const reviewTags = Array.isArray(data.entry_review_type) ? data.entry_review_type : [];
+            const hasMissedPipsTag = MISSED_PIPS_LOG_TAGS.some(function(t) { return reviewTags.indexOf(t) !== -1; });
+            if (hasMissedPipsTag && data.entry_missed_pips !== undefined && data.entry_missed_pips !== "") {
+                const mp = parseFloat(data.entry_missed_pips);
+                if (!isNaN(mp)) update.missedPips = mp;
             }
             return update;
         }
@@ -4343,6 +4825,24 @@
                 update.tfTag = strengthNumToTag(scoreTotal);
             }
 
+            // 気づき漏れログを保存したら、トレードノートのタグを自動で「黄色未エントリー（気づいてなかった）」にする
+            update.tag = "黄色未エントリー（気づいてなかった）";
+
+            return update;
+        }
+
+        // 見送り結果ログの「タグ」選択を、トレードノート本体のタグ（黄色未エントリーの対応する選択肢）に反映する
+        const MISS_RESULT_TAG_MAP = {
+            "入ろうと思っていた": "黄色未エントリー（入ろうと思っていた）",
+            "気づいてて入れなかった": "黄色未エントリー（気づいてて入れなかった）",
+            "あえて見送った": "黄色未エントリー（あえて見送った）"
+        };
+        function buildTradeUpdateFromMissResultLog(data) {
+            const update = {};
+            const selected = data.miss_result_tag;
+            if (selected && MISS_RESULT_TAG_MAP[selected]) {
+                update.tag = MISS_RESULT_TAG_MAP[selected];
+            }
             return update;
         }
 
@@ -4410,9 +4910,11 @@
                 Object.assign(update, buildTradeUpdateFromMissLog(data));
             } else if (tab === "notice") {
                 Object.assign(update, buildTradeUpdateFromNoticeLog(data));
+            } else if (tab === "miss_result") {
+                Object.assign(update, buildTradeUpdateFromMissResultLog(data));
             }
             mkCurrentRow.update(update).then(function() {
-                if (tab === "entry" || tab === "settlement" || tab === "miss" || tab === "notice") {
+                if (tab === "entry" || tab === "settlement" || tab === "miss" || tab === "notice" || tab === "miss_result") {
                     updateCalculations(mkCurrentRow);
                     updateNetStrength(mkCurrentRow);
                 }
@@ -4636,16 +5138,23 @@
         document.getElementById("mieruka-overlay").addEventListener("click", function(e) {
             const chip = e.target.closest(".chip-btn");
             if (chip) {
-                // 見送り結果ボックス内の5ボタン（3グループにまたがる）は、まとめて1つだけ光る排他選択にする
+                // 見送り結果ボックス内の5ボタン（3グループにまたがる）は、まとめて1つだけ光る排他選択にする。
+                // ただし一番上の「タグ」は独立した選択肢なので、この一括排他の対象からは外す。
                 const resultBox = chip.closest("#mk-miss-result");
-                if (resultBox) {
+                const chipGroupEl = chip.closest(".chip-group");
+                const isMissResultTagGroup = chipGroupEl && chipGroupEl.getAttribute("data-group") === "miss_result_tag";
+                if (resultBox && !isMissResultTagGroup) {
                     const wasActive = chip.classList.contains("active");
-                    resultBox.querySelectorAll(".chip-btn").forEach(b => b.classList.remove("active"));
+                    resultBox.querySelectorAll(".chip-btn").forEach(b => {
+                        if (b.closest('.chip-group[data-group="miss_result_tag"]')) return;
+                        b.classList.remove("active");
+                    });
                     if (!wasActive) chip.classList.add("active");
                     return;
                 }
                 const group = handleChipToggle(chip);
                 const groupId = group.getAttribute("data-group") || "";
+                if (groupId === "entry_review_type") updateMissedPipsFieldVisibilityFromChips(group);
                 if (groupId.endsWith("_category")) {
                     const prefix = groupId.slice(0, -"_category".length);
                     regeneratePairGroup(prefix, chip.getAttribute("data-value"), null);
@@ -4745,6 +5254,175 @@
         function mkGenKey() {
             return "img_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 9);
         }
+
+        // ===== Google Drive image save feature =====
+        // Google Identity Services のトークン方式を使い、保存ボタンからDriveへ画像をアップロードする。
+        // ノートごとにDriveフォルダIDをappState.notebooks[notebookId].googleDriveFolderIdへ保存する。
+        // 初回はノート名と同名のフォルダをマイドライブ直下から探し、無ければ自動作成する。
+        const GOOGLE_DRIVE_CLIENT_ID_KEY = "trade_note_google_drive_client_id_v1";
+        const GOOGLE_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive";
+        let googleDriveAccessToken = null;
+        let googleDriveTokenClient = null;
+        let googleDrivePendingUpload = null;
+
+        function getGoogleDriveClientId() {
+            try { return localStorage.getItem(GOOGLE_DRIVE_CLIENT_ID_KEY) || ""; } catch (e) { return ""; }
+        }
+        function setGoogleDriveClientId(id) {
+            try { localStorage.setItem(GOOGLE_DRIVE_CLIENT_ID_KEY, (id || "").trim()); } catch (e) {}
+        }
+        function openGoogleDriveSettings() {
+            const input = document.getElementById("google-drive-client-id");
+            if (input) input.value = getGoogleDriveClientId();
+            document.getElementById("google-drive-settings-overlay").classList.add("active");
+        }
+        function closeGoogleDriveSettings() {
+            document.getElementById("google-drive-settings-overlay").classList.remove("active");
+        }
+        function initGoogleDriveTokenClient() {
+            const clientId = getGoogleDriveClientId();
+            if (!clientId) return null;
+            if (!window.google || !google.accounts || !google.accounts.oauth2) return null;
+            if (!googleDriveTokenClient) {
+                googleDriveTokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: clientId,
+                    scope: GOOGLE_DRIVE_SCOPE,
+                    callback: function(response) {
+                        if (response && response.access_token) {
+                            googleDriveAccessToken = response.access_token;
+                            const pending = googleDrivePendingUpload;
+                            googleDrivePendingUpload = null;
+                            if (pending) pending();
+                        } else {
+                            googleDrivePendingUpload = null;
+                            showToast("Google Driveの認証に失敗しました");
+                        }
+                    }
+                });
+            }
+            return googleDriveTokenClient;
+        }
+        function withGoogleDriveToken(fn) {
+            const clientId = getGoogleDriveClientId();
+            if (!clientId) {
+                openGoogleDriveSettings();
+                return Promise.reject(new Error("Google OAuthクライアントIDが未設定です"));
+            }
+            if (googleDriveAccessToken) return Promise.resolve().then(fn);
+            return new Promise(function(resolve, reject) {
+                googleDrivePendingUpload = function() {
+                    Promise.resolve().then(fn).then(resolve).catch(reject);
+                };
+                const client = initGoogleDriveTokenClient();
+                if (!client) {
+                    googleDrivePendingUpload = null;
+                    reject(new Error("Google Identity Servicesを読み込めませんでした"));
+                    return;
+                }
+                try { client.requestAccessToken({ prompt: "consent" }); }
+                catch (e) { googleDrivePendingUpload = null; reject(e); }
+            });
+        }
+        async function driveApi(path, options) {
+            const opts = Object.assign({}, options || {});
+            opts.headers = Object.assign({}, opts.headers || {}, { Authorization: "Bearer " + googleDriveAccessToken });
+            const res = await fetch("https://www.googleapis.com/drive/v3/" + path, opts);
+            if (!res.ok) {
+                const body = await res.text();
+                if (res.status === 401) googleDriveAccessToken = null;
+                throw new Error("Google Drive API " + res.status + ": " + body);
+            }
+            return res.status === 204 ? null : res.json();
+        }
+        function driveEscapeQueryValue(value) {
+            return String(value || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+        }
+        async function getOrCreateNotebookDriveFolder() {
+            const nbId = appState.activeNotebookId;
+            const nb = appState.notebooks[nbId];
+            if (!nb) throw new Error("アクティブなノートが見つかりません");
+            if (nb.googleDriveFolderId) return nb.googleDriveFolderId;
+            const name = (nb.name || "トレードノート").trim();
+            const q = "'root' in parents and name = '" + driveEscapeQueryValue(name) + "' and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+            const found = await driveApi("files?q=" + encodeURIComponent(q) + "&spaces=drive&fields=files(id,name)&pageSize=10");
+            let folderId = found.files && found.files.length ? found.files[0].id : null;
+            if (!folderId) {
+                const created = await driveApi("files", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: name, mimeType: "application/vnd.google-apps.folder", parents: ["root"] })
+                });
+                folderId = created.id;
+            }
+            nb.googleDriveFolderId = folderId;
+            saveAppState();
+            return folderId;
+        }
+        function googleDriveFilename(row, slotKey, dataUrl) {
+            const data = row.getData();
+            const notebook = appState.notebooks[appState.activeNotebookId];
+            const noteName = notebook && notebook.name ? notebook.name : "トレードノート";
+            const date = String(data.date || "").replace(/[^0-9]/g, "");
+            const time = String(data.time || "").replace(/[^0-9]/g, "");
+            const dateTime = date + (time ? "_" + time : "");
+            const pair = String(data.pair || "unknown").replace(/[^A-Za-z0-9_-]/g, "-").toUpperCase();
+            const place = CHART_SLOT_FILE_LETTER[slotKey] || slotKey;
+            const ext = extFromDataUrl(dataUrl);
+            const raw = noteName + "_" + (dateTime || "unknown") + "_" + pair + "_" + place;
+            return raw.replace(/[\\/:*?"<>|]/g, "-").replace(/\s+/g, "_") + "." + ext;
+        }
+        async function uploadImageToGoogleDrive(row, slotKey, dataUrl) {
+            const folderId = await getOrCreateNotebookDriveFolder();
+            const blob = dataUrlToBlob(dataUrl);
+            const filename = googleDriveFilename(row, slotKey, dataUrl);
+            const boundary = "-------tradeNoteBoundary" + Date.now().toString(36) + Math.random().toString(36).slice(2);
+            const metadata = { name: filename, parents: [folderId], mimeType: blob.type || "image/png" };
+            const preamble = "--" + boundary + "\\r\\nContent-Type: application/json; charset=UTF-8\\r\\n\\r\\n" + JSON.stringify(metadata) + "\\r\\n--" + boundary + "\\r\\nContent-Type: " + (blob.type || "image/png") + "\\r\\n\\r\\n";
+            const ending = "\\r\\n--" + boundary + "--";
+            const body = new Blob([preamble, blob, ending]);
+            const res = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
+                method: "POST",
+                headers: { Authorization: "Bearer " + googleDriveAccessToken, "Content-Type": "multipart/related; boundary=" + boundary },
+                body: body
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                if (res.status === 401) googleDriveAccessToken = null;
+                throw new Error("Drive画像アップロード失敗 " + res.status + ": " + text);
+            }
+            return await res.json();
+        }
+        async function saveChartsToGoogleDrive(row, field, chartData) {
+            const items = CHART_SLOTS.filter(function(s) { return chartData[s.key]; });
+            if (!items.length) return [];
+            return withGoogleDriveToken(async function() {
+                const results = [];
+                for (const s of items) {
+                    results.push(await uploadImageToGoogleDrive(row, s.key, chartData[s.key]));
+                }
+                return results;
+            });
+        }
+
+        document.getElementById("google-drive-settings-btn").addEventListener("click", openGoogleDriveSettings);
+        document.getElementById("google-drive-settings-close").addEventListener("click", closeGoogleDriveSettings);
+        document.getElementById("google-drive-settings-cancel").addEventListener("click", closeGoogleDriveSettings);
+        document.getElementById("google-drive-settings-save").addEventListener("click", function() {
+            const input = document.getElementById("google-drive-client-id");
+            const id = input ? input.value.trim() : "";
+            if (!id || !id.endsWith(".apps.googleusercontent.com")) {
+                alert("Google OAuthクライアントIDを入力してください。\\n例：1234567890-xxxxx.apps.googleusercontent.com");
+                return;
+            }
+            setGoogleDriveClientId(id);
+            googleDriveTokenClient = null;
+            googleDriveAccessToken = null;
+            closeGoogleDriveSettings();
+            showToast("Google Drive設定を保存しました");
+        });
+        document.getElementById("google-drive-settings-overlay").addEventListener("click", function(e) {
+            if (e.target.id === "google-drive-settings-overlay") closeGoogleDriveSettings();
+        });
 
         // ===== Image save-to-folder feature =====
         // Lets the user pick a real folder on disk (via the File System Access API, Chrome/Edge only)
@@ -5031,9 +5709,10 @@
             activeChartSlot = null;
         }
 
-        document.getElementById("chart-save-btn").addEventListener("click", function() {
+        document.getElementById("chart-save-btn").addEventListener("click", async function() {
             if (!chartCurrentRow) return;
             const field = chartCurrentField;
+            const row = chartCurrentRow;
             const finalRefs = {};
             const idbOps = [];
             CHART_SLOTS.forEach(s => {
@@ -5053,29 +5732,56 @@
                     finalRefs[key] = null;
                 }
             });
-            Promise.all(idbOps).then(function() {
+            try {
+                await Promise.all(idbOps);
                 const update = {};
                 update[field] = finalRefs;
-                return chartCurrentRow.update(update);
-            }).then(function() {
+                await row.update(update);
                 saveAppState();
-                const row = chartCurrentRow;
+
+                // HTML/IndexedDBへの保存は従来どおり完了させた後、Driveにも同じ画像を保存する。
+                const driveImages = CHART_SLOTS
+                    .filter(s => chartSlotDirty[s.key] && chartWorkingData[s.key])
+                    .map(s => ({ key: s.key, data: chartWorkingData[s.key] }));
+
                 closeChartModal();
                 showToast("チャートを保存しました");
+
+                // Google Drive保存。最初だけ確認→Google認証→ノート名と同名フォルダを自動判定/作成→アップロード。
+                if (driveImages.length) {
+                    const confirmed = window.confirm("Google Driveに画像を保存します。Google Driveへのアクセスを許可しますか？");
+                    if (confirmed) {
+                        try {
+                            const driveData = {};
+                            driveImages.forEach(function(x) { driveData[x.key] = x.data; });
+                            await saveChartsToGoogleDrive(row, field, driveData);
+                            showToast("Google Driveに保存しました");
+                        } catch (driveErr) {
+                            console.error(driveErr);
+                            if (driveErr && /OAuthクライアントIDが未設定/.test(driveErr.message || "")) {
+                                showToast("Google Drive設定が必要です");
+                            } else {
+                                showToast("Google Driveへの保存に失敗しました");
+                            }
+                        }
+                    }
+                }
+
+                // 既存のPCフォルダ保存も従来どおり維持。
                 if (chartSaveDirHandle) {
                     const writes = CHART_SLOTS
                         .filter(s => chartSlotDirty[s.key] && chartWorkingData[s.key])
                         .map(s => saveChartImageToFolder(field, s.key, row, chartWorkingData[s.key]));
                     if (writes.length) {
                         Promise.all(writes).then(function(results) {
-                            if (results.some(r => r)) showToast("画像をフォルダにも保存しました");
+                            if (results.some(r => r)) showToast("画像をPCフォルダにも保存しました");
                         });
                     }
                 }
-            }).catch(function(err) {
+            } catch (err) {
                 console.error(err);
                 showToast("画像の保存に失敗しました");
-            });
+            }
         });
         document.getElementById("chart-clear-all-btn").addEventListener("click", function() {
             CHART_SLOTS.forEach(s => { chartWorkingData[s.key] = null; chartSlotDirty[s.key] = true; renderChartSlot(s.key); });
@@ -6239,6 +6945,10 @@
             let lossProfitSum = 0, lossProfitCount = 0;
             let lotSum = 0, lotCount = 0;
             let riskSum = 0, riskCount = 0;
+            let bibiriCount = 0;
+            let missedPipsSum = 0;
+            let swapSum = 0;
+            let lossPipsExYellowMiss = 0, lossMissedPipsExYellowMiss = 0;
 
             rows.forEach(function(row) {
                 const isWin = row.evaluation === "勝ち" || row.evaluation === "勝ち黄";
@@ -6256,7 +6966,24 @@
                 if (!isNaN(lotNum)) { lotSum += lotNum; lotCount++; }
                 const riskNum = parseFloat(row.riskPips);
                 if (!isNaN(riskNum)) { riskSum += riskNum; riskCount++; }
+                if (row.tag === "ビビリ決済") bibiriCount++;
+                const missedNum = parseFloat(row.missedPips);
+                if (!isNaN(missedNum)) missedPipsSum += missedNum;
+                const swapNum = parseFloat(row.swap);
+                if (!isNaN(swapNum)) swapSum += swapNum;
+                // ロス合計pips: タグ別集計の「ロスpips」（pips－伸ばし損ねpips）を、黄色未エントリーを除く全タグで合計したもの
+                if (YELLOW_MISS_TAGS.indexOf(row.tag) === -1) {
+                    const pipsNum = parseFloat(row.pips);
+                    if (!isNaN(pipsNum)) lossPipsExYellowMiss += pipsNum;
+                    if (!isNaN(missedNum)) lossMissedPipsExYellowMiss += missedNum;
+                }
             });
+
+            // P/F（プロフィットファクター）＝総利益 ÷ 総損失の絶対値、P/R（プロフィットレシオ）＝平均利益 ÷ 平均損失の絶対値
+            const profitFactor = lossProfitSum < 0 ? (winProfitSum / Math.abs(lossProfitSum)) : null;
+            const avgProfitVal = winProfitCount > 0 ? (winProfitSum / winProfitCount) : null;
+            const avgLossVal = lossProfitCount > 0 ? (lossProfitSum / lossProfitCount) : null;
+            const profitRatio = (avgProfitVal !== null && avgLossVal !== null && avgLossVal !== 0) ? (avgProfitVal / Math.abs(avgLossVal)) : null;
 
             return {
                 totalTrades: totalTrades,
@@ -6268,7 +6995,13 @@
                 avgLot: lotCount > 0 ? (lotSum / lotCount) : null,
                 avgRisk: riskCount > 0 ? (riskSum / riskCount) : null,
                 avgProfit: winProfitCount > 0 ? Math.round(winProfitSum / winProfitCount) : null,
-                avgLoss: lossProfitCount > 0 ? Math.round(lossProfitSum / lossProfitCount) : null
+                avgLoss: lossProfitCount > 0 ? Math.round(lossProfitSum / lossProfitCount) : null,
+                bibiriRate: totalTrades > 0 ? (bibiriCount / totalTrades * 100) : null,
+                missedPipsTotal: missedPipsSum,
+                lossPipsExYellowMiss: lossPipsExYellowMiss - lossMissedPipsExYellowMiss,
+                totalSwap: swapSum,
+                profitFactor: profitFactor,
+                profitRatio: profitRatio
             };
         }
 
@@ -6283,6 +7016,49 @@
             document.getElementById(ids.avgRisk).textContent = stats.avgRisk !== null ? `${stats.avgRisk.toFixed(1)} pips` : "-";
             document.getElementById(ids.avgProfit).textContent = stats.avgProfit !== null ? `¥${stats.avgProfit.toLocaleString("ja-JP")}` : "-";
             document.getElementById(ids.avgLoss).textContent = stats.avgLoss !== null ? `¥${stats.avgLoss.toLocaleString("ja-JP")}` : "-";
+            document.getElementById(ids.bibiriRate).textContent = stats.bibiriRate !== null ? `${stats.bibiriRate.toFixed(1)} %` : "-";
+            document.getElementById(ids.missedPipsTotal).textContent = `${stats.missedPipsTotal > 0 ? "+" : ""}${stats.missedPipsTotal.toFixed(1)} pips`;
+            document.getElementById(ids.lossPipsExYellowMiss).textContent = `${stats.lossPipsExYellowMiss.toFixed(1)} pips`;
+            document.getElementById(ids.totalSwap).textContent = `${stats.totalSwap > 0 ? "+¥" : "¥"}${Math.round(stats.totalSwap).toLocaleString("ja-JP")}`;
+            document.getElementById(ids.profitFactor).textContent = stats.profitFactor !== null ? stats.profitFactor.toFixed(2) : "-";
+            document.getElementById(ids.profitRatio).textContent = stats.profitRatio !== null ? stats.profitRatio.toFixed(2) : "-";
+        }
+
+        // 絞り期間（全体／年間／月間）の開始・終了残高と期間利率を計算する。
+        // 期間開始残高＝初期資金＋（その期間より前の全トレードの収支合計）
+        function computePeriodBalanceStats(allRows, periodRows, initialCapital) {
+            let periodStartDateStr = null;
+            if (summaryPeriodMode !== "all" && summarySelectedPeriod) {
+                periodStartDateStr = summarySelectedPeriod.length === 4 ? (summarySelectedPeriod + "-01-01") : (summarySelectedPeriod + "-01");
+            }
+            let priorProfit = 0;
+            if (periodStartDateStr) {
+                allRows.forEach(function(d) {
+                    if (d.date && d.date < periodStartDateStr) {
+                        const v = parseFloat(d.profit);
+                        if (!isNaN(v)) priorProfit += v;
+                    }
+                });
+            }
+            const periodStartBalance = (initialCapital || 0) + priorProfit;
+            const periodTotalProfit = periodRows.reduce(function(sum, d) {
+                const v = parseFloat(d.profit);
+                return sum + (isNaN(v) ? 0 : v);
+            }, 0);
+            const periodEndBalance = periodStartBalance + periodTotalProfit;
+            const periodReturnRate = periodStartBalance !== 0 ? (periodTotalProfit / periodStartBalance * 100) : null;
+            return {
+                periodStartBalance: periodStartBalance,
+                periodEndBalance: periodEndBalance,
+                periodTotalProfit: periodTotalProfit,
+                periodReturnRate: periodReturnRate
+            };
+        }
+        function renderPeriodBalanceStats(stats) {
+            document.getElementById("summary-period-return-rate").textContent = stats.periodReturnRate !== null ? `${stats.periodReturnRate.toFixed(2)} %` : "-";
+            document.getElementById("summary-period-start-balance").textContent = `¥${Math.round(stats.periodStartBalance).toLocaleString("ja-JP")}`;
+            document.getElementById("summary-period-end-balance").textContent = `¥${Math.round(stats.periodEndBalance).toLocaleString("ja-JP")}`;
+            document.getElementById("summary-period-total-profit").textContent = `${stats.periodTotalProfit > 0 ? "+¥" : "¥"}${Math.round(stats.periodTotalProfit).toLocaleString("ja-JP")}`;
         }
 
         // 黄色（勝ち黄／負け黄）トレードと、黄色未エントリー（見送ってしまった黄色パターン）の集計
@@ -6299,8 +7075,6 @@
             let ywProfitSum = 0, ylProfitSum = 0;
             let missedYellow = 0;
             let missedYellowPipsSum = 0;
-            let bibiriCount = 0;
-            const totalTrades = rows.length;
 
             rows.forEach(function(row) {
                 if (row.evaluation === "勝ち黄") {
@@ -6316,7 +7090,6 @@
                     missedYellow++;
                     if (typeof row.pips === "number" && !isNaN(row.pips)) missedYellowPipsSum += row.pips;
                 }
-                if (row.tag === "ビビリ決済") bibiriCount++;
             });
 
             const yellowTrades = yw + yl;
@@ -6332,9 +7105,9 @@
                 yellowAvgWinPips: yw > 0 ? (ywPipsSum / yw) : null,
                 yellowAvgLossPips: yl > 0 ? (ylPipsSum / yl) : null,
                 yellowMissRate: totalYellowOpportunities > 0 ? (missedYellow / totalYellowOpportunities * 100) : null,
+                missedYellowCount: missedYellow,
                 missedYellowTotalPips: missedYellowPipsSum,
-                yellowTotalProfit: ywProfitSum + ylProfitSum,
-                bibiriRate: totalTrades > 0 ? (bibiriCount / totalTrades * 100) : null
+                yellowTotalProfit: ywProfitSum + ylProfitSum
             };
         }
 
@@ -6348,9 +7121,9 @@
             document.getElementById("yellow-avg-win-pips").textContent = stats.yellowAvgWinPips !== null ? `${stats.yellowAvgWinPips.toFixed(1)} pips` : "-";
             document.getElementById("yellow-avg-loss-pips").textContent = stats.yellowAvgLossPips !== null ? `${stats.yellowAvgLossPips.toFixed(1)} pips` : "-";
             document.getElementById("yellow-miss-rate").textContent = stats.yellowMissRate !== null ? `${stats.yellowMissRate.toFixed(1)} %` : "-";
+            document.getElementById("yellow-missed-count").textContent = stats.missedYellowCount;
             document.getElementById("yellow-missed-total-pips").textContent = `${stats.missedYellowTotalPips > 0 ? "+" : ""}${stats.missedYellowTotalPips.toFixed(1)} pips`;
             document.getElementById("yellow-total-profit").textContent = `¥${stats.yellowTotalProfit.toLocaleString("ja-JP")}`;
-            document.getElementById("bibiri-rate").textContent = stats.bibiriRate !== null ? `${stats.bibiriRate.toFixed(1)} %` : "-";
         }
 
         // 集計表・黄色集計を「全体／年間／月間」の期間で絞り込むための状態と補助関数
@@ -6413,6 +7186,924 @@
             updateSummaryTable();
         });
 
+        // タグ別集計・通貨ペア別集計で使うタグの並び順（メインテーブルのタグ選択肢と同じ）
+        const SUMMARY_TAG_LIST = [
+            "ナイストレード！",
+            "黄色未エントリー（気づいてなかった）",
+            "黄色未エントリー（入ろうと思っていた）",
+            "黄色未エントリー（気づいてて入れなかった）",
+            "黄色未エントリー（あえて見送った）",
+            "テールイベント",
+            "ダメトレ",
+            "環境足弱い",
+            "アリエン",
+            "損切り貧乏判定",
+            "上位足リスク",
+            "相関リスク",
+            "ビビリ決済",
+            "損切り設定ミス",
+            "資金管理ミス",
+            "レイトエントリ・決済",
+            "3大指標",
+            "戻りすぎ",
+            "7波以降対処ミス",
+            "その他"
+        ];
+        function computeTagSummary(rows) {
+            // 総収支（全トレードの収支合計）。ロス抜き仮想収支の基準値として使う
+            const grandTotalProfit = rows.reduce(function(sum, d) { const v = parseFloat(d.profit); return sum + (isNaN(v) ? 0 : v); }, 0);
+            const result = SUMMARY_TAG_LIST.map(function(tag) {
+                const matched = rows.filter(function(d) { return d.tag === tag; });
+                const wins = matched.filter(function(d) { return (d.evaluation || "").indexOf("勝ち") !== -1; }).length;
+                const losses = matched.filter(function(d) { return (d.evaluation || "").indexOf("負け") !== -1; }).length;
+                const winRate = (wins + losses) > 0 ? (wins / (wins + losses) * 100) : null;
+                const lots = matched.map(function(d) { return parseFloat(d.lot); }).filter(function(v) { return !isNaN(v); });
+                const avgLot = lots.length ? (lots.reduce(function(a, b) { return a + b; }, 0) / lots.length) : 0;
+                const totalPips = matched.reduce(function(sum, d) { const v = parseFloat(d.pips); return sum + (isNaN(v) ? 0 : v); }, 0);
+                const totalMissedPips = matched.reduce(function(sum, d) { const v = parseFloat(d.missedPips); return sum + (isNaN(v) ? 0 : v); }, 0);
+                const totalProfit = matched.reduce(function(sum, d) { const v = parseFloat(d.profit); return sum + (isNaN(v) ? 0 : v); }, 0);
+                return { tag: tag, wins: wins, losses: losses, winRate: winRate, avgLot: avgLot, totalPips: totalPips, lossPips: totalPips - totalMissedPips, lossVirtualProfit: totalProfit, lossExcludedProfit: grandTotalProfit - totalProfit, totalProfit: totalProfit };
+            });
+            // 勝ち数・負け数・勝率の合計行は「黄色未エントリー」系4タグを除いたトレードで計算する
+            const YELLOW_MISS_TAGS = [
+                "黄色未エントリー（気づいてなかった）",
+                "黄色未エントリー（入ろうと思っていた）",
+                "黄色未エントリー（気づいてて入れなかった）",
+                "黄色未エントリー（あえて見送った）"
+            ];
+            const rowsForAvgLot = rows.filter(function(d) { return YELLOW_MISS_TAGS.indexOf(d.tag) === -1; });
+            const totalWins = rowsForAvgLot.filter(function(d) { return (d.evaluation || "").indexOf("勝ち") !== -1; }).length;
+            const totalLosses = rowsForAvgLot.filter(function(d) { return (d.evaluation || "").indexOf("負け") !== -1; }).length;
+            const totalWinRate = (totalWins + totalLosses) > 0 ? (totalWins / (totalWins + totalLosses) * 100) : null;
+            // 平均ロットの合計行も同じく「黄色未エントリー」系4タグを除いたトレードで計算する
+            const allLots = rowsForAvgLot.map(function(d) { return parseFloat(d.lot); }).filter(function(v) { return !isNaN(v); });
+            const totalAvgLot = allLots.length ? (allLots.reduce(function(a, b) { return a + b; }, 0) / allLots.length) : 0;
+            const totalPipsAll = rows.reduce(function(sum, d) { const v = parseFloat(d.pips); return sum + (isNaN(v) ? 0 : v); }, 0);
+            const totalProfitAll = grandTotalProfit;
+            // ロスpipsの合計行は「黄色未エントリー」系4タグと「ナイストレード！」を除いたトレードで計算する
+            const rowsForLossPips = rows.filter(function(d) { return YELLOW_MISS_TAGS.indexOf(d.tag) === -1 && d.tag !== "ナイストレード！"; });
+            const lossPipsBase = rowsForLossPips.reduce(function(sum, d) { const v = parseFloat(d.pips); return sum + (isNaN(v) ? 0 : v); }, 0);
+            const lossPipsMissed = rowsForLossPips.reduce(function(sum, d) { const v = parseFloat(d.missedPips); return sum + (isNaN(v) ? 0 : v); }, 0);
+            // ロス仮想収支の合計行も、ロスpipsと同じく「黄色未エントリー」系4タグと「ナイストレード！」を除いたトレードで計算する
+            const lossVirtualProfitTotal = rowsForLossPips.reduce(function(sum, d) { const v = parseFloat(d.profit); return sum + (isNaN(v) ? 0 : v); }, 0);
+            // ロス抜き仮想収支の合計行＝総収支－ロス仮想収支の合計
+            const lossExcludedProfitTotal = grandTotalProfit - lossVirtualProfitTotal;
+            result.push({ tag: "合計（全トレード）", wins: totalWins, losses: totalLosses, winRate: totalWinRate, avgLot: totalAvgLot, totalPips: totalPipsAll, lossPips: lossPipsBase - lossPipsMissed, lossVirtualProfit: lossVirtualProfitTotal, lossExcludedProfit: lossExcludedProfitTotal, totalProfit: totalProfitAll, isTotal: true });
+            return result;
+        }
+        // タグ別集計のタグ名の先頭に、トレードノート本体と同じ色のチップを付けるための対応色
+        const TAG_CLASS_ACCENT_COLOR = {
+            "tag-white": "#94a3b8",
+            "tag-cyan": "#0891b2",
+            "tag-red": "#dc2626",
+            "tag-brightgreen": "#16a34a",
+            "tag-skin": "#d97706",
+            "tag-darkcyan": "#155e75",
+            "tag-shockingpink": "#c026d3",
+            "tag-orange": "#ea580c",
+            "tag-black": "#000000",
+            "tag-yellowgreen": "#65a30d",
+            "tag-blue": "#2563eb"
+        };
+        function renderTagSummaryTable(stats) {
+            const tbody = document.getElementById("tag-summary-body");
+            if (!tbody) return;
+            tbody.innerHTML = stats.map(function(r) {
+                const rowStyle = r.isTotal ? ' style="font-weight:700; border-top:2px solid var(--border-color);"' : "";
+                const colorClass = TAG_COLOR_CLASS[r.tag];
+                const dotColor = colorClass ? TAG_CLASS_ACCENT_COLOR[colorClass] : "#cbd5e1";
+                const tagCellHtml = r.isTotal
+                    ? r.tag
+                    : `<span class="tagsum-dot" style="background:${dotColor};"></span>${r.tag}`;
+                return `<tr${rowStyle}>
+                    <td>${tagCellHtml}</td>
+                    <td>${r.wins}</td>
+                    <td>${r.losses}</td>
+                    <td>${r.winRate === null ? "-" : r.winRate.toFixed(1) + "%"}</td>
+                    <td>${r.avgLot.toFixed(2)}</td>
+                    <td>${r.totalPips.toFixed(1)}</td>
+                    <td>${r.lossPips.toFixed(1)}</td>
+                    <td>¥${Math.round(r.lossVirtualProfit).toLocaleString()}</td>
+                    <td>¥${Math.round(r.lossExcludedProfit).toLocaleString()}</td>
+                    <td>¥${Math.round(r.totalProfit).toLocaleString()}</td>
+                </tr>`;
+            }).join("");
+        }
+        function computePairSummary(rows) {
+            return TRADE_NOTE_PAIR_LIST.map(function(pair) {
+                const matched = rows.filter(function(d) { return d.pair === pair; });
+                let winPips = 0, winProfit = 0, lossPips = 0, lossProfit = 0, wins = 0, losses = 0;
+                matched.forEach(function(d) {
+                    const profit = parseFloat(d.profit);
+                    const pips = parseFloat(d.pips);
+                    if (isNaN(profit)) return;
+                    if (profit > 0) {
+                        wins++;
+                        winProfit += profit;
+                        if (!isNaN(pips)) winPips += pips;
+                    } else {
+                        losses++;
+                        lossProfit += profit;
+                        if (!isNaN(pips)) lossPips += pips;
+                    }
+                });
+                const winRate = (wins + losses) > 0 ? (wins / (wins + losses) * 100) : null;
+                return {
+                    pair: pair,
+                    winPips: winPips, winProfit: winProfit,
+                    lossPips: lossPips, lossProfit: lossProfit,
+                    totalPips: winPips + lossPips, totalProfit: winProfit + lossProfit,
+                    count: matched.length, winRate: winRate
+                };
+            });
+        }
+        function renderPairSummaryTable(stats) {
+            const tbody = document.getElementById("pair-summary-body");
+            if (!tbody) return;
+            tbody.innerHTML = stats.map(function(r) {
+                return `<tr>
+                    <td>${r.pair}</td>
+                    <td>${r.winPips.toFixed(1)}</td>
+                    <td>¥${Math.round(r.winProfit).toLocaleString()}</td>
+                    <td>${Math.abs(r.lossPips).toFixed(1)}</td>
+                    <td>¥${Math.round(Math.abs(r.lossProfit)).toLocaleString()}</td>
+                    <td>${r.totalPips.toFixed(1)}</td>
+                    <td>¥${Math.round(r.totalProfit).toLocaleString()}</td>
+                    <td>${r.count}</td>
+                    <td>${r.winRate === null ? "-" : r.winRate.toFixed(1) + "%"}</td>
+                </tr>`;
+            }).join("");
+        }
+
+        // ===== 集計ポップアップ: カードを押すとその数値の推移グラフを表示 =====
+        // 対象は集計表・黄色集計を別ウィンドウで開いたときだけ。横軸＝時間（月/週/日/4時間/1時間/15分/5分）、
+        // 縦軸＝カードの数値。単位が違う項目は、単位ごとに軸を分けて重ねる／単位ごとに上下に分ける、のどちらでも表示できる。
+        const SC_PALETTE = ["#2563eb", "#dc2626", "#059669", "#d97706", "#7c3aed", "#0891b2", "#db2777", "#65a30d", "#ea580c", "#475569"];
+        const SC_UNIT_ORDER = ["¥", "pips", "%", "件", "lot", "倍"];
+        const SC_STEP = { h4: 240, h1: 60, m15: 15, m5: 5 };
+        const SC_MAX_BUCKETS = 2000;
+        // kind: count/sum＝足し算系（棒が自然）、rate/avg/ratio/bal＝比率・平均・残高（折れ線が自然）
+        const SC_DEFS = [
+            { id: "summary-total-trades", unit: "件", kind: "count", get: c => c.s.totalTrades },
+            { id: "summary-total-wins", unit: "件", kind: "count", get: c => c.s.wins },
+            { id: "summary-total-losses", unit: "件", kind: "count", get: c => c.s.losses },
+            { id: "summary-win-rate", unit: "%", kind: "rate", get: c => c.s.winRate },
+            { id: "summary-win-pips", unit: "pips", kind: "sum", get: c => c.s.winPips },
+            { id: "summary-loss-pips", unit: "pips", kind: "sum", get: c => c.s.lossPips },
+            { id: "summary-missed-pips", unit: "pips", kind: "sum", get: c => c.s.missedPipsTotal },
+            { id: "summary-loss-pips-total", unit: "pips", kind: "sum", get: c => c.s.lossPipsExYellowMiss },
+            { id: "summary-avg-lot", unit: "lot", kind: "avg", get: c => c.s.avgLot },
+            { id: "summary-avg-risk", unit: "pips", kind: "avg", get: c => c.s.avgRisk },
+            { id: "summary-avg-profit", unit: "¥", kind: "avg", get: c => c.s.avgProfit },
+            { id: "summary-avg-loss", unit: "¥", kind: "avg", get: c => c.s.avgLoss },
+            { id: "bibiri-rate", unit: "%", kind: "rate", get: c => c.s.bibiriRate },
+            { id: "summary-total-swap", unit: "¥", kind: "sum", get: c => c.s.totalSwap },
+            { id: "summary-profit-factor", unit: "倍", kind: "ratio", get: c => c.s.profitFactor },
+            { id: "summary-profit-ratio", unit: "倍", kind: "ratio", get: c => c.s.profitRatio },
+            { id: "summary-period-return-rate", unit: "%", kind: "rate", get: c => c.returnRate },
+            { id: "summary-period-start-balance", unit: "¥", kind: "bal", get: c => c.startBal },
+            { id: "summary-period-end-balance", unit: "¥", kind: "bal", get: c => c.endBal },
+            { id: "summary-period-total-profit", unit: "¥", kind: "sum", get: c => c.profit },
+            { id: "yellow-entry-rate", unit: "%", kind: "rate", get: c => c.y.yellowEntryRate },
+            { id: "yellow-wins", unit: "件", kind: "count", get: c => c.y.yellowWins },
+            { id: "yellow-losses", unit: "件", kind: "count", get: c => c.y.yellowLosses },
+            { id: "yellow-win-rate", unit: "%", kind: "rate", get: c => c.y.yellowWinRate },
+            { id: "yellow-avg-profit", unit: "¥", kind: "avg", get: c => c.y.yellowAvgProfit },
+            { id: "yellow-avg-loss", unit: "¥", kind: "avg", get: c => c.y.yellowAvgLoss },
+            { id: "yellow-avg-win-pips", unit: "pips", kind: "avg", get: c => c.y.yellowAvgWinPips },
+            { id: "yellow-avg-loss-pips", unit: "pips", kind: "avg", get: c => c.y.yellowAvgLossPips },
+            { id: "yellow-miss-rate", unit: "%", kind: "rate", get: c => c.y.yellowMissRate },
+            { id: "yellow-missed-count", unit: "件", kind: "count", get: c => c.y.missedYellowCount },
+            { id: "yellow-missed-total-pips", unit: "pips", kind: "sum", get: c => c.y.missedYellowTotalPips },
+            { id: "yellow-total-profit", unit: "¥", kind: "sum", get: c => c.y.yellowTotalProfit }
+        ];
+        const SC_DEF_MAP = {};
+        SC_DEFS.forEach(function(d) { SC_DEF_MAP[d.id] = d; });
+
+        const scState = { selected: [], colors: {}, labels: {}, gran: null, mode: "period", layout: "auto", type: "auto", ctx: null, instances: [], timer: null };
+
+        function scParseTs(row) {
+            const dm = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(row.date || "");
+            if (!dm) return null;
+            let hh = 0, mi = 0;
+            const tm = /(\d{1,2}):(\d{2})/.exec(row.time || "");
+            if (tm) { hh = parseInt(tm[1], 10); mi = parseInt(tm[2], 10); }
+            return new Date(parseInt(dm[1], 10), parseInt(dm[2], 10) - 1, parseInt(dm[3], 10), hh, mi).getTime();
+        }
+        function scBucketStart(ts, g) {
+            const d = new Date(ts), y = d.getFullYear(), m = d.getMonth(), day = d.getDate();
+            if (g === "month") return new Date(y, m, 1).getTime();
+            if (g === "week") return new Date(y, m, day - ((d.getDay() + 6) % 7)).getTime(); // 月曜始まり
+            if (g === "day") return new Date(y, m, day).getTime();
+            const step = SC_STEP[g];
+            const mins = d.getHours() * 60 + d.getMinutes();
+            return new Date(y, m, day, 0, Math.floor(mins / step) * step).getTime();
+        }
+        function scNextStart(start, g) {
+            const d = new Date(start), y = d.getFullYear(), m = d.getMonth(), day = d.getDate();
+            if (g === "month") return new Date(y, m + 1, 1).getTime();
+            if (g === "week") return new Date(y, m, day + 7).getTime();
+            if (g === "day") return new Date(y, m, day + 1).getTime();
+            return new Date(y, m, day, d.getHours(), d.getMinutes() + SC_STEP[g]).getTime();
+        }
+        function scLabel(start, g) {
+            const d = new Date(start), p2 = function(n) { return String(n).padStart(2, "0"); };
+            const ymd = d.getFullYear() + "/" + p2(d.getMonth() + 1) + "/" + p2(d.getDate());
+            if (g === "month") return d.getFullYear() + "/" + p2(d.getMonth() + 1);
+            if (g === "week") return ymd + "〜";
+            if (g === "day") return ymd;
+            return ymd + " " + p2(d.getHours()) + ":" + p2(d.getMinutes());
+        }
+        function scBuildStarts(items, g) {
+            const first = scBucketStart(items[0].ts, g), last = scBucketStart(items[items.length - 1].ts, g);
+            const starts = [];
+            let cur = first, over = false;
+            while (cur <= last) {
+                starts.push(cur);
+                if (starts.length > 366) { over = true; break; }
+                cur = scNextStart(cur, g);
+            }
+            if (!over) return { starts: starts, compact: false };
+            // 区間が多すぎるときは、取引のある区間だけを並べる
+            const set = new Set();
+            items.forEach(function(it) { set.add(scBucketStart(it.ts, g)); });
+            return { starts: Array.from(set).sort(function(a, b) { return a - b; }), compact: true };
+        }
+        function scFmt(unit, v) {
+            if (v === null || v === undefined || isNaN(v)) return "-";
+            if (unit === "¥") return (v < 0 ? "-¥" : "¥") + Math.round(Math.abs(v)).toLocaleString("ja-JP");
+            if (unit === "pips") return v.toFixed(1) + " pips";
+            if (unit === "%") return v.toFixed(1) + " %";
+            if (unit === "件") return String(Math.round(v)) + " 件";
+            return v.toFixed(2) + (unit === "倍" ? " 倍" : " lot");
+        }
+        function scTick(unit, v) {
+            if (unit === "¥") return Number(v).toLocaleString("ja-JP");
+            if (unit === "件") return Number.isInteger(v) ? v : "";
+            return v;
+        }
+        function scDefaultGran(items) {
+            const days = (items[items.length - 1].ts - items[0].ts) / 86400000;
+            return days > 200 ? "month" : (days > 45 ? "week" : "day");
+        }
+
+        // 選択中のカードごとに、区間（バケット）ごとの値を計算する
+        function scCompute(items, allRows, init, rangeStartBalance, g, mode) {
+            const built = scBuildStarts(items, g);
+            const starts = built.starts;
+            if (starts.length > SC_MAX_BUCKETS) return { tooMany: starts.length };
+            const allItems = allRows.map(function(r) {
+                const v = parseFloat(r.profit);
+                return { ts: scParseTs(r), p: isNaN(v) ? 0 : v };
+            }).filter(function(x) { return x.ts !== null; }).sort(function(a, b) { return a.ts - b.ts; });
+            const prefix = [0];
+            allItems.forEach(function(x) { prefix.push(prefix[prefix.length - 1] + x.p); });
+            function profitBefore(t) {
+                let lo = 0, hi = allItems.length;
+                while (lo < hi) { const mid = (lo + hi) >> 1; if (allItems[mid].ts < t) lo = mid + 1; else hi = mid; }
+                return prefix[lo];
+            }
+            const sel = scState.selected.map(function(id) { return SC_DEF_MAP[id]; });
+            const series = sel.map(function() { return []; });
+            const labels = [];
+            starts.forEach(function(start) {
+                const end = scNextStart(start, g);
+                const bItems = items.filter(function(it) { return mode === "cum" ? it.ts < end : (it.ts >= start && it.ts < end); });
+                const bRows = bItems.map(function(it) { return it.row; });
+                let profit = 0;
+                bRows.forEach(function(r) { const v = parseFloat(r.profit); if (!isNaN(v)) profit += v; });
+                const startBal = init + profitBefore(start);
+                const endBal = init + profitBefore(end);
+                const returnRate = mode === "cum"
+                    ? (rangeStartBalance !== 0 ? profit / rangeStartBalance * 100 : null)
+                    : (startBal !== 0 ? profit / startBal * 100 : null);
+                const c = { s: computeSummaryStats(bRows), y: computeYellowStats(bRows), profit: profit, startBal: startBal, endBal: endBal, returnRate: returnRate };
+                sel.forEach(function(d, i) {
+                    const v = d.get(c);
+                    series[i].push(v === undefined || v === null || isNaN(v) ? null : v);
+                });
+                labels.push(scLabel(start, g));
+            });
+            return { labels: labels, series: series, compact: built.compact };
+        }
+
+        function scDestroyCharts() {
+            scState.instances.forEach(function(ch) { try { ch.destroy(); } catch (e) {} });
+            scState.instances = [];
+        }
+
+        function scSyncControls() {
+            const map = { "sc-seg-gran": ["scGran", scState.gran], "sc-seg-mode": ["scMode", scState.mode], "sc-seg-layout": ["scLayout", scState.layout], "sc-seg-type": ["scType", scState.type] };
+            Object.keys(map).forEach(function(id) {
+                const seg = document.getElementById(id);
+                if (!seg) return;
+                seg.querySelectorAll("button").forEach(function(b) {
+                    b.classList.toggle("active", b.dataset[map[id][0]] === map[id][1]);
+                });
+            });
+        }
+
+        function renderSummaryChart() {
+            const body = document.getElementById("summary-chart-body");
+            const note = document.getElementById("summary-chart-note");
+            if (!body || !note) return;
+            scDestroyCharts();
+            body.innerHTML = "";
+            const ctx = scState.ctx;
+            if (!ctx) return;
+
+            if (scState.selected.length === 0) {
+                note.textContent = "";
+                body.innerHTML = '<div class="sc-empty">上のカードを押すと、その数値の推移がここにグラフで表示されます。複数のカードを選ぶと、選んだ項目をまとめて表示します。</div>';
+                scSyncControls();
+                return;
+            }
+            if (typeof Chart === "undefined") {
+                body.innerHTML = '<div class="sc-empty">グラフ用ライブラリ（Chart.js）を読み込めませんでした。ネットワーク接続を確認して、このウィンドウを開き直してください。</div>';
+                return;
+            }
+            const items = [];
+            let skipped = 0;
+            ctx.rows.forEach(function(r) {
+                const ts = scParseTs(r);
+                if (ts === null) skipped++; else items.push({ ts: ts, row: r });
+            });
+            items.sort(function(a, b) { return a.ts - b.ts; });
+            if (items.length === 0) {
+                note.textContent = "";
+                body.innerHTML = '<div class="sc-empty">グラフにできる日付つきのトレードがありません。</div>';
+                return;
+            }
+            if (!scState.gran) scState.gran = scDefaultGran(items);
+            scSyncControls();
+
+            const data = scCompute(items, ctx.allRows, ctx.init, ctx.rangeStartBalance, scState.gran, scState.mode);
+            if (data.tooMany) {
+                note.innerHTML = '<span class="sc-warn">区間が ' + data.tooMany + ' 個になるため表示できません。横軸の単位をもっと大きくしてください。</span>';
+                return;
+            }
+
+            const periodText = (summaryPeriodMode !== "all" && summarySelectedPeriod) ? formatPeriodLabel(summarySelectedPeriod, summaryPeriodMode) : "全体";
+            let noteHtml = "対象期間: " + periodText + "／トレード " + items.length + " 件／" + data.labels.length + " 区間";
+            if (skipped > 0) noteHtml += "（日付のない " + skipped + " 件は除外）";
+            if (data.compact) noteHtml += '<br><span class="sc-warn">区間が多いため、取引のある区間だけを並べています（空の区間は省略）。</span>';
+            if (["h4", "h1", "m15", "m5"].indexOf(scState.gran) !== -1) noteHtml += "<br>時間の入っていないトレードは、その日の 0:00 として扱います。";
+            if (scState.mode === "cum") noteHtml += "<br>累計: 各区間の終わりまでのトレードをすべて通算した値です（勝率なら通算勝率）。";
+
+            // 選択中の項目を単位ごとにまとめる
+            const sel = scState.selected.map(function(id, i) { return { def: SC_DEF_MAP[id], label: scState.labels[id], color: scState.colors[id], values: data.series[i] }; });
+            const unitMap = {};
+            sel.forEach(function(x) { (unitMap[x.def.unit] = unitMap[x.def.unit] || []).push(x); });
+            const units = SC_UNIT_ORDER.filter(function(u) { return unitMap[u]; });
+            const layout = scState.layout === "auto" ? (units.length <= 2 ? "overlay" : "split") : scState.layout;
+            if (layout === "overlay" && units.length >= 3) noteHtml += '<br><span class="sc-warn">単位が ' + units.length + " 種類あるため軸が増えて読みにくくなります。「単位ごとに上下に分ける」がおすすめです。</span>";
+            note.innerHTML = noteHtml;
+
+            const cs = getComputedStyle(document.documentElement);
+            const textColor = (cs.getPropertyValue("--text-secondary") || "#888").trim();
+            const gridColor = (cs.getPropertyValue("--border-color") || "#ddd").trim();
+            const lineLike = function(x) {
+                if (scState.type === "line") return true;
+                if (scState.type === "bar") return false;
+                if (scState.mode === "cum") return true;
+                if (layout === "overlay") return true;
+                return !(x.def.kind === "count" || x.def.kind === "sum");
+            };
+            const manyPoints = data.labels.length > 60;
+            function makeDataset(x, axisId) {
+                const isLine = lineLike(x);
+                return {
+                    type: isLine ? "line" : "bar",
+                    label: x.label + "（" + x.def.unit + "）",
+                    unit: x.def.unit,
+                    data: x.values,
+                    yAxisID: axisId,
+                    borderColor: x.color,
+                    backgroundColor: isLine ? x.color : x.color + "99",
+                    borderWidth: 2,
+                    tension: 0,
+                    spanGaps: true,
+                    pointRadius: manyPoints ? 1.5 : 3,
+                    pointHoverRadius: 5,
+                    order: isLine ? 0 : 1
+                };
+            }
+            function makeAxis(unit, group, position, drawGrid) {
+                const single = group.length === 1;
+                const col = single ? group[0].color : textColor;
+                const hasBar = group.some(function(x) { return !lineLike(x); });
+                return {
+                    type: "linear", position: position, beginAtZero: hasBar,
+                    title: { display: true, text: unit, color: col, font: { weight: "bold" } },
+                    ticks: { color: col, callback: function(v) { return scTick(unit, v); } },
+                    afterFit: function(axis) { axis.width = Math.max(axis.width, 72); },
+                    grid: { drawOnChartArea: drawGrid, color: gridColor }
+                };
+            }
+            function makeChart(canvas, datasets, scales) {
+                scState.instances.push(new Chart(canvas, {
+                    type: "line",
+                    data: { labels: data.labels, datasets: datasets },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        interaction: { mode: "index", intersect: false },
+                        plugins: {
+                            legend: { position: "bottom", labels: { color: textColor, usePointStyle: true, boxWidth: 8 } },
+                            tooltip: { callbacks: { label: function(c) { return c.dataset.label.replace(/（[^（）]*）$/, "") + ": " + scFmt(c.dataset.unit, c.parsed.y); } } }
+                        },
+                        scales: Object.assign({ x: { ticks: { color: textColor, maxRotation: 50, autoSkip: true }, grid: { color: gridColor } } }, scales)
+                    }
+                }));
+            }
+            function addCanvas(height) {
+                const wrap = document.createElement("div");
+                wrap.className = "sc-canvas-wrap";
+                wrap.style.height = height + "px";
+                const cv = document.createElement("canvas");
+                wrap.appendChild(cv);
+                body.appendChild(wrap);
+                return cv;
+            }
+            if (layout === "overlay") {
+                const scales = {}, datasets = [];
+                units.forEach(function(u, idx) {
+                    const axisId = "y_" + u;
+                    scales[axisId] = makeAxis(u, unitMap[u], idx === 0 ? "left" : "right", idx === 0);
+                    unitMap[u].forEach(function(x) { datasets.push(makeDataset(x, axisId)); });
+                });
+                makeChart(addCanvas(420), datasets, scales);
+            } else {
+                units.forEach(function(u) {
+                    const axisId = "y_" + u;
+                    const scales = {};
+                    scales[axisId] = makeAxis(u, unitMap[u], "left", true);
+                    makeChart(addCanvas(250), unitMap[u].map(function(x) { return makeDataset(x, axisId); }), scales);
+                });
+            }
+        }
+        function scheduleSummaryChart() {
+            clearTimeout(scState.timer);
+            scState.timer = setTimeout(renderSummaryChart, 60);
+        }
+
+        function scToggleCard(card) {
+            const valEl = card.querySelector(".stat-value");
+            const labelEl = card.querySelector(".stat-label");
+            const id = valEl ? valEl.id : null;
+            if (!id || !SC_DEF_MAP[id]) return;
+            const i = scState.selected.indexOf(id);
+            if (i !== -1) {
+                scState.selected.splice(i, 1);
+                delete scState.colors[id];
+                card.classList.remove("chart-selected");
+                card.style.removeProperty("--chart-color");
+            } else {
+                const used = Object.keys(scState.colors).map(function(k) { return scState.colors[k]; });
+                const color = SC_PALETTE.filter(function(c) { return used.indexOf(c) === -1; })[0] || SC_PALETTE[scState.selected.length % SC_PALETTE.length];
+                scState.selected.push(id);
+                scState.colors[id] = color;
+                scState.labels[id] = labelEl ? labelEl.textContent.trim() : id;
+                card.classList.add("chart-selected");
+                card.style.setProperty("--chart-color", color);
+            }
+            renderSummaryChart();
+        }
+
+        // 集計表・黄色集計のポップアップでだけ呼ぶ: カードを選択可能にし、操作ボタンをつなぐ
+        function initSummaryChartUI() {
+            document.body.classList.add("summary-chart-on");
+            document.querySelectorAll("#summary-panel-table .stat-card, #summary-panel-yellow .stat-card").forEach(function(card) {
+                const valEl = card.querySelector(".stat-value");
+                if (!valEl || !SC_DEF_MAP[valEl.id]) return;
+                card.classList.add("chart-selectable");
+                card.setAttribute("tabindex", "0");
+                card.setAttribute("role", "button");
+                card.addEventListener("click", function() { scToggleCard(card); });
+                card.addEventListener("keydown", function(e) {
+                    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); scToggleCard(card); }
+                });
+            });
+            document.getElementById("summary-chart-panel").addEventListener("click", function(e) {
+                const btn = e.target.closest("button");
+                if (!btn) return;
+                if (btn.dataset.scGran) scState.gran = btn.dataset.scGran;
+                else if (btn.dataset.scMode) scState.mode = btn.dataset.scMode;
+                else if (btn.dataset.scLayout) scState.layout = btn.dataset.scLayout;
+                else if (btn.dataset.scType) scState.type = btn.dataset.scType;
+                else return;
+                renderSummaryChart();
+            });
+            document.getElementById("sc-clear-btn").addEventListener("click", function() {
+                scState.selected = [];
+                scState.colors = {};
+                document.querySelectorAll(".stat-card.chart-selected").forEach(function(c) {
+                    c.classList.remove("chart-selected");
+                    c.style.removeProperty("--chart-color");
+                });
+                renderSummaryChart();
+            });
+            scSyncControls();
+            renderSummaryChart();
+        }
+
+        // ===== タグ別集計ポップアップ: 円グラフ（割合）と棒グラフ（指標） =====
+        const TC_NO_TAG = "タグなし";
+        const TC_SHARES = [
+            { key: "all", title: "全トレード", sub: "全トレードを100%", pred: function() { return true; } },
+            { key: "win", title: "勝ちトレード", sub: "全勝ちトレードを100%", pred: function(d) { return (d.evaluation || "").indexOf("勝ち") !== -1; } },
+            { key: "loss", title: "負けトレード", sub: "全負けトレードを100%", pred: function(d) { return (d.evaluation || "").indexOf("負け") !== -1; } }
+        ];
+        const TC_METRICS = [
+            { key: "winRate", title: "勝率", unit: "%", signed: false, color: "#2563eb" },
+            { key: "avgLot", title: "平均ロット", unit: "lot", signed: false, color: "#2563eb" },
+            { key: "totalPips", title: "合計pips", unit: "pips", signed: true },
+            { key: "lossPips", title: "ロスpips", unit: "pips", signed: true },
+            { key: "lossVirtualProfit", title: "ロス仮想収支", unit: "¥", signed: true }
+        ];
+        const tcState = { rows: null, stats: null, view: "pie", instances: [], timer: null, colors: null };
+
+        function tcMix(hex, t) {
+            const n = parseInt(hex.replace("#", ""), 16);
+            const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+            const m = function(c) { return Math.round(c + (255 - c) * t); };
+            return "#" + [m(r), m(g), m(b)].map(function(c) { return c.toString(16).padStart(2, "0"); }).join("");
+        }
+        function tcIsDark(hex) {
+            const n = parseInt(hex.replace("#", ""), 16);
+            return (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) < 150;
+        }
+        // 同じ色グループのタグ（例: 黄色未エントリー4種）は、同系色の濃淡で見分けられるようにする
+        function tcTagColors() {
+            if (tcState.colors) return tcState.colors;
+            const groups = {}, map = {};
+            SUMMARY_TAG_LIST.forEach(function(tag) {
+                const cls = TAG_COLOR_CLASS[tag] || "none";
+                (groups[cls] = groups[cls] || []).push(tag);
+            });
+            Object.keys(groups).forEach(function(cls) {
+                const base = TAG_CLASS_ACCENT_COLOR[cls] || "#94a3b8";
+                groups[cls].forEach(function(tag, i) { map[tag] = tcMix(base, i * 0.27); });
+            });
+            map[TC_NO_TAG] = "#cbd5e1";
+            tcState.colors = map;
+            return map;
+        }
+        function tcDestroy() {
+            tcState.instances.forEach(function(ch) { try { ch.destroy(); } catch (e) {} });
+            tcState.instances = [];
+        }
+        const tcPieLabelPlugin = {
+            id: "tcPieLabels",
+            afterDatasetsDraw: function(chart) {
+                const ds = chart.data.datasets[0], total = ds.data.reduce(function(a, b) { return a + b; }, 0);
+                if (!total) return;
+                const ctx = chart.ctx;
+                chart.getDatasetMeta(0).data.forEach(function(arc, i) {
+                    const pct = ds.data[i] / total * 100;
+                    if (pct < 5) return;
+                    const pt = arc.getCenterPoint();
+                    ctx.save();
+                    ctx.font = "bold 12px sans-serif";
+                    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                    ctx.fillStyle = tcIsDark(ds.backgroundColor[i]) ? "#ffffff" : "#1a1a1f";
+                    ctx.fillText(pct.toFixed(0) + "%", pt.x, pt.y);
+                    ctx.restore();
+                });
+            }
+        };
+        const tcBarValuePlugin = {
+            id: "tcValueLabels",
+            afterDatasetsDraw: function(chart, args, opts) {
+                if (!opts || !opts.format) return;
+                const ctx = chart.ctx, ds = chart.data.datasets[0];
+                chart.getDatasetMeta(0).data.forEach(function(el, i) {
+                    const v = ds.data[i];
+                    if (v === null || v === undefined) return;
+                    const neg = v < 0;
+                    ctx.save();
+                    ctx.font = "11px sans-serif";
+                    ctx.fillStyle = opts.color;
+                    ctx.textBaseline = "middle";
+                    ctx.textAlign = neg ? "right" : "left";
+                    ctx.fillText(opts.format(v, i), el.x + (neg ? -5 : 5), el.y);
+                    ctx.restore();
+                });
+            }
+        };
+
+        function renderTagCharts() {
+            const shareGrid = document.getElementById("tc-share-grid");
+            const metricGrid = document.getElementById("tc-metric-grid");
+            const shareNote = document.getElementById("tc-share-note");
+            if (!shareGrid || !metricGrid || !tcState.rows || !tcState.stats) return;
+            tcDestroy();
+            shareGrid.innerHTML = ""; metricGrid.innerHTML = "";
+            document.querySelectorAll("#tc-seg-view button").forEach(function(b) { b.classList.toggle("active", b.dataset.tcView === tcState.view); });
+            if (typeof Chart === "undefined") {
+                shareGrid.innerHTML = '<div class="tc-empty">グラフ用ライブラリ（Chart.js）を読み込めませんでした。ネットワーク接続を確認して、このウィンドウを開き直してください。</div>';
+                return;
+            }
+            const cs = getComputedStyle(document.documentElement);
+            const textColor = (cs.getPropertyValue("--text-secondary") || "#888").trim();
+            const gridColor = (cs.getPropertyValue("--border-color") || "#ddd").trim();
+            const cardBg = (cs.getPropertyValue("--card-bg-alt") || "#fff").trim();
+            const colors = tcTagColors();
+            const rows = tcState.rows;
+            function addCell(grid, title, sub, height) {
+                const cell = document.createElement("div");
+                cell.className = "tc-cell";
+                const t = document.createElement("div");
+                t.className = "tc-cell-title";
+                t.innerHTML = title + (sub ? "<small>" + sub + "</small>" : "");
+                cell.appendChild(t);
+                const wrap = document.createElement("div");
+                wrap.className = "tc-canvas-wrap";
+                wrap.style.height = height + "px";
+                cell.appendChild(wrap);
+                grid.appendChild(cell);
+                return wrap;
+            }
+
+            // ---- 割合（円グラフ／横棒）----
+            const unTagged = rows.filter(function(d) { return SUMMARY_TAG_LIST.indexOf(d.tag) === -1; }).length;
+            shareNote.textContent = "タグが未設定のトレード（" + unTagged + " 件）は「" + TC_NO_TAG + "」として含めています。勝ち＝評価が「勝ち・勝ち黄」、負け＝「負け・負け黄」。";
+            TC_SHARES.forEach(function(sh) {
+                const counts = {};
+                let total = 0;
+                rows.forEach(function(d) {
+                    if (!sh.pred(d)) return;
+                    const t = SUMMARY_TAG_LIST.indexOf(d.tag) !== -1 ? d.tag : TC_NO_TAG;
+                    counts[t] = (counts[t] || 0) + 1;
+                    total++;
+                });
+                let entries = SUMMARY_TAG_LIST.concat([TC_NO_TAG]).filter(function(t) { return counts[t]; }).map(function(t) { return { tag: t, n: counts[t] }; });
+                const isPie = tcState.view === "pie";
+                if (!isPie) entries.sort(function(a, b) { return b.n - a.n; });
+                const wrap = addCell(shareGrid, sh.title, sh.sub + "（" + total + " 件）", isPie ? 360 : Math.max(180, entries.length * 24 + 50));
+                if (total === 0) { wrap.innerHTML = '<div class="tc-empty">該当するトレードがありません。</div>'; return; }
+                const cv = document.createElement("canvas");
+                wrap.appendChild(cv);
+                const bg = entries.map(function(e) { return colors[e.tag]; });
+                const pctOf = function(n) { return (n / total * 100).toFixed(1); };
+                if (isPie) {
+                    tcState.instances.push(new Chart(cv, {
+                        type: "pie",
+                        data: { labels: entries.map(function(e) { return e.tag; }), datasets: [{ data: entries.map(function(e) { return e.n; }), backgroundColor: bg, borderColor: cardBg, borderWidth: 2 }] },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: "right",
+                                    labels: {
+                                        color: textColor, boxWidth: 12, font: { size: 11 },
+                                        generateLabels: function(chart) {
+                                            const base = Chart.overrides.pie.plugins.legend.labels.generateLabels(chart);
+                                            base.forEach(function(l, i) { l.text = entries[i].tag + "　" + entries[i].n + "件 (" + pctOf(entries[i].n) + "%)"; l.fontColor = textColor; });
+                                            return base;
+                                        }
+                                    }
+                                },
+                                tooltip: { callbacks: { label: function(c) { return c.label + ": " + c.parsed + "件 (" + pctOf(c.parsed) + "%)"; } } }
+                            }
+                        },
+                        plugins: [tcPieLabelPlugin]
+                    }));
+                } else {
+                    tcState.instances.push(new Chart(cv, {
+                        type: "bar",
+                        data: { labels: entries.map(function(e) { return e.tag; }), datasets: [{ data: entries.map(function(e) { return e.n; }), backgroundColor: bg, borderColor: textColor, borderWidth: 0.5 }] },
+                        options: {
+                            indexAxis: "y", responsive: true, maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tcValueLabels: { color: textColor, format: function(v) { return v + "件 (" + pctOf(v) + "%)"; } },
+                                tooltip: { callbacks: { label: function(c) { return c.parsed.x + "件 (" + pctOf(c.parsed.x) + "%)"; } } }
+                            },
+                            scales: {
+                                x: { beginAtZero: true, grace: "28%", ticks: { color: textColor, precision: 0 }, grid: { color: gridColor } },
+                                y: { ticks: { color: textColor, font: { size: 11 } }, grid: { display: false } }
+                            }
+                        },
+                        plugins: [tcBarValuePlugin]
+                    }));
+                }
+            });
+
+            // ---- 指標（タグごと＋合計の棒グラフ）----
+            const stats = tcState.stats;
+            const labels = stats.map(function(r) { return r.tag; });
+            TC_METRICS.forEach(function(m) {
+                const vals = stats.map(function(r) { const v = r[m.key]; return (v === null || v === undefined || isNaN(v)) ? null : v; });
+                const bg = stats.map(function(r, i) {
+                    if (r.isTotal) return "#7c3aed";
+                    if (m.signed) return (vals[i] !== null && vals[i] < 0) ? "#dc2626" : "#059669";
+                    return m.color;
+                });
+                const wrap = addCell(metricGrid, m.title, "（" + m.unit + "）", Math.max(260, labels.length * 25 + 60));
+                const cv = document.createElement("canvas");
+                wrap.appendChild(cv);
+                tcState.instances.push(new Chart(cv, {
+                    type: "bar",
+                    data: { labels: labels, datasets: [{ data: vals, backgroundColor: bg, borderWidth: 0 }] },
+                    options: {
+                        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tcValueLabels: { color: textColor, format: function(v) { return scFmt(m.unit, v); } },
+                            tooltip: { callbacks: { label: function(c) { return m.title + ": " + scFmt(m.unit, c.parsed.x); } } }
+                        },
+                        scales: {
+                            x: { beginAtZero: true, grace: "30%", ticks: { color: textColor, callback: function(v) { return scTick(m.unit, v); } }, grid: { color: gridColor } },
+                            y: { ticks: { color: textColor, font: { size: 11 } }, grid: { display: false } }
+                        }
+                    },
+                    plugins: [tcBarValuePlugin]
+                }));
+            });
+        }
+        function scheduleTagCharts() {
+            clearTimeout(tcState.timer);
+            tcState.timer = setTimeout(renderTagCharts, 60);
+        }
+        function initTagChartUI() {
+            document.body.classList.add("summary-tagchart-on");
+            document.getElementById("tc-seg-view").addEventListener("click", function(e) {
+                const btn = e.target.closest("button");
+                if (!btn || !btn.dataset.tcView) return;
+                tcState.view = btn.dataset.tcView;
+                renderTagCharts();
+            });
+        }
+
+        // ===== 通貨ペア別集計ポップアップ: エントリ回数・金額・pips・勝率のグラフ =====
+        // 31ペアのうち取引のあるペアだけを対象にする（空のペアが大半でも読みやすいように）
+        const pcState = { stats: null, view: "bar", instances: [], timer: null };
+        const pcValuePlugin = {
+            id: "pcValueLabels",
+            afterDatasetsDraw: function(chart, args, opts) {
+                if (!opts || !opts.format) return;
+                const ctx = chart.ctx;
+                chart.data.datasets.forEach(function(ds, di) {
+                    chart.getDatasetMeta(di).data.forEach(function(el, i) {
+                        const v = ds.data[i];
+                        if (v === null || v === undefined || v === 0) return;
+                        const neg = v < 0;
+                        ctx.save();
+                        ctx.font = "11px sans-serif";
+                        ctx.fillStyle = opts.color;
+                        ctx.textBaseline = "middle";
+                        ctx.textAlign = neg ? "right" : "left";
+                        ctx.fillText(opts.format(v, di, i), el.x + (neg ? -5 : 5), el.y);
+                        ctx.restore();
+                    });
+                });
+            }
+        };
+        function pcDestroy() {
+            pcState.instances.forEach(function(ch) { try { ch.destroy(); } catch (e) {} });
+            pcState.instances = [];
+        }
+        function renderPairCharts() {
+            const grid = document.getElementById("pc-grid");
+            const note = document.getElementById("pc-note");
+            if (!grid || !pcState.stats) return;
+            pcDestroy();
+            grid.innerHTML = "";
+            document.querySelectorAll("#pc-seg-view button").forEach(function(b) { b.classList.toggle("active", b.dataset.pcView === pcState.view); });
+            if (typeof Chart === "undefined") {
+                grid.innerHTML = '<div class="tc-empty">グラフ用ライブラリ（Chart.js）を読み込めませんでした。ネットワーク接続を確認して、このウィンドウを開き直してください。</div>';
+                return;
+            }
+            const used = pcState.stats.filter(function(r) { return r.count > 0; });
+            note.textContent = "取引のある " + used.length + " ペアを表示しています（取引のないペアは省略）。勝ち＝収益(円)がプラスの行、負け＝0以下の行です。";
+            if (used.length === 0) { grid.innerHTML = '<div class="tc-empty">表示できる取引がありません。</div>'; return; }
+
+            const cs = getComputedStyle(document.documentElement);
+            const textColor = (cs.getPropertyValue("--text-secondary") || "#888").trim();
+            const gridColor = (cs.getPropertyValue("--border-color") || "#ddd").trim();
+            const cardBg = (cs.getPropertyValue("--card-bg-alt") || "#fff").trim();
+            const GREEN = "#059669", RED = "#dc2626", BLUE = "#2563eb";
+            function addCell(title, sub, n) {
+                const cell = document.createElement("div");
+                cell.className = "tc-cell";
+                const t = document.createElement("div");
+                t.className = "tc-cell-title";
+                t.innerHTML = title + (sub ? "<small>" + sub + "</small>" : "");
+                cell.appendChild(t);
+                const wrap = document.createElement("div");
+                wrap.className = "tc-canvas-wrap";
+                wrap.style.height = Math.max(220, n * 26 + 70) + "px";
+                cell.appendChild(wrap);
+                grid.appendChild(cell);
+                const cv = document.createElement("canvas");
+                wrap.appendChild(cv);
+                return { wrap: wrap, cv: cv };
+            }
+            function hbar(cv, labels, datasets, opts) {
+                pcState.instances.push(new Chart(cv, {
+                    type: "bar",
+                    data: { labels: labels, datasets: datasets },
+                    options: {
+                        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: datasets.length > 1, position: "bottom", labels: { color: textColor, boxWidth: 12 } },
+                            pcValueLabels: { color: textColor, format: opts.format },
+                            tooltip: { callbacks: { label: function(c) { return c.dataset.label + ": " + opts.format(c.parsed.x, c.datasetIndex, c.dataIndex); } } }
+                        },
+                        scales: {
+                            x: { stacked: !!opts.stacked, beginAtZero: true, grace: "30%", ticks: { color: textColor, callback: function(v) { return scTick(opts.unit, v); } }, grid: { color: gridColor } },
+                            y: { stacked: !!opts.stacked, ticks: { color: textColor, font: { size: 11 } }, grid: { display: false } }
+                        }
+                    },
+                    plugins: [pcValuePlugin]
+                }));
+            }
+            const signColors = function(arr) { return arr.map(function(v) { return v < 0 ? RED : GREEN; }); };
+            const fmtYen = function(v) { return scFmt("¥", v); };
+            const fmtPips = function(v) { return scFmt("pips", v); };
+
+            // 1) エントリ回数（全体に占める割合）
+            const byCount = used.slice().sort(function(a, b) { return b.count - a.count; });
+            const totalCount = byCount.reduce(function(sum, r) { return sum + r.count; }, 0);
+            const pctOf = function(n) { return (n / totalCount * 100).toFixed(1); };
+            const c1 = addCell("エントリ回数", "全体を100%（" + totalCount + " 回）", pcState.view === "pie" ? 12 : byCount.length);
+            if (pcState.view === "pie") {
+                c1.wrap.style.height = "380px";
+                const palette = byCount.map(function(r, i) { return "hsl(" + ((i * 47) % 360) + " 62% 55%)"; });
+                pcState.instances.push(new Chart(c1.cv, {
+                    type: "pie",
+                    data: { labels: byCount.map(function(r) { return r.pair; }), datasets: [{ data: byCount.map(function(r) { return r.count; }), backgroundColor: palette, borderColor: cardBg, borderWidth: 2 }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: "right", labels: { color: textColor, boxWidth: 12, font: { size: 11 },
+                                generateLabels: function(chart) {
+                                    const base = Chart.overrides.pie.plugins.legend.labels.generateLabels(chart);
+                                    base.forEach(function(l, i) { l.text = byCount[i].pair + "　" + byCount[i].count + "回 (" + pctOf(byCount[i].count) + "%)"; l.fontColor = textColor; });
+                                    return base;
+                                } } },
+                            tooltip: { callbacks: { label: function(c) { return c.label + ": " + c.parsed + "回 (" + pctOf(c.parsed) + "%)"; } } }
+                        }
+                    },
+                    plugins: [tcPieLabelPlugin]
+                }));
+            } else {
+                hbar(c1.cv, byCount.map(function(r) { return r.pair; }),
+                    [{ label: "エントリ回数", data: byCount.map(function(r) { return r.count; }), backgroundColor: BLUE }],
+                    { unit: "件", format: function(v) { return v + "回 (" + pctOf(v) + "%)"; } });
+            }
+
+            // 2) 勝率（回数の多い順。回数が少ないペアは当てにならないので回数を併記）
+            const c2 = addCell("勝率", "回数の多い順・括弧内はエントリ回数", byCount.length);
+            const wr = byCount.map(function(r) { return r.winRate; });
+            hbar(c2.cv, byCount.map(function(r) { return r.pair; }),
+                [{ label: "勝率", data: wr, backgroundColor: BLUE }],
+                { unit: "%", format: function(v, di, i) { return v.toFixed(1) + " %（" + byCount[i].count + "回）"; } });
+
+            // 3) 合計金額（多い順）
+            const byProfit = used.slice().sort(function(a, b) { return b.totalProfit - a.totalProfit; });
+            const c3 = addCell("合計金額", "円・多い順", byProfit.length);
+            const tp = byProfit.map(function(r) { return r.totalProfit; });
+            hbar(c3.cv, byProfit.map(function(r) { return r.pair; }),
+                [{ label: "合計金額", data: tp, backgroundColor: signColors(tp) }],
+                { unit: "¥", format: fmtYen });
+
+            // 4) 利益・損失の内訳（金額。合計金額と同じ並び）
+            const c4 = addCell("利益金額と損失金額の内訳", "合計金額と同じ並び", byProfit.length);
+            hbar(c4.cv, byProfit.map(function(r) { return r.pair; }), [
+                { label: "利益金額", data: byProfit.map(function(r) { return r.winProfit; }), backgroundColor: GREEN },
+                { label: "損失金額", data: byProfit.map(function(r) { return r.lossProfit; }), backgroundColor: RED }
+            ], { unit: "¥", stacked: true, format: fmtYen });
+
+            // 5) 合計pips（多い順）
+            const byPips = used.slice().sort(function(a, b) { return b.totalPips - a.totalPips; });
+            const c5 = addCell("合計pips", "多い順", byPips.length);
+            const pp = byPips.map(function(r) { return r.totalPips; });
+            hbar(c5.cv, byPips.map(function(r) { return r.pair; }),
+                [{ label: "合計pips", data: pp, backgroundColor: signColors(pp) }],
+                { unit: "pips", format: fmtPips });
+
+            // 6) 利益・損失の内訳（pips。合計pipsと同じ並び）
+            const c6 = addCell("利益pipsと損失pipsの内訳", "合計pipsと同じ並び", byPips.length);
+            hbar(c6.cv, byPips.map(function(r) { return r.pair; }), [
+                { label: "利益pips", data: byPips.map(function(r) { return r.winPips; }), backgroundColor: GREEN },
+                { label: "損失pips", data: byPips.map(function(r) { return r.lossPips; }), backgroundColor: RED }
+            ], { unit: "pips", stacked: true, format: fmtPips });
+        }
+        function schedulePairCharts() {
+            clearTimeout(pcState.timer);
+            pcState.timer = setTimeout(renderPairCharts, 60);
+        }
+        function initPairChartUI() {
+            document.body.classList.add("summary-paircharts-on");
+            document.getElementById("pc-seg-view").addEventListener("click", function(e) {
+                const btn = e.target.closest("button");
+                if (!btn || !btn.dataset.pcView) return;
+                pcState.view = btn.dataset.pcView;
+                renderPairCharts();
+            });
+        }
+
         function updateSummaryTable() {
             if (!table) return;
             const allRows = table.getData("active");
@@ -6429,9 +8120,37 @@
                 avgLot: "summary-avg-lot",
                 avgRisk: "summary-avg-risk",
                 avgProfit: "summary-avg-profit",
-                avgLoss: "summary-avg-loss"
+                avgLoss: "summary-avg-loss",
+                bibiriRate: "bibiri-rate",
+                missedPipsTotal: "summary-missed-pips",
+                lossPipsExYellowMiss: "summary-loss-pips-total",
+                totalSwap: "summary-total-swap",
+                profitFactor: "summary-profit-factor",
+                profitRatio: "summary-profit-ratio"
             });
+            const activeNbForBalance = appState.notebooks[appState.activeNotebookId];
+            renderPeriodBalanceStats(computePeriodBalanceStats(allRows, rows, activeNbForBalance ? activeNbForBalance.initialCapital : 0));
             renderYellowStats(computeYellowStats(rows));
+            const tagStats = computeTagSummary(rows);
+            renderTagSummaryTable(tagStats);
+            const pairStats = computePairSummary(rows);
+            renderPairSummaryTable(pairStats);
+            if (document.body.classList.contains("summary-paircharts-on")) {
+                pcState.stats = pairStats;
+                schedulePairCharts();
+            }
+            if (document.body.classList.contains("summary-tagchart-on")) {
+                tcState.rows = rows;
+                tcState.stats = tagStats;
+                scheduleTagCharts();
+            }
+
+            // 集計ポップアップの推移グラフ用に、現在の対象トレードを保持して再描画する
+            if (document.body.classList.contains("summary-chart-on")) {
+                const initCap = activeNbForBalance ? (activeNbForBalance.initialCapital || 0) : 0;
+                scState.ctx = { rows: rows, allRows: allRows, init: initCap, rangeStartBalance: computePeriodBalanceStats(allRows, rows, initCap).periodStartBalance };
+                scheduleSummaryChart();
+            }
 
             const label = document.getElementById("summary-period-current");
             if (summaryPeriodMode !== "all" && summarySelectedPeriod) {
@@ -6477,7 +8196,7 @@
 
         // メイン画面（非ポップアウト）側: 他のポップアウトウィンドウでの保存をlocalStorage経由で検知し、表示に反映する
         window.addEventListener("storage", function(e) {
-            if (e.key !== STORAGE_KEY_MULTI || document.body.classList.contains("popout-mode")) return;
+            if (e.key !== STORAGE_KEY_MULTI || document.body.classList.contains("popout-mode") || document.body.classList.contains("summary-popout-mode")) return;
             const raw = localStorage.getItem(STORAGE_KEY_MULTI);
             if (!raw) return;
             try {
@@ -6547,6 +8266,44 @@
                 return;
             }
 
+            // 集計の各表（集計表／黄色集計／タグ別集計／通貨ペア別集計）を単独ウィンドウで開く
+            const SUMMARY_POPOUT_PANEL_IDS = {
+                summarytable: "summary-panel-table",
+                summaryyellow: "summary-panel-yellow",
+                summarytag: "summary-panel-tagsum",
+                summarypair: "summary-panel-pairsum"
+            };
+            if (SUMMARY_POPOUT_PANEL_IDS[kind]) {
+                // popout-mode の「.mieruka-overlay系だけ残して他を隠す」ルールは.containerごと消してしまうため、
+                // 集計ポップアップでは使わず、summary-popout-mode専用のルールだけで表示を制御する
+                document.body.classList.remove("popout-mode");
+                document.body.classList.add("summary-popout-mode");
+                const pmParam = params.get("pm"), ppParam = params.get("pp");
+                if (pmParam === "year" || pmParam === "month") {
+                    summaryPeriodMode = pmParam;
+                    summarySelectedPeriod = ppParam || null;
+                }
+                if (kind === "summarytable" || kind === "summaryyellow") initSummaryChartUI();
+                if (kind === "summarytag") initTagChartUI();
+                if (kind === "summarypair") initPairChartUI();
+                const panelEl = document.getElementById(SUMMARY_POPOUT_PANEL_IDS[kind]);
+                if (panelEl) {
+                    panelEl.classList.add("summary-popout-target");
+                    panelEl.classList.remove("collapsed");
+                }
+                const nb = params.get("nb");
+                if (nb && nb !== appState.activeNotebookId && appState.notebooks[nb]) {
+                    switchNotebook(nb);
+                    table.on("dataChanged", function onceChanged() {
+                        table.off("dataChanged", onceChanged);
+                        updateSummaryTable();
+                    });
+                } else {
+                    updateSummaryTable();
+                }
+                return;
+            }
+
             if (kind === "logmodal") {
                 const nb = params.get("nb");
                 const rowIdRaw = params.get("rowid");
@@ -6582,7 +8339,282 @@
         });
         // ノート切替やインポートなど、setDataで丸ごとデータが入れ替わった場合の保険
         table.on("dataChanged", function() {
+            if (window.__csvImporting) return; // CSV取り込み中は、最後に1回だけ更新する
             updateSummaryTable();
+        });
+
+        // ===== CSV取り込み（スプレッドシート ⇄ トレードノート）=====
+        // 1行目の見出し（CSV出力と同じ列名）で列を自動判定する。ログ・チャート・自動計算列は取り込まない。
+        const CSV_CALC_FIELDS = ["pips", "profit", "netStrength"];                 // 価格などから再計算する列（CSVの値は保険として使う）
+        const CSV_SKIP_FIELDS = ["optimalLot", "optimalProfit", "settlementLog", "chartsBefore", "chartsAfter"]; // 取り込まない列
+        const CSV_EVAL_LIST = ["勝ち", "勝ち黄", "負け", "負け黄", "建値", "未決済"];
+
+        function csvDecode(buf) {
+            let text;
+            try { text = new TextDecoder("utf-8", { fatal: true }).decode(buf); }
+            catch (e) {
+                // Windows版Excelの「CSV（コンマ区切り）」はShift_JISで保存される
+                try { text = new TextDecoder("shift_jis").decode(buf); }
+                catch (e2) { text = new TextDecoder("utf-8").decode(buf); }
+            }
+            return text.replace(/^\uFEFF/, "");
+        }
+        function csvParse(text) {
+            const firstLine = text.split(/\r?\n/)[0] || "";
+            const delim = firstLine.split("\t").length > firstLine.split(",").length ? "\t" : ",";
+            const rows = [];
+            let row = [], cell = "", inQ = false;
+            for (let i = 0; i < text.length; i++) {
+                const ch = text[i];
+                if (inQ) {
+                    if (ch === '"') {
+                        if (text[i + 1] === '"') { cell += '"'; i++; } else inQ = false;
+                    } else cell += ch;
+                } else if (ch === '"') inQ = true;
+                else if (ch === delim) { row.push(cell); cell = ""; }
+                else if (ch === "\n" || ch === "\r") {
+                    if (ch === "\r" && text[i + 1] === "\n") i++;
+                    row.push(cell); cell = "";
+                    rows.push(row); row = [];
+                } else cell += ch;
+            }
+            if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+            return rows;
+        }
+        function csvNorm(s) {
+            return String(s || "").normalize("NFKC").replace(/\s+/g, "").toLowerCase();
+        }
+        function csvNum(raw) {
+            if (raw === null || raw === undefined) return null;
+            const t = String(raw).normalize("NFKC").replace(/[,¥円]|pips|lot|%/gi, "").trim();
+            if (t === "") return null;
+            const n = Number(t);
+            return isNaN(n) ? NaN : n;
+        }
+        function csvDate(raw) {
+            let t = String(raw || "").normalize("NFKC").trim();
+            if (!t) return { date: "", time: "" };
+            let time = "";
+            const sp = t.split(/\s+/);
+            if (sp.length > 1 && /:/.test(sp[1])) { t = sp[0]; time = sp[1]; }
+            t = formatDateInput(t);
+            const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(t);
+            if (m) t = m[1] + "-" + m[2].padStart(2, "0") + "-" + m[3].padStart(2, "0");
+            return { date: t, time: time };
+        }
+        function csvTime(raw) {
+            let t = formatTimeInput(String(raw || "").normalize("NFKC").trim());
+            const m = /^(\d{1,2}):(\d{2})/.exec(t);
+            return m ? m[1].padStart(2, "0") + ":" + m[2] : t;
+        }
+        function csvPair(raw) {
+            const t = String(raw || "").normalize("NFKC").trim();
+            const key = t.toUpperCase().replace(/[\/\s]/g, "");
+            return TRADE_NOTE_PAIR_LIST.indexOf(key) !== -1 ? key : t;
+        }
+
+        function csvAnalyze(records) {
+            const defs = table.getColumnDefinitions().filter(function(c) { return c.field; });
+            const byKey = {};
+            defs.forEach(function(c) {
+                byKey[csvNorm(c.field)] = c;
+                const t = csvNorm(c.title);
+                byKey[t] = c;
+                const noJst = t.replace(/\(jst\)$/, "");
+                if (!byKey[noJst]) byKey[noJst] = c;
+            });
+            byKey["日付"] = byKey["日付"] || byKey[csvNorm("date")];
+            const headers = records[0] || [];
+            const colMap = [], used = [], skipped = [], unknown = [];
+            headers.forEach(function(h, i) {
+                const name = String(h || "").trim();
+                if (!name) { colMap[i] = null; return; }
+                const def = byKey[csvNorm(name)];
+                if (!def) { colMap[i] = null; unknown.push(name); return; }
+                if (CSV_SKIP_FIELDS.indexOf(def.field) !== -1) { colMap[i] = null; skipped.push(name); return; }
+                if (colMap.some(function(x) { return x && x.field === def.field; })) { colMap[i] = null; unknown.push(name + "（重複）"); return; }
+                colMap[i] = { field: def.field, title: def.title, numeric: def.editor === "number" || CSV_CALC_FIELDS.indexOf(def.field) !== -1 };
+                used.push(def.title);
+            });
+            const warnings = [];
+            const rows = [];
+            let blank = 0;
+            for (let r = 1; r < records.length; r++) {
+                const rec = records[r];
+                if (!rec.some(function(c) { return String(c).trim() !== ""; })) { blank++; continue; }
+                const o = { _line: r + 1 };
+                colMap.forEach(function(cm, i) {
+                    if (!cm) return;
+                    const raw = rec[i] === undefined ? "" : String(rec[i]);
+                    if (cm.field === "date") {
+                        const d = csvDate(raw);
+                        o.date = d.date;
+                        if (d.time && !o.time) o.time = csvTime(d.time);
+                    } else if (cm.field === "time") {
+                        o.time = csvTime(raw) || o.time || "";
+                    } else if (cm.field === "pair") {
+                        o.pair = csvPair(raw);
+                    } else if (cm.field === "niceTrade") {
+                        const t = raw.normalize("NFKC").trim().toLowerCase();
+                        if (t !== "") o.niceTrade = ["true", "1", "yes", "y", "○", "〇", "✓", "✔", "はい", "☑"].indexOf(t) !== -1;
+                    } else if (cm.numeric) {
+                        const n = csvNum(raw);
+                        if (n !== null && isNaN(n)) { warnings.push(r + 1 + "行目「" + cm.title + "」: 数値として読めませんでした（" + raw + "）"); o[cm.field] = null; }
+                        else o[cm.field] = n;
+                    } else {
+                        o[cm.field] = raw.replace(/\r\n?/g, "\n").trim();
+                    }
+                });
+                if (o.date && !/^\d{4}-\d{2}-\d{2}$/.test(o.date)) warnings.push(r + 1 + "行目「日付」: 形式が不明です（" + o.date + "）");
+                if (o.position && ["Buy", "Sell"].indexOf(o.position) === -1) warnings.push(r + 1 + "行目「ポジ」: Buy / Sell 以外です（" + o.position + "）");
+                if (o.evaluation && CSV_EVAL_LIST.indexOf(o.evaluation) === -1) warnings.push(r + 1 + "行目「評価」: 未知の値です（" + o.evaluation + "）");
+                if (o.pair && TRADE_NOTE_PAIR_LIST.indexOf(o.pair) === -1) warnings.push(r + 1 + "行目「ペア」: 一覧にない通貨ペアです（" + o.pair + "）");
+                if (o.tag && SUMMARY_TAG_LIST.indexOf(o.tag) === -1) warnings.push(r + 1 + "行目「タグ」: 一覧にないタグです（" + o.tag + "）");
+                rows.push(o);
+            }
+            return { rows: rows, used: used, skipped: skipped, unknown: unknown, warnings: warnings, blank: blank, hasDate: used.indexOf("日付 (JST)") !== -1 || colMap.some(function(c) { return c && c.field === "date"; }) };
+        }
+
+        // CSVの1行を、トレードノートの行データに仕上げる（新規トレード追加と同じ初期値＋計算）
+        function csvFinalizeRow(o, id, useCsvCalc) {
+            const d = {
+                id: id, date: "", time: "", pair: "", position: "", evaluation: "", tag: "",
+                entry: null, exit: null, pips: null, lot: null, profit: null,
+                optimalLot: null, optimalProfit: null, riskPips: null, swap: null,
+                tfTag: "", weakTag: "", netStrength: null, axisTag: "", emotion: "", copingName: "無し"
+            };
+            Object.keys(o).forEach(function(k) { if (k !== "_line") d[k] = o[k]; });
+            if (!d.copingName) d.copingName = "無し";
+            const entry = parseFloat(d.entry), exit = parseFloat(d.exit), lot = parseFloat(d.lot);
+            if (!isNaN(entry) && !isNaN(exit) && (!useCsvCalc || d.pips === null || d.pips === undefined)) {
+                const diff = (d.position === "Sell") ? (entry - exit) : (exit - entry);
+                d.pips = Math.round(diff * pipMultiplierForPair(d.pair) * 10) / 10;
+            }
+            if (!isNaN(entry) && !isNaN(exit) && !isNaN(lot) && lot > 0 && d.pips !== null && (!useCsvCalc || d.profit === null || d.profit === undefined)) {
+                d.profit = Math.round(d.pips * lot * ratePerPipForPair((d.pair || "").toUpperCase(), parseFloat(d.usdJpyRate)));
+            }
+            if (d.tfTag) {
+                const sn = parseStrengthNum(d.tfTag);
+                if (sn !== null) d.netStrength = Math.round((sn - parseWeaknessNum(d.weakTag)) * 100) / 100;
+            }
+            return d;
+        }
+
+        function csvDupKey(d) {
+            return [d.date || "", d.time || "", String(d.pair || "").toUpperCase().replace(/[\/\s]/g, ""), d.position || "", d.entry === null || d.entry === undefined ? "" : Number(d.entry), d.exit === null || d.exit === undefined ? "" : Number(d.exit), d.lot === null || d.lot === undefined ? "" : Number(d.lot)].join("|");
+        }
+
+        function csvShowDialog(fileName, info) {
+            const existing = table.getData();
+            const nbName = appState.notebooks[appState.activeNotebookId].name;
+            const ov = document.createElement("div");
+            ov.className = "csvimp-overlay";
+            const esc = function(t) { return String(t).replace(/[&<>"]/g, function(c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+            const warnHtml = info.warnings.length
+                ? '<div class="csvimp-block csvimp-warn">注意が ' + info.warnings.length + ' 件あります（そのまま取り込みます。あとで表で直せます）<div class="csvimp-list">' + info.warnings.slice(0, 30).map(esc).join("<br>") + (info.warnings.length > 30 ? "<br>…ほか " + (info.warnings.length - 30) + " 件" : "") + "</div></div>"
+                : "";
+            ov.innerHTML = '<div class="csvimp-card" role="dialog" aria-modal="true">' +
+                "<h3>CSV取り込み</h3>" +
+                '<div class="csvimp-file">' + esc(fileName) + "</div>" +
+                '<div class="csvimp-block"><b>' + info.rows.length + " 行</b>を読み込みました" + (info.blank ? "（空行 " + info.blank + " 行は除外）" : "") + "。<br>" +
+                '<span class="csvimp-muted">取り込む列（' + info.used.length + "）: " + esc(info.used.join("、")) + "</span>" +
+                (info.skipped.length ? '<br><span class="csvimp-muted">取り込まない列（ログ・チャート・自動計算）: ' + esc(info.skipped.join("、")) + "</span>" : "") +
+                (info.unknown.length ? '<br><span class="csvimp-warn">認識できない列（無視します）: ' + esc(info.unknown.join("、")) + "</span>" : "") + "</div>" +
+                warnHtml +
+                '<div class="csvimp-block"><b>取り込み方法</b>' +
+                '<label class="csvimp-opt"><input type="radio" name="csvimp-mode" value="append" checked>追加する（今の ' + existing.length + ' 件の後ろに足す）</label>' +
+                '<label class="csvimp-opt csvimp-sub"><input type="checkbox" id="csvimp-dedupe" checked>すでにある同じトレード（日付・時間・ペア・ポジ・エントリー・決済・Lotが同じ）はスキップ</label>' +
+                '<label class="csvimp-opt"><input type="radio" name="csvimp-mode" value="replace">置き換える（「' + esc(nbName) + '」の今のデータを全部消してCSVに入れ替える）</label>' +
+                '<div class="csvimp-sub csvimp-err" id="csvimp-replace-warn" style="display:none">置き換えると、今のトレードに付いているログ・チャートは消えます。先に「現在のノートをCSV出力」でバックアップを取ってください。</div></div>' +
+                '<div class="csvimp-block"><label class="csvimp-opt"><input type="checkbox" id="csvimp-keepcalc">Pips・収益(円)はCSVの値をそのまま使う</label>' +
+                '<div class="csvimp-sub">オフ（標準）: エントリー・決済・Lotがあれば再計算します。実際の約定損益など、シートの値を優先したいときだけオンにしてください。価格が入っていない行は、どちらの設定でもCSVの値を使います。</div></div>' +
+                '<div class="csvimp-actions">' +
+                '<button class="btn btn-secondary" id="csvimp-backup">現在のノートをCSV出力</button>' +
+                '<button class="btn btn-secondary" id="csvimp-cancel">キャンセル</button>' +
+                '<button class="btn btn-primary" id="csvimp-go">取り込む</button></div></div>';
+            document.body.appendChild(ov);
+            const close = function() { ov.remove(); };
+            ov.addEventListener("click", function(e) { if (e.target === ov) close(); });
+            ov.querySelectorAll('input[name="csvimp-mode"]').forEach(function(r) {
+                r.addEventListener("change", function() {
+                    const rep = ov.querySelector('input[name="csvimp-mode"]:checked').value === "replace";
+                    document.getElementById("csvimp-replace-warn").style.display = rep ? "block" : "none";
+                    document.getElementById("csvimp-dedupe").disabled = rep;
+                });
+            });
+            document.getElementById("csvimp-cancel").addEventListener("click", close);
+            document.getElementById("csvimp-backup").addEventListener("click", function() { document.getElementById("btn-export-csv").click(); });
+            document.getElementById("csvimp-go").addEventListener("click", function() {
+                const mode = ov.querySelector('input[name="csvimp-mode"]:checked').value;
+                const dedupe = document.getElementById("csvimp-dedupe").checked;
+                const keepCalc = document.getElementById("csvimp-keepcalc").checked;
+                if (mode === "replace" && !confirm("「" + nbName + "」の今の " + existing.length + " 件を削除して、CSVの " + info.rows.length + " 件に入れ替えます。よろしいですか？")) return;
+                close();
+                csvRunImport(info.rows, mode, dedupe, keepCalc);
+            });
+        }
+
+        async function csvRunImport(rows, mode, dedupe, keepCalc) {
+            const base = Date.now();
+            let skippedDup = 0;
+            const seen = {};
+            if (mode === "append" && dedupe) {
+                table.getData().forEach(function(d) { const k = csvDupKey(d); seen[k] = (seen[k] || 0) + 1; });
+            }
+            const out = [];
+            rows.forEach(function(o) {
+                const d = csvFinalizeRow(o, base + out.length, keepCalc);
+                if (mode === "append" && dedupe) {
+                    const k = csvDupKey(d);
+                    if (seen[k]) { seen[k]--; skippedDup++; return; }
+                }
+                out.push(d);
+            });
+            // 適正ロット・適正収益は、追加前に計算しておく（表に入れてから1行ずつ更新すると遅いため）
+            {
+                const capIn = parseFloat(document.getElementById("input-initial-capital").value);
+                const initCap = !isNaN(capIn) ? capIn : 0;
+                const keep = mode === "replace" ? [] : table.getData();
+                let total = 0;
+                keep.concat(out).forEach(function(d) { const v = parseFloat(d.profit); if (!isNaN(v)) total += v; });
+                out.forEach(function(d) {
+                    const own = parseFloat(d.profit);
+                    const sized = optimalSizingFor(d, initCap + total - (!isNaN(own) ? own : 0));
+                    d.optimalLot = sized.optimalLot;
+                    d.optimalProfit = sized.optimalProfit;
+                });
+            }
+            window.__csvImporting = true;
+            table.off("rowAdded", saveAppState);
+            try {
+                if (mode === "replace") await table.setData(out);
+                else await table.addData(out, false);
+            } finally {
+                table.on("rowAdded", saveAppState);
+                saveAppState();           // 適正ロットの再計算・集計の更新・保存
+                window.__csvImporting = false;
+                updateSummaryTable();
+            }
+            showToast("CSVから " + out.length + " 件を" + (mode === "replace" ? "取り込みました（置き換え）" : "追加しました") + (skippedDup ? "（重複 " + skippedDup + " 件はスキップ）" : ""));
+        }
+
+        document.getElementById("btn-import-csv").addEventListener("click", function() {
+            document.getElementById("csv-import-file").click();
+        });
+        document.getElementById("csv-import-file").addEventListener("change", function(e) {
+            const file = e.target.files && e.target.files[0];
+            e.target.value = "";
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const records = csvParse(csvDecode(ev.target.result));
+                if (records.length < 2) { alert("CSVにデータ行がありません。1行目に見出し、2行目以降にトレードを入れてください。"); return; }
+                const info = csvAnalyze(records);
+                if (info.used.length === 0) { alert("CSVの見出しがトレードノートの列名と一致しませんでした。\n「CSV出力」したファイルの1行目と同じ見出しにしてください。"); return; }
+                if (info.rows.length === 0) { alert("取り込めるデータ行がありませんでした。"); return; }
+                csvShowDialog(file.name, info);
+            };
+            reader.readAsArrayBuffer(file);
         });
 
         // Add Row Handler
@@ -6955,6 +8987,56 @@
             });
         })();
 
+        // メンテナンスモード×絞り込みパネル: 絞り込み項目にカーソルを合わせると、その項目が何を絞り込むものかを表示する。
+        // 「ログ絞り込み」の項目は、どのログの入力内容を対象にしているかもあわせて表示する。
+        const LOG_FILTER_SOURCE_MAP = {
+            "filter-entry-econ-star": "エントリーログ",
+            "filter-entry-econ-major": "エントリーログ",
+            "filter-watch-state": "エントリーログ／見送りログ／気づき漏れログ",
+            "filter-entry-trend-stage": "エントリーログ",
+            "filter-entry-correlation-min": "エントリーログ",
+            "filter-entry-correlation-max": "エントリーログ",
+            "filter-entry-kami": "エントリーログ",
+            "filter-entry-trigger": "エントリーログ",
+            "filter-entry-time-pass": "エントリーログ",
+            "filter-entry-risk": "エントリーログ",
+            "filter-entry-risk-count-min": "エントリーログ",
+            "filter-entry-self-state": "エントリーログ",
+            "filter-miss-result": "見送り結果ログ"
+        };
+        (function() {
+            const filterWrap = document.getElementById("advanced-filter-wrap");
+            function findFilterInfo(target) {
+                const group = target.closest(".filter-field-group");
+                if (!group) return null;
+                const label = group.querySelector("label");
+                if (!label) return null;
+                const innerEl = group.querySelector('[id^="filter-"]');
+                const sourceLog = innerEl ? LOG_FILTER_SOURCE_MAP[innerEl.id] : null;
+                return { labelText: label.textContent.trim(), sourceLog: sourceLog || null };
+            }
+            filterWrap.addEventListener("mouseover", function(e) {
+                if (!maintenanceMode || filterWrap.style.display === "none") return;
+                const info = findFilterInfo(e.target);
+                if (!info) return;
+                const el = ensureMntTipEl();
+                el.textContent = info.sourceLog
+                    ? `${info.sourceLog}の「${info.labelText}」で絞り込みます`
+                    : `「${info.labelText}」で絞り込みます`;
+                el.style.display = "block";
+                positionMntTip(e);
+            });
+            filterWrap.addEventListener("mousemove", function(e) {
+                if (!maintenanceMode || filterWrap.style.display === "none" || !mntTipEl || mntTipEl.style.display !== "block") return;
+                positionMntTip(e);
+            });
+            filterWrap.addEventListener("mouseout", function(e) {
+                if (findFilterInfo(e.target) && mntTipEl) {
+                    mntTipEl.style.display = "none";
+                }
+            });
+        })();
+
         document.getElementById("btn-reset-advanced-filters").addEventListener("click", function() {
             clearAdvancedFilterInputs();
             clearEntryFilterInputs();
@@ -6980,11 +9062,40 @@
             if (isHidden) updateSummaryTable();
         });
 
+        // 集計の各欄: 開閉トグル
+        document.querySelectorAll(".summary-collapse-btn").forEach(function(btn) {
+            btn.addEventListener("click", function() {
+                const panel = btn.closest(".summary-panel");
+                if (panel) panel.classList.toggle("collapsed");
+            });
+        });
+        // 集計の各欄: 別ウィンドウで開くボタン
+        function openSummaryPopout(kind) {
+            const params = new URLSearchParams();
+            params.set("popout", kind);
+            params.set("nb", appState.activeNotebookId);
+            // 集計期間（全体／年間／月間）も引き継ぐ
+            params.set("pm", summaryPeriodMode);
+            if (summarySelectedPeriod) params.set("pp", summarySelectedPeriod);
+            saveAppState();
+            const url = location.href.split("#")[0] + "#" + params.toString();
+            window.open(url, kind + "_popout", "width=" + ((kind === "summarytag" || kind === "summarypair") ? 1300 : 1100) + ",height=820,noopener");
+        }
+        document.querySelectorAll(".summary-popout-btn").forEach(function(btn) {
+            btn.addEventListener("click", function() {
+                openSummaryPopout(btn.getAttribute("data-summary-popout"));
+            });
+        });
+        document.getElementById("summary-popout-close-btn").addEventListener("click", function() {
+            window.close();
+        });
+
         // Export CSV Handler
         document.getElementById("btn-export-csv").addEventListener("click", function() {
             const activeNb = appState.notebooks[appState.activeNotebookId];
             const nameStr = (activeNb ? activeNb.name : "trade_note").replace(/[\s\/]/g, "_");
-            table.download("csv", `${nameStr}_${new Date().toISOString().slice(0, 10)}.csv`);
+            // BOM付きUTF-8で出力（日本語版Excelで開いても文字化けしないように）
+            table.download("csv", `${nameStr}_${new Date().toISOString().slice(0, 10)}.csv`, { bom: true });
         });
 
         // Reset Current Notebook Data Handler
