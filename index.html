@@ -3190,11 +3190,13 @@
                         <ol style="margin:0 0 8px 20px; padding:0;">
                             <li><b>Google Cloud Console</b>を開き、Googleアカウントでログインします。</li>
                             <li>プロジェクトを1つ選択します。初めてなら新しいプロジェクトを作成します。</li>
+                            <li>左メニューの「APIとサービス → ライブラリ」で <b>Google Drive API</b> を検索し、「有効にする」を押します（これを忘れると、保存時にエラーになります）。</li>
                             <li>左メニューから <b>Google Auth Platform → クライアント</b> を開きます。</li>
                             <li><b>クライアントを作成</b>を押します。</li>
                             <li>アプリケーションの種類で <b>ウェブアプリケーション</b> を選びます。</li>
                             <li>名前は「見える化Laboトレードノート」など、分かりやすい名前を入力します。</li>
                             <li><b>承認済みのJavaScript生成元</b>に、このHTMLを実際に開くサイトの「ドメイン（オリジン）」を登録します。</li>
+                            <li>公開前のアプリは、登録したテストユーザーしか使えません。「Google Auth Platform → 対象」でテストユーザーに自分のGoogleアカウントを追加します。</li>
                             <li><b>作成</b>を押し、表示された <b>クライアントID</b>（末尾が <code>.apps.googleusercontent.com</code>）をコピーします。</li>
                             <li>この画面の下にある「Google OAuth クライアントID」へ貼り付けて「設定を保存」を押します。</li>
                         </ol>
@@ -3208,6 +3210,7 @@
                     <p style="margin-top:8px; color:#94a3b8; font-size:.75rem;">このHTMLはローカルで動作するため、クライアントシークレットは使用しません。クライアントIDはブラウザ側に保存されます。</p>
                 </div>
                 <div class="mieruka-actions" style="margin-top:16px;">
+                    <button type="button" class="mieruka-btn-clear" id="google-drive-connect-btn" title="Google Driveに接続できるかを確認します">接続テスト</button>
                     <button type="button" class="mieruka-btn-save" id="google-drive-settings-save">設定を保存</button>
                     <button type="button" class="mieruka-btn-clear" id="google-drive-settings-cancel">キャンセル</button>
                 </div>
@@ -5279,6 +5282,11 @@
         function closeGoogleDriveSettings() {
             document.getElementById("google-drive-settings-overlay").classList.remove("active");
         }
+        let googleDriveTokenExpiresAt = 0;
+        let googleDriveTokenWaiter = null;   // 認証待ちの { promise, resolve, reject }
+        function googleDriveTokenValid() {
+            return !!googleDriveAccessToken && Date.now() < googleDriveTokenExpiresAt - 60000;
+        }
         function initGoogleDriveTokenClient() {
             const clientId = getGoogleDriveClientId();
             if (!clientId) return null;
@@ -5288,40 +5296,60 @@
                     client_id: clientId,
                     scope: GOOGLE_DRIVE_SCOPE,
                     callback: function(response) {
+                        const w = googleDriveTokenWaiter;
+                        googleDriveTokenWaiter = null;
                         if (response && response.access_token) {
                             googleDriveAccessToken = response.access_token;
-                            const pending = googleDrivePendingUpload;
-                            googleDrivePendingUpload = null;
-                            if (pending) pending();
+                            googleDriveTokenExpiresAt = Date.now() + (Number(response.expires_in) || 3600) * 1000;
+                            if (w) w.resolve(response.access_token);
                         } else {
-                            googleDrivePendingUpload = null;
-                            showToast("Google Driveの認証に失敗しました");
+                            const detail = response && (response.error_description || response.error) ? "（" + (response.error_description || response.error) + "）" : "";
+                            if (w) w.reject(new Error("GOOGLE_AUTH_FAILED" + detail));
                         }
+                    },
+                    // ポップアップがブロックされた／途中で閉じた場合など。これが無いと、何も表示されずに止まってしまう。
+                    error_callback: function(err) {
+                        const w = googleDriveTokenWaiter;
+                        googleDriveTokenWaiter = null;
+                        const type = err && err.type ? err.type : "unknown";
+                        if (w) w.reject(new Error(type === "popup_failed_to_open" ? "GOOGLE_POPUP_BLOCKED" : type === "popup_closed" ? "GOOGLE_POPUP_CLOSED" : "GOOGLE_AUTH_FAILED（" + type + "）"));
                     }
                 });
             }
             return googleDriveTokenClient;
         }
-        function withGoogleDriveToken(fn) {
-            const clientId = getGoogleDriveClientId();
-            if (!clientId) {
+        // アクセストークンを得る。ブラウザのポップアップ制限のため、できるだけ「ボタンを押した直後」に呼ぶこと。
+        function requestGoogleDriveToken() {
+            if (!getGoogleDriveClientId()) {
                 openGoogleDriveSettings();
                 return Promise.reject(new Error("Google OAuthクライアントIDが未設定です"));
             }
-            if (googleDriveAccessToken) return Promise.resolve().then(fn);
-            return new Promise(function(resolve, reject) {
-                googleDrivePendingUpload = function() {
-                    Promise.resolve().then(fn).then(resolve).catch(reject);
-                };
-                const client = initGoogleDriveTokenClient();
-                if (!client) {
-                    googleDrivePendingUpload = null;
-                    reject(new Error("Google Identity Servicesを読み込めませんでした"));
-                    return;
-                }
-                try { client.requestAccessToken({ prompt: "consent" }); }
-                catch (e) { googleDrivePendingUpload = null; reject(e); }
-            });
+            if (googleDriveTokenValid()) return Promise.resolve(googleDriveAccessToken);
+            if (googleDriveTokenWaiter) return googleDriveTokenWaiter.promise;
+            const client = initGoogleDriveTokenClient();
+            if (!client) return Promise.reject(new Error("GOOGLE_GIS_NOT_LOADED"));
+            let waiter = {};
+            waiter.promise = new Promise(function(resolve, reject) { waiter.resolve = resolve; waiter.reject = reject; });
+            googleDriveTokenWaiter = waiter;
+            try { client.requestAccessToken({}); }
+            catch (e) { googleDriveTokenWaiter = null; waiter.reject(e); }
+            return waiter.promise;
+        }
+        function withGoogleDriveToken(fn) {
+            return requestGoogleDriveToken().then(fn);
+        }
+        // エラーを、原因と対処が分かる日本語にする
+        function googleDriveErrorMessage(err) {
+            const m = String((err && err.message) || err || "");
+            if (/GOOGLE_POPUP_BLOCKED/.test(m)) return "認証ウィンドウを開けませんでした（ポップアップがブロックされています）。Google Drive設定の「接続テスト」を先に押してから、保存し直してください";
+            if (/GOOGLE_POPUP_CLOSED/.test(m)) return "Google Driveの認証ウィンドウが閉じられました";
+            if (/GOOGLE_GIS_NOT_LOADED/.test(m)) return "Google認証ライブラリを読み込めませんでした（ネットワーク接続を確認してください）";
+            if (/GOOGLE_AUTH_FAILED/.test(m)) return "Googleの認証に失敗しました" + (m.replace(/^.*GOOGLE_AUTH_FAILED/, "") || "") + "。承認済みのJavaScript生成元と、テストユーザーの登録を確認してください";
+            if (/SERVICE_DISABLED|accessNotConfigured|has not been used|Drive API has not/i.test(m)) return "Google CloudでGoogle Drive APIが有効になっていません。「APIとサービス → ライブラリ」でGoogle Drive APIを有効にしてください";
+            if (/ 401/.test(m)) return "Google Driveの認証が切れました。もう一度保存してください";
+            if (/ 403/.test(m)) return "Google Driveへのアクセスが許可されませんでした（403）。権限（スコープ）とテストユーザーを確認してください";
+            if (/ 400/.test(m)) return "Google Driveが画像データを受け付けませんでした（400）";
+            return "Google Driveへの保存に失敗しました";
         }
         async function driveApi(path, options) {
             const opts = Object.assign({}, options || {});
@@ -5329,7 +5357,7 @@
             const res = await fetch("https://www.googleapis.com/drive/v3/" + path, opts);
             if (!res.ok) {
                 const body = await res.text();
-                if (res.status === 401) googleDriveAccessToken = null;
+                if (res.status === 401) { googleDriveAccessToken = null; googleDriveTokenExpiresAt = 0; }
                 throw new Error("Google Drive API " + res.status + ": " + body);
             }
             return res.status === 204 ? null : res.json();
@@ -5377,8 +5405,8 @@
             const filename = googleDriveFilename(row, slotKey, dataUrl);
             const boundary = "-------tradeNoteBoundary" + Date.now().toString(36) + Math.random().toString(36).slice(2);
             const metadata = { name: filename, parents: [folderId], mimeType: blob.type || "image/png" };
-            const preamble = "--" + boundary + "\\r\\nContent-Type: application/json; charset=UTF-8\\r\\n\\r\\n" + JSON.stringify(metadata) + "\\r\\n--" + boundary + "\\r\\nContent-Type: " + (blob.type || "image/png") + "\\r\\n\\r\\n";
-            const ending = "\\r\\n--" + boundary + "--";
+            const preamble = "--" + boundary + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + JSON.stringify(metadata) + "\r\n--" + boundary + "\r\nContent-Type: " + (blob.type || "image/png") + "\r\n\r\n";
+            const ending = "\r\n--" + boundary + "--";
             const body = new Blob([preamble, blob, ending]);
             const res = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
                 method: "POST",
@@ -5387,7 +5415,7 @@
             });
             if (!res.ok) {
                 const text = await res.text();
-                if (res.status === 401) googleDriveAccessToken = null;
+                if (res.status === 401) { googleDriveAccessToken = null; googleDriveTokenExpiresAt = 0; }
                 throw new Error("Drive画像アップロード失敗 " + res.status + ": " + text);
             }
             return await res.json();
@@ -5411,17 +5439,37 @@
             const input = document.getElementById("google-drive-client-id");
             const id = input ? input.value.trim() : "";
             if (!id || !id.endsWith(".apps.googleusercontent.com")) {
-                alert("Google OAuthクライアントIDを入力してください。\\n例：1234567890-xxxxx.apps.googleusercontent.com");
+                alert("Google OAuthクライアントIDを入力してください。\n例：1234567890-xxxxx.apps.googleusercontent.com");
                 return;
             }
             setGoogleDriveClientId(id);
             googleDriveTokenClient = null;
             googleDriveAccessToken = null;
+            googleDriveTokenExpiresAt = 0;
             closeGoogleDriveSettings();
             showToast("Google Drive設定を保存しました");
         });
         document.getElementById("google-drive-settings-overlay").addEventListener("click", function(e) {
             if (e.target.id === "google-drive-settings-overlay") closeGoogleDriveSettings();
+        });
+        // 接続テスト: ボタンを押した直後に認証するのでポップアップがブロックされにくい。Drive APIの有効化漏れなどもここで分かる。
+        document.getElementById("google-drive-connect-btn").addEventListener("click", function() {
+            const input = document.getElementById("google-drive-client-id");
+            const typed = input ? input.value.trim() : "";
+            if (typed && typed !== getGoogleDriveClientId()) {
+                if (!typed.endsWith(".apps.googleusercontent.com")) { alert("Google OAuthクライアントIDの形式が正しくありません。\n例：1234567890-xxxxx.apps.googleusercontent.com"); return; }
+                setGoogleDriveClientId(typed);
+                googleDriveTokenClient = null; googleDriveAccessToken = null; googleDriveTokenExpiresAt = 0;
+            }
+            requestGoogleDriveToken().then(function() {
+                return driveApi("about?fields=user(emailAddress,displayName)");
+            }).then(function(info) {
+                const who = info && info.user ? (info.user.emailAddress || info.user.displayName) : "";
+                showToast("Google Driveに接続できました" + (who ? "（" + who + "）" : ""));
+            }).catch(function(err) {
+                console.error(err);
+                alert(googleDriveErrorMessage(err) + "\n\n詳細: " + String((err && err.message) || err).slice(0, 300));
+            });
         });
 
         // ===== Image save-to-folder feature =====
@@ -5715,6 +5763,18 @@
             const row = chartCurrentRow;
             const finalRefs = {};
             const idbOps = [];
+            // Google Drive保存の準備。ブラウザのポップアップ制限のため、確認と認証の開始は「保存ボタンを押した直後」に行う。
+            // （クライアントIDが未設定なら、Drive保存は行わず、確認も出さない）
+            const driveImages = CHART_SLOTS
+                .filter(s => chartSlotDirty[s.key] && chartWorkingData[s.key])
+                .map(s => ({ key: s.key, data: chartWorkingData[s.key] }));
+            let driveTokenPromise = null;
+            if (driveImages.length && getGoogleDriveClientId()) {
+                if (window.confirm("Google Driveにも画像を保存しますか？")) {
+                    driveTokenPromise = requestGoogleDriveToken();
+                    driveTokenPromise.catch(function() {});
+                }
+            }
             CHART_SLOTS.forEach(s => {
                 const key = s.key;
                 if (!chartSlotDirty[key]) {
@@ -5739,31 +5799,20 @@
                 await row.update(update);
                 saveAppState();
 
-                // HTML/IndexedDBへの保存は従来どおり完了させた後、Driveにも同じ画像を保存する。
-                const driveImages = CHART_SLOTS
-                    .filter(s => chartSlotDirty[s.key] && chartWorkingData[s.key])
-                    .map(s => ({ key: s.key, data: chartWorkingData[s.key] }));
-
                 closeChartModal();
                 showToast("チャートを保存しました");
 
-                // Google Drive保存。最初だけ確認→Google認証→ノート名と同名フォルダを自動判定/作成→アップロード。
-                if (driveImages.length) {
-                    const confirmed = window.confirm("Google Driveに画像を保存します。Google Driveへのアクセスを許可しますか？");
-                    if (confirmed) {
-                        try {
-                            const driveData = {};
-                            driveImages.forEach(function(x) { driveData[x.key] = x.data; });
-                            await saveChartsToGoogleDrive(row, field, driveData);
-                            showToast("Google Driveに保存しました");
-                        } catch (driveErr) {
-                            console.error(driveErr);
-                            if (driveErr && /OAuthクライアントIDが未設定/.test(driveErr.message || "")) {
-                                showToast("Google Drive設定が必要です");
-                            } else {
-                                showToast("Google Driveへの保存に失敗しました");
-                            }
-                        }
+                // Google Drive保存（ノート名と同名のフォルダを自動判定/作成してアップロード）
+                if (driveTokenPromise) {
+                    try {
+                        await driveTokenPromise;
+                        const driveData = {};
+                        driveImages.forEach(function(x) { driveData[x.key] = x.data; });
+                        await saveChartsToGoogleDrive(row, field, driveData);
+                        showToast("Google Driveに保存しました");
+                    } catch (driveErr) {
+                        console.error(driveErr);
+                        showToast(googleDriveErrorMessage(driveErr));
                     }
                 }
 
