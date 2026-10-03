@@ -469,6 +469,17 @@
         body.published-readonly #coping-sheet-overlay input { pointer-events: none; }
         body.published-readonly #input-initial-capital { pointer-events: none; }
 
+        /* ===== 検証モード ===== */
+        .tabulator .tabulator-col.verify-col { background: rgba(124, 58, 237, 0.14); }
+        .tabulator .tabulator-cell.verify-cell { background: rgba(124, 58, 237, 0.05); }
+        body.published-readonly #btn-toggle-verify-mode { display: none !important; }
+        #verify-purpose-panel { display: none; border: 2px solid #7c3aed; background: rgba(124, 58, 237, 0.06); }
+        body.verify-mode-active #verify-purpose-panel { display: block; }
+        .verify-purpose-row { display: flex; align-items: flex-start; gap: 12px; width: 100%; }
+        .verify-purpose-label { flex: 0 0 auto; font-weight: 700; font-size: 0.95rem; color: #7c3aed; padding-top: 8px; white-space: nowrap; }
+        #verify-purpose-input { flex: 1 1 auto; min-width: 0; height: 58px; min-height: 58px; box-sizing: border-box; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 10px; font-family: inherit; font-size: 0.9rem; resize: vertical; background: var(--card-bg-alt, #ffffff); color: var(--text-primary); }
+        body.published-readonly #verify-purpose-input { pointer-events: none; }
+
         .period-summary-scroll {
             overflow-x: auto;
         }
@@ -2441,6 +2452,17 @@
                 <button class="btn btn-secondary" id="btn-toggle-nice-trade" style="padding: 8px 12px;" title="ナイストレードにチェックが入っているトレードだけを別ウィンドウにまとめて表示します">
                     <i class="fa-solid fa-star"></i> ナイストレード集
                 </button>
+                <button class="btn btn-secondary" id="btn-toggle-verify-mode" style="padding: 8px 12px;" title="検証用の入力欄（検証日・動画名・検証目的）を表示します。ノートごとに記憶されます">
+                    <i class="fa-solid fa-flask"></i> 検証モード
+                </button>
+            </div>
+        </div>
+
+        <!-- 検証目的: 検証モードのときだけ表示（「9つの行動戦略」ボタンの枠の下） -->
+        <div class="control-panel" id="verify-purpose-panel" style="padding: 10px 16px;">
+            <div class="verify-purpose-row">
+                <label for="verify-purpose-input" class="verify-purpose-label"><i class="fa-solid fa-flask"></i> 検証目的</label>
+                <textarea id="verify-purpose-input" rows="2" placeholder="この検証で確かめたいこと（検証モードのときだけ表示されます。ノートごとに保存されます）"></textarea>
             </div>
         </div>
 
@@ -4006,6 +4028,30 @@
         }
 
         // Switch Active Notebook
+        // ===== 検証モード（ノートごとにオン/オフを記憶）=====
+        // オンのとき: 表の「日付」の左に「検証日」「動画名」を表示し、9つの行動戦略の下に「検証目的」欄を表示する
+        function isVerifyMode() {
+            const nb = appState.notebooks[appState.activeNotebookId];
+            return !!(nb && nb.verifyMode);
+        }
+        function applyVerifyMode() {
+            const on = isVerifyMode();
+            const purposeEl = document.getElementById("verify-purpose-input");
+            if (purposeEl) {
+                const nbNow = appState.notebooks[appState.activeNotebookId];
+                purposeEl.value = (nbNow && nbNow.verifyPurpose) || "";
+            }
+            document.body.classList.toggle("verify-mode-active", on);
+            const btn = document.getElementById("btn-toggle-verify-mode");
+            if (btn) btn.classList.toggle("btn-active", on);
+            if (typeof table !== "undefined" && table && table.getColumn) {
+                ["verifyDate", "verifyVideo"].forEach(function(f) {
+                    const col = table.getColumn(f);
+                    if (!col) return;
+                    if (on) col.show(); else col.hide();
+                });
+            }
+        }
         function switchNotebook(targetId) {
             if (!appState.notebooks[targetId]) return;
 
@@ -4024,6 +4070,7 @@
             const targetData = migrateLegacyDateTime(targetNb.data || []);
             table.setData(targetData).then(() => {
                 renderNotebookDropdown();
+                applyVerifyMode();
                 saveAppState();
                 showToast(`「${targetNb.name}」に切り替えました`);
             });
@@ -5991,6 +6038,35 @@
             },
 
             columns: [
+                {
+                    title: "検証日",
+                    field: "verifyDate",
+                    editor: "input",
+                    mutator: function(value) {
+                        const t = formatDateInput(value);
+                        const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(t || "");
+                        return m ? m[1] + "-" + m[2].padStart(2, "0") + "-" + m[3].padStart(2, "0") : t;
+                    },
+                    width: 110,
+                    visible: false,
+                    sorter: "string",
+                    cssClass: "verify-cell",
+                    headerCssClass: "verify-col",
+                    tooltip: maintenanceTooltip("検証モード用。検証した日付を入力します（動画の検証をした日など）"),
+                    headerTooltip: maintenanceTooltip("検証モード用。検証した日付を入力します（動画の検証をした日など）")
+                },
+                {
+                    title: "動画名",
+                    field: "verifyVideo",
+                    editor: "input",
+                    width: 180,
+                    visible: false,
+                    sorter: "string",
+                    cssClass: "verify-cell",
+                    headerCssClass: "verify-col",
+                    tooltip: maintenanceTooltip("検証モード用。検証に使った動画の名前を入力します"),
+                    headerTooltip: maintenanceTooltip("検証モード用。検証に使った動画の名前を入力します")
+                },
                 {
                     title: "日付 (JST)",
                     field: "date",
@@ -8324,6 +8400,7 @@
         }
 
         table.on("tableBuilt", function() {
+            applyVerifyMode();
             recalcOptimalSizing();
             updateStats();
             updateSummaryTable();
@@ -8372,6 +8449,7 @@
                 const activeNb = appState.notebooks[appState.activeNotebookId];
                 if (activeNb) {
                     table.setData(migrateLegacyDateTime(activeNb.data || [])).then(function() {
+                        applyVerifyMode();
                         updateStats();
                         updateSummaryTable();
                     });
@@ -9173,6 +9251,21 @@
             const isHidden = wrap.style.display === "none";
             wrap.style.display = isHidden ? "flex" : "none";
             this.classList.toggle("btn-active", isHidden);
+        });
+
+        document.getElementById("verify-purpose-input").addEventListener("input", function() {
+            const nb = appState.notebooks[appState.activeNotebookId];
+            if (!nb) return;
+            nb.verifyPurpose = this.value;
+            asScheduleSave();   // 入力が止まってから保存（行動戦略シートと同じ保存方法）
+        });
+        document.getElementById("btn-toggle-verify-mode").addEventListener("click", function() {
+            const nb = appState.notebooks[appState.activeNotebookId];
+            if (!nb) return;
+            nb.verifyMode = !nb.verifyMode;
+            applyVerifyMode();
+            saveAppState();
+            showToast(nb.verifyMode ? "検証モードをオンにしました" : "検証モードをオフにしました");
         });
 
         document.getElementById("btn-toggle-maintenance").addEventListener("click", function() {
