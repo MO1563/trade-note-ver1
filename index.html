@@ -480,6 +480,34 @@
         #verify-purpose-input { flex: 1 1 auto; min-width: 0; height: 58px; min-height: 58px; box-sizing: border-box; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 10px; font-family: inherit; font-size: 0.9rem; resize: vertical; background: var(--card-bg-alt, #ffffff); color: var(--text-primary); }
         body.published-readonly #verify-purpose-input { pointer-events: none; }
 
+
+        /* ===== クロス集計 ===== */
+        #crosstab-panel { display: none; }
+        .ct-controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+        .ct-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.82rem; }
+        .ct-row label { color: var(--text-secondary); font-weight: 600; }
+        .ct-row select, .ct-row input[type=date], .ct-row input[type=number] { background: var(--card-bg-alt); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 6px; font-family: inherit; font-size: 0.82rem; }
+        .ct-check { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; }
+        .ct-note { font-size: 0.78rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 10px; }
+        .ct-split-title { font-weight: 700; font-size: 0.92rem; margin: 14px 0 6px; color: var(--text-primary); }
+        .ct-scroll { overflow: auto; max-width: 100%; }
+        table.ct-table { border-collapse: collapse; font-size: 0.82rem; }
+        table.ct-table th, table.ct-table td { border: 1px solid var(--border-color); padding: 6px 10px; text-align: center; white-space: nowrap; }
+        table.ct-table th { background: var(--card-bg-alt); font-weight: 700; position: sticky; top: 0; }
+        table.ct-table th.ct-rowhead { text-align: left; position: sticky; left: 0; }
+        table.ct-table td.ct-total { font-weight: 700; background: var(--card-bg-alt); }
+        table.ct-table td .ct-n { display: block; font-size: 0.68rem; color: var(--text-muted); font-weight: 400; }
+        table.ct-table td.ct-thin { opacity: 0.45; }
+        table.ct-table td.ct-empty { color: var(--text-muted); }
+        table.ct-list th { cursor: pointer; user-select: none; }
+        table.ct-list td.ct-left { text-align: left; }
+        table.ct-list tr.ct-thin td { opacity: 0.45; }
+        .ct-cols { margin: 6px 0 10px; font-size: 0.8rem; }
+        .ct-cols summary { cursor: pointer; font-weight: 600; color: var(--text-secondary); }
+        .ct-cols-list { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; }
+        .ct-cols-list label { display: inline-flex; align-items: center; gap: 4px; }
+        .ct-legend { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; }
+
         .period-summary-scroll {
             overflow-x: auto;
         }
@@ -2482,6 +2510,9 @@
                 <button class="btn btn-secondary" id="btn-toggle-summary" style="padding: 8px 12px;" title="集計表・黄色集計の表示切替">
                     <i class="fa-solid fa-chart-column"></i> 集計
                 </button>
+                <button class="btn btn-secondary" id="btn-open-crosstab" style="padding: 8px 12px;" title="条件を組み合わせて成績を比べる画面を、別ウィンドウで開きます">
+                    <i class="fa-solid fa-table-cells"></i> クロス集計
+                </button>
                 <button class="btn btn-secondary" id="btn-toggle-maintenance" style="padding: 8px 12px;" title="列の見出しにカーソルを合わせると自動計算・自動入力の説明が出ます">
                     <i class="fa-solid fa-wrench"></i> メンテナンス
                 </button>
@@ -3078,6 +3109,29 @@
                     </span></div>
             </div>
             <div class="tc-grid" id="pc-grid"></div>
+        </div>
+
+
+        <!-- クロス集計: 条件を組み合わせて成績を比べる（別ウィンドウ専用） -->
+        <div class="summary-panel" id="crosstab-panel">
+            <div class="summary-panel-title">
+                <span class="summary-panel-title-text"><i class="fa-solid fa-table-cells"></i> クロス集計</span>
+            </div>
+            <div class="ct-controls">
+                <div class="ct-row"><label>行</label><select id="ct-axis-row"></select>
+                    <label>列</label><select id="ct-axis-col"></select>
+                    <label>表を分ける</label><select id="ct-axis-split"></select></div>
+                <div class="ct-row"><label>見る指標</label><select id="ct-metric"></select>
+                    <label>期間</label><input type="date" id="ct-from"> 〜 <input type="date" id="ct-to">
+                    <label class="ct-check"><input type="checkbox" id="ct-unset"> 未設定も含める</label>
+                    <label>件数がこれ未満は薄く</label><input type="number" id="ct-minn" min="0" max="999" style="width:64px"> 件</div>
+                <div class="ct-row"><span class="sc-seg" id="ct-view">
+                        <button type="button" data-ct-view="matrix">マトリクス（1指標ずつ・色つき）</button>
+                        <button type="button" data-ct-view="list">一覧表（全指標を横に並べる）</button>
+                    </span></div>
+            </div>
+            <div id="ct-note" class="ct-note"></div>
+            <div id="ct-body"></div>
         </div>
 
         <!-- タグ別グラフ: タグ別集計を別ウィンドウで開いたときだけ表示 -->
@@ -8343,6 +8397,268 @@
             });
         }
 
+        // ===== クロス集計（別ウィンドウ）=====
+        // 条件（強数・リスク個数・トレンド段階など）を軸にして、組み合わせごとに集計表・黄色集計と同じ指標を計算する。
+        const CT_UNSET = "未設定";
+        const CT_PREF_KEY = "trade_note_crosstab_prefs_v1";
+        function ctLog(d, f) { return (d.mieruka && d.mieruka.type === "entry" && d.mieruka.data) ? d.mieruka.data[f] : undefined; }
+        function ctSingle(f) { return function(d) { const v = ctLog(d, f); return (v === undefined || v === null || v === "") ? [] : [String(v)]; }; }
+        function ctPlain(f) { return function(d) { const v = d[f]; return (v === undefined || v === null || String(v).trim() === "") ? [] : [String(v).trim()]; }; }
+        function ctDateParts(d) { const m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(d.date || ""); return m ? { y: +m[1], m: +m[2], d: +m[3] } : null; }
+        const CT_DIMS = [
+            { id: "strength", label: "強数", get: function(d) { const v = parseFloat(d.netStrength); return isNaN(v) ? [] : [String(Math.round(v * 100) / 100)]; } },
+            { id: "riskCount", label: "リスク個数（エントリーログ）", get: function(d) {
+                if (!(d.mieruka && d.mieruka.type === "entry" && d.mieruka.data)) return [];
+                let n = 0;
+                ["entry_risk_env", "entry_risk_structure", "entry_risk_time", "entry_risk_other"].forEach(function(f) { const a = d.mieruka.data[f]; if (Array.isArray(a)) n += a.length; });
+                return [n + "個"];
+            } },
+            { id: "trendStage", label: "トレンド段階", order: MK_TREND_STAGE_OPTIONS, get: ctSingle("entry_trend_stage") },
+            { id: "envTf", label: "環境足", order: MK_TF_OPTIONS, get: ctSingle("entry_tf") },
+            { id: "trendline", label: "3種の神器: トレンドライン", get: ctSingle("entry_trendline") },
+            { id: "zone", label: "3種の神器: 直撃エリア", get: ctSingle("entry_zone") },
+            { id: "cloud", label: "3種の神器: 裏確認", get: ctSingle("entry_cloud") },
+            { id: "trigDiag", label: "トリガー: 斜めの攻防4点目ブレイク", get: ctSingle("entry_trig_diag") },
+            { id: "trigHoriz", label: "トリガー: 水平の攻防3点目ブレイク", get: ctSingle("entry_trig_horiz") },
+            { id: "trigLine", label: "トリガー: 攻防ライン裏確認", get: ctSingle("entry_trig_line") },
+            { id: "trigDisp", label: "トリガー: 分類パターン2", get: ctSingle("entry_trig_dispersion") },
+            { id: "watch", label: "監視状況", get: ctSingle("entry_watch_state") },
+            { id: "selfState", label: "自分状態（複数選択のため、該当する各項目に重複して数える）", multi: true, get: function(d) { const a = ctLog(d, "entry_self_state"); return Array.isArray(a) ? a.map(String) : []; } },
+            { id: "pair", label: "通貨ペア", get: ctPlain("pair") },
+            { id: "position", label: "ポジション（Buy/Sell）", get: ctPlain("position") },
+            { id: "evaluation", label: "評価", get: ctPlain("evaluation") },
+            { id: "tag", label: "タグ", order: SUMMARY_TAG_LIST, get: ctPlain("tag") },
+            { id: "tfTag", label: "強さタグ", get: ctPlain("tfTag") },
+            { id: "weakTag", label: "弱さタグ", get: ctPlain("weakTag") },
+            { id: "axisTag", label: "軸足タグ", get: ctPlain("axisTag") },
+            { id: "weekday", label: "曜日", order: ["月", "火", "水", "木", "金", "土", "日"], get: function(d) { const p = ctDateParts(d); return p ? ["日月火水木金土"[new Date(p.y, p.m - 1, p.d).getDay()]] : []; } },
+            { id: "hour4", label: "時間帯（4時間ごと）", get: function(d) { const m = /^(\d{1,2}):/.exec(d.time || ""); if (!m) return []; const h = Math.floor(+m[1] / 4) * 4; return [String(h).padStart(2, "0") + "〜" + String(h + 3).padStart(2, "0") + "時"]; } },
+            { id: "month", label: "月", get: function(d) { const p = ctDateParts(d); return p ? [p.y + "-" + String(p.m).padStart(2, "0")] : []; } },
+            { id: "year", label: "年", get: function(d) { const p = ctDateParts(d); return p ? [String(p.y)] : []; } },
+            { id: "verifyVideo", label: "動画名（検証モード）", get: ctPlain("verifyVideo") },
+            { id: "verifyDate", label: "検証日（検証モード）", get: ctPlain("verifyDate") }
+        ];
+        const CT_DIM_MAP = {};
+        CT_DIMS.forEach(function(d) { CT_DIM_MAP[d.id] = d; });
+        // 指標: 集計表・黄色集計と同じもの（残高・利率は組み合わせごとには意味が薄いので除く）
+        const CT_EXCLUDE_METRICS = ["summary-period-return-rate", "summary-period-start-balance", "summary-period-end-balance", "summary-total-trades"]; // 総トレード数は「件数（n）」と同じなので除く
+        function ctMetrics() {
+            return SC_DEFS.filter(function(m) { return CT_EXCLUDE_METRICS.indexOf(m.id) === -1; }).map(function(m) {
+                const el = document.getElementById(m.id);
+                const lab = el && el.closest(".stat-card") ? el.closest(".stat-card").querySelector(".stat-label") : null;
+                return Object.assign({}, m, { label: lab ? lab.textContent.trim() : m.id, group: m.id.indexOf("yellow-") === 0 ? "黄色集計" : "集計表" });
+            });
+        }
+        const ctState = { rows: [], view: "matrix", sort: { col: null, dir: -1 }, listCols: null, metrics: null };
+
+        function ctLoadPrefs() { try { return JSON.parse(localStorage.getItem(CT_PREF_KEY)) || {}; } catch (e) { return {}; } }
+        function ctSavePrefs(o) { try { localStorage.setItem(CT_PREF_KEY, JSON.stringify(o)); } catch (e) {} }
+
+        function ctValues(dim, d) { const v = dim.get(d); return v.length ? v : [CT_UNSET]; }
+        function ctSortCats(dim, cats) {
+            const arr = Array.from(cats).filter(function(c) { return c !== CT_UNSET; });
+            const allNum = arr.every(function(c) { return !isNaN(parseFloat(c)) && /^[-\d.]/.test(c); });
+            if (dim && dim.order) arr.sort(function(a, b) { const ia = dim.order.indexOf(a), ib = dim.order.indexOf(b); return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib) || a.localeCompare(b, "ja"); });
+            else if (allNum) arr.sort(function(a, b) { return parseFloat(a) - parseFloat(b); });
+            else arr.sort(function(a, b) { return a.localeCompare(b, "ja"); });
+            if (cats.has(CT_UNSET)) arr.push(CT_UNSET);
+            return arr;
+        }
+        function ctCell(rows, metrics) {
+            let profit = 0;
+            rows.forEach(function(r) { const v = parseFloat(r.profit); if (!isNaN(v)) profit += v; });
+            const c = { s: computeSummaryStats(rows), y: computeYellowStats(rows), profit: profit };
+            const out = { n: rows.length, vals: {} };
+            metrics.forEach(function(m) { const v = m.get(c); out.vals[m.id] = (v === undefined || v === null || isNaN(v)) ? null : v; });
+            return out;
+        }
+        function ctFiltered() {
+            const from = document.getElementById("ct-from").value, to = document.getElementById("ct-to").value;
+            return ctState.rows.filter(function(d) {
+                if (!from && !to) return true;
+                const dt = (d.date || "").slice(0, 10);
+                if (!dt) return false;
+                return (!from || dt >= from) && (!to || dt <= to);
+            });
+        }
+        // 軸の組み合わせごとに、行をまとめる
+        function ctGroup(rows, axes, includeUnset) {
+            const combos = new Map();            // 組み合わせ（全軸）→ 行
+            const marg = axes.map(function() { return new Map(); }); // 軸ごとの周辺合計（その軸だけで見た合計）
+            const catSets = axes.map(function() { return new Set(); });
+            const all = new Set();
+            rows.forEach(function(d) {
+                const lists = axes.map(function(a) { return a ? ctValues(a, d) : ["全体"]; });
+                if (!includeUnset && lists.some(function(l, i) { return axes[i] && l.indexOf(CT_UNSET) !== -1 && l.length === 1; })) return;
+                const use = lists.map(function(l, i) { return (!includeUnset && axes[i]) ? l.filter(function(c) { return c !== CT_UNSET; }) : l; });
+                if (use.some(function(l) { return !l.length; })) return;
+                all.add(d);
+                use.forEach(function(l, i) { l.forEach(function(c) { catSets[i].add(c); if (!marg[i].has(c)) marg[i].set(c, new Set()); marg[i].get(c).add(d); }); });
+                let prod = [[]];
+                use.forEach(function(l) { const nx = []; prod.forEach(function(p) { l.forEach(function(c) { nx.push(p.concat([c])); }); }); prod = nx; });
+                prod.forEach(function(p) { const k = p.join("\u0001"); if (!combos.has(k)) combos.set(k, { cats: p, rows: new Set() }); combos.get(k).rows.add(d); });
+            });
+            return { combos: combos, marg: marg, catSets: catSets, all: all };
+        }
+        function ctHeat(metric, v, stats) {
+            if (v === null || stats.max === stats.min && stats.min === 0) return "";
+            const signed = (metric.unit === "¥" || metric.unit === "pips") && stats.min < 0 && stats.max > 0;
+            if (signed) {
+                const a = Math.min(0.55, Math.abs(v) / Math.max(Math.abs(stats.min), Math.abs(stats.max)) * 0.55);
+                return v >= 0 ? "background:rgba(5,150,105," + a.toFixed(2) + ")" : "background:rgba(220,38,38," + a.toFixed(2) + ")";
+            }
+            const span = stats.max - stats.min;
+            const a = span === 0 ? 0.25 : 0.08 + (v - stats.min) / span * 0.47;
+            const good = (metric.unit === "%" || metric.unit === "倍") && metric.kind !== "avg";
+            return (good ? "background:rgba(5,150,105," : "background:rgba(37,99,235,") + a.toFixed(2) + ")";
+        }
+
+        function renderCrosstab() {
+            const body = document.getElementById("ct-body"), note = document.getElementById("ct-note");
+            if (!body) return;
+            const metrics = ctState.metrics;
+            const rowDim = CT_DIM_MAP[document.getElementById("ct-axis-row").value] || null;
+            const colDim = CT_DIM_MAP[document.getElementById("ct-axis-col").value] || null;
+            const splitDim = CT_DIM_MAP[document.getElementById("ct-axis-split").value] || null;
+            const metric = metrics.filter(function(m) { return m.id === document.getElementById("ct-metric").value; })[0] || metrics[0];
+            const minN = Math.max(0, parseInt(document.getElementById("ct-minn").value, 10) || 0);
+            const includeUnset = document.getElementById("ct-unset").checked;
+            ctSavePrefs({ row: rowDim && rowDim.id, col: colDim && colDim.id, split: splitDim && splitDim.id, metric: metric.id, minN: minN, view: ctState.view });
+            document.querySelectorAll("#ct-view button").forEach(function(b) { b.classList.toggle("active", b.dataset.ctView === ctState.view); });
+            const rows = ctFiltered();
+            if (!rowDim) { body.innerHTML = '<div class="sc-empty">「行」の条件を選んでください。</div>'; note.textContent = ""; return; }
+            const axes = [rowDim, colDim, splitDim];
+            const g = ctGroup(rows, axes, includeUnset);
+            const names = axes.filter(Boolean).map(function(a) { return a.label.replace(/（.*$/, ""); });
+            const multi = axes.some(function(a) { return a && a.multi; });
+            note.innerHTML = "対象 <b>" + g.all.size + " 件</b>（" + names.join(" × ") + "）" + (includeUnset ? "" : "。条件が未設定のトレードは除いています（「未設定も含める」で表示できます）") + "。" + (multi ? "<br><b>自分状態は複数選択のため、1件のトレードが複数の列に重複して入ります。</b>" : "") + "<br>各マスの下の <b>n</b> は、そのマスの件数です。件数が少ないマスの勝率などは偶然の影響が大きいので、薄く表示しています。";
+            const esc = function(t) { return String(t).replace(/[&<>]/g, function(c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); };
+
+            if (ctState.view === "list") {
+                const cols = ctState.listCols;
+                const sel = metrics.filter(function(m) { return cols.indexOf(m.id) !== -1; });
+                const list = [];
+                g.combos.forEach(function(cb) { const c = ctCell(Array.from(cb.rows), metrics); list.push({ cats: cb.cats, cell: c }); });
+                const heads = axes.map(function(a, i) { return a ? { type: "axis", i: i, label: a.label.replace(/（.*$/, "") } : null; }).filter(Boolean);
+                const colDefs = heads.map(function(h) { return { label: h.label, left: true, get: function(r) { return r.cats[h.i]; } }; })
+                    .concat([{ label: "件数", get: function(r) { return r.cell.n; }, fmt: function(v) { return v; } }])
+                    .concat(sel.map(function(m) { return { label: m.label, get: function(r) { return r.cell.vals[m.id]; }, fmt: function(v) { return scFmt(m.unit, v); } }; }));
+                if (ctState.sort.col !== null && colDefs[ctState.sort.col]) {
+                    const cd = colDefs[ctState.sort.col], dir = ctState.sort.dir;
+                    list.sort(function(a, b) {
+                        const x = cd.get(a), y = cd.get(b);
+                        if (x === null || x === undefined) return 1; if (y === null || y === undefined) return -1;
+                        return (typeof x === "number" && typeof y === "number" ? x - y : String(x).localeCompare(String(y), "ja", { numeric: true })) * dir;
+                    });
+                } else {
+                    list.sort(function(a, b) { for (let i = 0; i < a.cats.length; i++) { const c = String(a.cats[i]).localeCompare(String(b.cats[i]), "ja", { numeric: true }); if (c) return c; } return 0; });
+                }
+                const colChooser = '<details class="ct-cols"><summary>表示する指標を選ぶ（' + sel.length + " / " + metrics.length + '）</summary><div class="ct-cols-list">' + ["集計表", "黄色集計"].map(function(grp) {
+                    return metrics.filter(function(m) { return m.group === grp; }).map(function(m) { return '<label><input type="checkbox" class="ct-col-chk" value="' + m.id + '"' + (cols.indexOf(m.id) !== -1 ? " checked" : "") + ">" + esc(m.label) + "</label>"; }).join("");
+                }).join("") + '</div><button type="button" class="sc-clear-btn" id="ct-csv-btn" style="margin-top:8px">この表をCSVで保存</button></details>';
+                let t = '<div class="ct-scroll"><table class="ct-table ct-list"><thead><tr>' + colDefs.map(function(cd, i) { return '<th data-ct-sort="' + i + '">' + esc(cd.label) + (ctState.sort.col === i ? (ctState.sort.dir > 0 ? " ▲" : " ▼") : "") + "</th>"; }).join("") + "</tr></thead><tbody>";
+                list.forEach(function(r) {
+                    t += '<tr' + (r.cell.n < minN ? ' class="ct-thin"' : "") + ">" + colDefs.map(function(cd) { const v = cd.get(r); return '<td' + (cd.left ? ' class="ct-left"' : "") + ">" + (cd.left ? esc(v) : (v === null || v === undefined ? "-" : cd.fmt(v))) + "</td>"; }).join("") + "</tr>";
+                });
+                t += "</tbody></table></div>";
+                body.innerHTML = colChooser + (list.length ? t : '<div class="sc-empty">該当するトレードがありません。</div>');
+                ctState.lastList = { colDefs: colDefs, list: list };
+                return;
+            }
+
+            // マトリクス（1指標ずつ・色つき）
+            const splitCats = splitDim ? ctSortCats(splitDim, g.catSets[2]) : ["全体"];
+            const rowCats = ctSortCats(rowDim, g.catSets[0]);
+            const colCats = colDim ? ctSortCats(colDim, g.catSets[1]) : ["全体"];
+            let html = "";
+            splitCats.forEach(function(sc) {
+                // この表（分割）の中のマス
+                const inSplit = function(k) { return !splitDim || k.cats[2] === sc; };
+                const cellOf = function(rc, cc) { const k = [rc, colDim ? cc : "全体", splitDim ? sc : "全体"].join("\u0001"); const cb = g.combos.get(k); return cb ? ctCell(Array.from(cb.rows), metrics) : null; };
+                const rowTotal = function(rc) { const set = new Set(); g.combos.forEach(function(cb) { if (cb.cats[0] === rc && inSplit(cb)) cb.rows.forEach(function(r) { set.add(r); }); }); return set.size ? ctCell(Array.from(set), metrics) : null; };
+                const colTotal = function(cc) { const set = new Set(); g.combos.forEach(function(cb) { if (cb.cats[1] === (colDim ? cc : "全体") && inSplit(cb)) cb.rows.forEach(function(r) { set.add(r); }); }); return set.size ? ctCell(Array.from(set), metrics) : null; };
+                const grand = (function() { const set = new Set(); g.combos.forEach(function(cb) { if (inSplit(cb)) cb.rows.forEach(function(r) { set.add(r); }); }); return set.size ? ctCell(Array.from(set), metrics) : null; })();
+                const cells = {};
+                const vals = [];
+                rowCats.forEach(function(rc) { colCats.forEach(function(cc) { const c = cellOf(rc, cc); cells[rc + "\u0001" + cc] = c; if (c && c.n >= minN && c.vals[metric.id] !== null) vals.push(c.vals[metric.id]); }); });
+                const stats = { min: vals.length ? Math.min.apply(null, vals) : 0, max: vals.length ? Math.max.apply(null, vals) : 0 };
+                const show = function(c, total) {
+                    if (!c) return '<td class="ct-empty">–</td>';
+                    const v = c.vals[metric.id];
+                    const cls = (total ? "ct-total " : "") + (c.n < minN ? "ct-thin" : "");
+                    const style = (!total && c.n >= minN) ? ctHeat(metric, v, stats) : "";
+                    return '<td class="' + cls + '" style="' + style + '">' + (v === null ? "-" : scFmt(metric.unit, v)) + '<span class="ct-n">n=' + c.n + "</span></td>";
+                };
+                if (splitDim) html += '<div class="ct-split-title">' + esc(splitDim.label.replace(/（.*$/, "")) + "： " + esc(sc) + "</div>";
+                html += '<div class="ct-scroll"><table class="ct-table"><thead><tr><th class="ct-rowhead">' + esc(rowDim.label.replace(/（.*$/, "")) + (colDim ? " ＼ " + esc(colDim.label.replace(/（.*$/, "")) : "") + "</th>";
+                colCats.forEach(function(cc) { html += "<th>" + esc(cc) + "</th>"; });
+                if (colDim) html += "<th>合計</th>";
+                html += "</tr></thead><tbody>";
+                rowCats.forEach(function(rc) {
+                    html += '<tr><th class="ct-rowhead">' + esc(rc) + "</th>";
+                    colCats.forEach(function(cc) { html += show(cells[rc + "\u0001" + cc], false); });
+                    if (colDim) html += show(rowTotal(rc), true);
+                    html += "</tr>";
+                });
+                html += '<tr><th class="ct-rowhead">合計</th>';
+                colCats.forEach(function(cc) { html += show(colDim ? colTotal(cc) : grand, true); });
+                if (colDim) html += show(grand, true);
+                html += "</tr></tbody></table></div>";
+            });
+            const legend = (metric.unit === "¥" || metric.unit === "pips") ? "色: 緑＝プラス、赤＝マイナス（濃いほど大きい）" : "色: 濃いほど値が大きい";
+            body.innerHTML = '<div class="ct-legend">表示中の指標: <b>' + esc(metric.label) + "</b>（" + esc(metric.group) + "）　" + legend + "</div>" + html;
+        }
+
+        function initCrosstabUI() {
+            ctState.rows = table.getData();
+            ctState.metrics = ctMetrics();
+            const prefs = ctLoadPrefs();
+            const dimOpts = function(withNone) { return (withNone ? '<option value="">（なし）</option>' : "") + CT_DIMS.map(function(d) { return '<option value="' + d.id + '">' + d.label + "</option>"; }).join(""); };
+            document.getElementById("ct-axis-row").innerHTML = dimOpts(false);
+            document.getElementById("ct-axis-col").innerHTML = dimOpts(true);
+            document.getElementById("ct-axis-split").innerHTML = dimOpts(true);
+            document.getElementById("ct-metric").innerHTML = ["集計表", "黄色集計"].map(function(grp) {
+                return '<optgroup label="' + grp + '">' + ctState.metrics.filter(function(m) { return m.group === grp; }).map(function(m) { return '<option value="' + m.id + '">' + m.label + "</option>"; }).join("") + "</optgroup>";
+            }).join("");
+            const setSel = function(id, v, fallback) { const el = document.getElementById(id); el.value = (v !== undefined && v !== null && el.querySelector('option[value="' + v + '"]')) ? v : fallback; };
+            setSel("ct-axis-row", prefs.row, "strength");
+            setSel("ct-axis-col", prefs.col, "riskCount");
+            setSel("ct-axis-split", prefs.split, "trendStage");
+            setSel("ct-metric", prefs.metric, "summary-win-rate");
+            document.getElementById("ct-minn").value = prefs.minN !== undefined ? prefs.minN : 5;
+            ctState.view = prefs.view === "list" ? "list" : "matrix";
+            ctState.listCols = ["summary-total-wins", "summary-total-losses", "summary-win-rate", "summary-win-pips", "summary-loss-pips", "summary-period-total-profit", "summary-profit-factor"];
+            const dates = ctState.rows.map(function(d) { return (d.date || "").slice(0, 10); }).filter(Boolean).sort();
+            if (dates.length) { document.getElementById("ct-from").value = ""; document.getElementById("ct-to").value = ""; document.getElementById("ct-from").min = document.getElementById("ct-to").min = dates[0]; document.getElementById("ct-from").max = document.getElementById("ct-to").max = dates[dates.length - 1]; }
+            const panel = document.getElementById("crosstab-panel");
+            panel.addEventListener("change", function(e) {
+                if (e.target.classList.contains("ct-col-chk")) {
+                    ctState.listCols = Array.prototype.map.call(panel.querySelectorAll(".ct-col-chk:checked"), function(c) { return c.value; });
+                    const det = panel.querySelector(".ct-cols"); const wasOpen = det && det.open;
+                    renderCrosstab();
+                    const d2 = panel.querySelector(".ct-cols"); if (d2 && wasOpen) d2.open = true;
+                    return;
+                }
+                renderCrosstab();
+            });
+            panel.addEventListener("input", function(e) { if (e.target.id === "ct-minn") renderCrosstab(); });
+            panel.addEventListener("click", function(e) {
+                const vb = e.target.closest("[data-ct-view]");
+                if (vb) { ctState.view = vb.dataset.ctView; renderCrosstab(); return; }
+                const th = e.target.closest("[data-ct-sort]");
+                if (th) { const c = parseInt(th.dataset.ctSort, 10); ctState.sort = (ctState.sort.col === c) ? { col: c, dir: -ctState.sort.dir } : { col: c, dir: -1 }; renderCrosstab(); return; }
+                if (e.target.id === "ct-csv-btn" && ctState.lastList) {
+                    const q = function(t) { return '"' + String(t === null || t === undefined ? "" : t).replace(/"/g, '""') + '"'; };
+                    const ld = ctState.lastList;
+                    const csv = [ld.colDefs.map(function(c) { return q(c.label); }).join(",")].concat(ld.list.map(function(r) { return ld.colDefs.map(function(c) { const v = c.get(r); return q(v === null || v === undefined ? "" : (typeof v === "number" ? Math.round(v * 100) / 100 : v)); }).join(","); })).join("\r\n");
+                    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+                    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "クロス集計_" + new Date().toISOString().slice(0, 10) + ".csv";
+                    document.body.appendChild(a); a.click(); setTimeout(function() { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+                }
+            });
+            renderCrosstab();
+        }
+
         function updateSummaryTable() {
             if (!table) return;
             const allRows = table.getData("active");
@@ -8504,6 +8820,24 @@
                     });
                 } else {
                     openNiceTradesModal();
+                }
+                return;
+            }
+
+            // クロス集計（別ウィンドウ）
+            if (kind === "crosstab") {
+                document.body.classList.remove("popout-mode");
+                document.body.classList.add("summary-popout-mode");
+                document.getElementById("crosstab-panel").classList.add("summary-popout-target");
+                const nbCt = params.get("nb");
+                if (nbCt && nbCt !== appState.activeNotebookId && appState.notebooks[nbCt]) {
+                    switchNotebook(nbCt);
+                    table.on("dataChanged", function onceCt() {
+                        table.off("dataChanged", onceCt);
+                        initCrosstabUI();
+                    });
+                } else {
+                    initCrosstabUI();
                 }
                 return;
             }
@@ -9471,8 +9805,9 @@
             if (summarySelectedPeriod) params.set("pp", summarySelectedPeriod);
             saveAppState();
             const url = location.href.split("#")[0] + "#" + params.toString();
-            window.open(url, kind + "_popout", "width=" + ((kind === "summarytag" || kind === "summarypair") ? 1300 : 1100) + ",height=820,noopener");
+            window.open(url, kind + "_popout", "width=" + (kind === "crosstab" ? 1400 : ((kind === "summarytag" || kind === "summarypair") ? 1300 : 1100)) + ",height=" + (kind === "crosstab" ? 860 : 820) + ",noopener");
         }
+        document.getElementById("btn-open-crosstab").addEventListener("click", function() { openSummaryPopout("crosstab"); });
         document.querySelectorAll(".summary-popout-btn").forEach(function(btn) {
             btn.addEventListener("click", function() {
                 openSummaryPopout(btn.getAttribute("data-summary-popout"));
