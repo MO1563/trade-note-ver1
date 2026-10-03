@@ -434,6 +434,41 @@
         .csvimp-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 16px; }
         .csvimp-list { max-height: 120px; overflow: auto; border: 1px solid var(--border-soft); border-radius: 8px; padding: 6px 10px; margin-top: 4px; font-size: 0.78rem; }
 
+
+        /* ===== 公開用（閲覧専用）===== */
+        #published-banner { background: #1e3a8a; color: #fff; text-align: center; font-size: 0.85rem; font-weight: 600; padding: 6px 10px; }
+        body.published-readonly #btn-rename-notebook,
+        body.published-readonly #btn-new-notebook,
+        body.published-readonly #btn-delete-notebook,
+        body.published-readonly #btn-add-row,
+        body.published-readonly #btn-import-csv,
+        body.published-readonly #btn-publish-html,
+        body.published-readonly #btn-clear-all,
+        body.published-readonly #btn-toggle-custom-columns,
+        body.published-readonly #custom-columns-panel,
+        body.published-readonly #google-drive-settings-btn,
+        body.published-readonly .btn-del-row,
+        body.published-readonly .mieruka-btn-save,
+        body.published-readonly .mieruka-btn-clear,
+        body.published-readonly #chart-save-btn,
+        body.published-readonly #chart-clear-all-btn,
+        body.published-readonly #chart-folder-select-btn,
+        body.published-readonly #cs-add-row-btn,
+        body.published-readonly .cs-row-del-btn,
+        body.published-readonly .cs-col-del,
+        body.published-readonly .cs-del-cell { display: none !important; }
+        body.published-readonly .nice-trade-checkbox,
+        body.published-readonly .mieruka-overlay textarea,
+        body.published-readonly .mieruka-overlay input,
+        body.published-readonly .mieruka-overlay select,
+        body.published-readonly .mieruka-overlay .chip-btn,
+        body.published-readonly #action-strategy-overlay textarea,
+        body.published-readonly #action-strategy-overlay input,
+        body.published-readonly #coping-sheet-overlay textarea,
+        body.published-readonly #coping-sheet-overlay select,
+        body.published-readonly #coping-sheet-overlay input { pointer-events: none; }
+        body.published-readonly #input-initial-capital { pointer-events: none; }
+
         .period-summary-scroll {
             overflow-x: auto;
         }
@@ -2333,6 +2368,9 @@
                     <i class="fa-solid fa-file-import"></i> CSV取り込み
                 </button>
                 <input type="file" id="csv-import-file" accept=".csv,.tsv,.txt,text/csv" style="display:none">
+                <button class="btn btn-secondary" id="btn-publish-html" title="他の人に見てもらう、閲覧専用のHTMLを書き出します">
+                    <i class="fa-solid fa-globe"></i> 公開用HTMLを書き出す
+                </button>
                 <button class="btn btn-danger" id="btn-clear-all">
                     <i class="fa-solid fa-rotate-left"></i> リセット
                 </button>
@@ -3408,7 +3446,52 @@
     <!-- Chart.js: 集計ポップアップの推移グラフ用 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
+    <!--PUBLISH_SNAPSHOT_SLOT-->
     <script>
+        // 公開用HTML（閲覧専用）の準備。公開用のときだけ「編集の禁止」を有効にし、
+        // 編集用のときは、書き出し用に元のHTMLを控えておく（アプリの初期化より前なので、まだ手が加わっていない状態）。
+        (function () {
+            window.__roDef = function (def) {
+                if (!def || typeof def !== "object") return def;
+                const n = Object.assign({}, def);
+                delete n.editor;
+                delete n.editorParams;
+                delete n.cellEdited;
+                if (Array.isArray(n.columns)) n.columns = n.columns.map(window.__roDef);
+                return n;
+            };
+            if (window.__PUBLISHED__) {
+                // 保存を止める（行動戦略・対処法シートの保存も含め、本体データはlocalStorageに書かせない）
+                const origSet = Storage.prototype.setItem;
+                Storage.prototype.setItem = function (k, v) {
+                    if (k === "trade_note_multi_v4") return;
+                    return origSet.apply(this, arguments);
+                };
+                // 表のセルを編集できないようにする
+                if (window.Tabulator) {
+                    const Base = window.Tabulator;
+                    window.Tabulator = class extends Base {
+                        constructor(el, opts) {
+                            const o = Object.assign({}, opts);
+                            if (Array.isArray(o.columns)) o.columns = o.columns.map(window.__roDef);
+                            super(el, o);
+                        }
+                    };
+                }
+                document.body.classList.add("published-readonly");
+                const snap = window.__PUBLISHED_SNAPSHOT__ || {};
+                const banner = document.createElement("div");
+                banner.id = "published-banner";
+                let when = "";
+                try { when = new Date(snap.exportedAt).toLocaleString("ja-JP", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" }); } catch (e) {}
+                banner.textContent = "閲覧専用の公開ページです" + (when ? "（" + when + " 時点のデータ）" : "");
+                document.body.insertBefore(banner, document.body.firstChild);
+            }
+        })();
+    </script>
+
+    <!-- アプリ本体。いったん「実行しない文章」として置き、下の起動用スクリプトが（元のHTMLを控えてから）実行する -->
+    <script type="text/plain" id="app-main">
         // Custom Fail-Proof Dropdown Editor Component for Tabulator
         function createSelectEditor(optionsList) {
             return function(cell, onRendered, success, cancel) {
@@ -3800,7 +3883,7 @@
 
         // Load multi-notebook state from LocalStorage
         function loadAppState() {
-            const raw = localStorage.getItem(STORAGE_KEY_MULTI);
+            const raw = window.__PUBLISHED__ ? JSON.stringify((window.__PUBLISHED_SNAPSHOT__ || {}).appState || {}) : localStorage.getItem(STORAGE_KEY_MULTI);
             if (raw) {
                 try {
                     appState = JSON.parse(raw);
@@ -3824,6 +3907,10 @@
 
             if (!Array.isArray(appState.customColumns)) {
                 appState.customColumns = [];
+            }
+            // Driveにある画像の対応表（画像のキー → DriveのファイルID）
+            if (!appState.driveImageMap || typeof appState.driveImageMap !== "object") {
+                appState.driveImageMap = {};
             }
 
             if (!appState.actionStrategy || typeof appState.actionStrategy !== "object") {
@@ -3885,6 +3972,7 @@
 
         // Save current table state to LocalStorage
         function saveAppState() {
+            if (window.__PUBLISHED__) return; // 公開用は閲覧専用（何も保存しない）
             if (!table) return;
             recalcOptimalSizing();
             const activeNb = appState.notebooks[appState.activeNotebookId];
@@ -5215,6 +5303,7 @@
             return mkIdbPromise;
         }
         function mkIdbPut(key, value) {
+            if (window.__PUBLISHED__) return Promise.resolve();
             return openMkIdb().then(db => new Promise(function(resolve, reject) {
                 const tx = db.transaction(MK_IDB_STORE, "readwrite");
                 tx.objectStore(MK_IDB_STORE).put(value, key);
@@ -5222,7 +5311,14 @@
                 tx.onerror = (e) => reject(e.target.error);
             }));
         }
+        // 公開用では、画像はIndexedDBではなくGoogle Driveの公開リンクから表示する
+        function publishedImageUrl(key) {
+            const map = ((window.__PUBLISHED_SNAPSHOT__ || {}).imageMap) || {};
+            const id = map[key];
+            return id ? "https://drive.google.com/thumbnail?id=" + encodeURIComponent(id) + "&sz=w2400" : null;
+        }
         function mkIdbGet(key) {
+            if (window.__PUBLISHED__) return Promise.resolve(publishedImageUrl(key));
             return openMkIdb().then(db => new Promise(function(resolve, reject) {
                 const tx = db.transaction(MK_IDB_STORE, "readonly");
                 const req = tx.objectStore(MK_IDB_STORE).get(key);
@@ -5231,6 +5327,7 @@
             }));
         }
         function mkIdbDelete(key) {
+            if (window.__PUBLISHED__) return Promise.resolve();
             return openMkIdb().then(db => new Promise(function(resolve, reject) {
                 const tx = db.transaction(MK_IDB_STORE, "readwrite");
                 tx.objectStore(MK_IDB_STORE).delete(key);
@@ -5365,8 +5462,8 @@
         function driveEscapeQueryValue(value) {
             return String(value || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
         }
-        async function getOrCreateNotebookDriveFolder() {
-            const nbId = appState.activeNotebookId;
+        async function getOrCreateNotebookDriveFolder(nbIdArg) {
+            const nbId = nbIdArg || appState.activeNotebookId;
             const nb = appState.notebooks[nbId];
             if (!nb) throw new Error("アクティブなノートが見つかりません");
             if (nb.googleDriveFolderId) return nb.googleDriveFolderId;
@@ -5386,23 +5483,23 @@
             saveAppState();
             return folderId;
         }
-        function googleDriveFilename(row, slotKey, dataUrl) {
+        function googleDriveFilename(row, slotKey, dataUrl, nbIdArg, prefix) {
             const data = row.getData();
-            const notebook = appState.notebooks[appState.activeNotebookId];
+            const notebook = appState.notebooks[nbIdArg || appState.activeNotebookId];
             const noteName = notebook && notebook.name ? notebook.name : "トレードノート";
             const date = String(data.date || "").replace(/[^0-9]/g, "");
             const time = String(data.time || "").replace(/[^0-9]/g, "");
             const dateTime = date + (time ? "_" + time : "");
             const pair = String(data.pair || "unknown").replace(/[^A-Za-z0-9_-]/g, "-").toUpperCase();
-            const place = CHART_SLOT_FILE_LETTER[slotKey] || slotKey;
+            const place = (prefix ? prefix + "-" : "") + (CHART_SLOT_FILE_LETTER[slotKey] || slotKey);
             const ext = extFromDataUrl(dataUrl);
             const raw = noteName + "_" + (dateTime || "unknown") + "_" + pair + "_" + place;
             return raw.replace(/[\\/:*?"<>|]/g, "-").replace(/\s+/g, "_") + "." + ext;
         }
-        async function uploadImageToGoogleDrive(row, slotKey, dataUrl) {
-            const folderId = await getOrCreateNotebookDriveFolder();
+        async function uploadImageToGoogleDrive(row, slotKey, dataUrl, nbIdArg, prefix) {
+            const folderId = await getOrCreateNotebookDriveFolder(nbIdArg);
             const blob = dataUrlToBlob(dataUrl);
-            const filename = googleDriveFilename(row, slotKey, dataUrl);
+            const filename = googleDriveFilename(row, slotKey, dataUrl, nbIdArg, prefix);
             const boundary = "-------tradeNoteBoundary" + Date.now().toString(36) + Math.random().toString(36).slice(2);
             const metadata = { name: filename, parents: [folderId], mimeType: blob.type || "image/png" };
             const preamble = "--" + boundary + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + JSON.stringify(metadata) + "\r\n--" + boundary + "\r\nContent-Type: " + (blob.type || "image/png") + "\r\n\r\n";
@@ -5420,13 +5517,22 @@
             }
             return await res.json();
         }
+        // 画像を「リンクを知っている全員が閲覧可」にする（公開用ページで他の人にも表示するために必要）
+        async function makeDriveFilePublic(fileId) {
+            await driveApi("files/" + encodeURIComponent(fileId) + "/permissions?supportsAllDrives=true", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ role: "reader", type: "anyone" })
+            });
+        }
         async function saveChartsToGoogleDrive(row, field, chartData) {
             const items = CHART_SLOTS.filter(function(s) { return chartData[s.key]; });
             if (!items.length) return [];
             return withGoogleDriveToken(async function() {
                 const results = [];
                 for (const s of items) {
-                    results.push(await uploadImageToGoogleDrive(row, s.key, chartData[s.key]));
+                    const file = await uploadImageToGoogleDrive(row, s.key, chartData[s.key], null, field === "chartsAfter" ? "K" : "E");
+                    results.push({ slot: s.key, id: file && file.id });
                 }
                 return results;
             });
@@ -5787,8 +5893,9 @@
                     const useKey = oldKey || mkGenKey();
                     idbOps.push(mkIdbPut(useKey, data));
                     finalRefs[key] = useKey;
+                    if (appState.driveImageMap) delete appState.driveImageMap[useKey]; // 画像が変わったので、Drive側の対応は無効
                 } else {
-                    if (oldKey) idbOps.push(mkIdbDelete(oldKey));
+                    if (oldKey) { idbOps.push(mkIdbDelete(oldKey)); if (appState.driveImageMap) delete appState.driveImageMap[oldKey]; }
                     finalRefs[key] = null;
                 }
             });
@@ -5808,7 +5915,12 @@
                         await driveTokenPromise;
                         const driveData = {};
                         driveImages.forEach(function(x) { driveData[x.key] = x.data; });
-                        await saveChartsToGoogleDrive(row, field, driveData);
+                        const driveResults = await saveChartsToGoogleDrive(row, field, driveData);
+                        (driveResults || []).forEach(function(r) {
+                            const k = finalRefs[r.slot];
+                            if (k && r.id) appState.driveImageMap[k] = { id: r.id, pub: false };
+                        });
+                        saveAppState();
                         showToast("Google Driveに保存しました");
                     } catch (driveErr) {
                         console.error(driveErr);
@@ -6165,6 +6277,7 @@
                         return `<input type="checkbox" class="nice-trade-checkbox" ${checked ? "checked" : ""} style="width:18px; height:18px; cursor:pointer;">`;
                     },
                     cellClick: function(e, cell) {
+                        if (window.__PUBLISHED__) return;
                         if (e.target.tagName === "INPUT") {
                             cell.setValue(!cell.getValue());
                             saveAppState();
@@ -6180,6 +6293,7 @@
                     hozAlign: "center",
                     headerSort: false,
                     cellClick: function(e, cell) {
+                        if (window.__PUBLISHED__) return;
                         if (confirm("このトレード記録を削除しますか？")) {
                             cell.getRow().delete();
                             saveAppState();
@@ -6222,7 +6336,7 @@
         }
 
         function addCustomColumnToTable(col) {
-            const result = table.addColumn(buildCustomColumnTabulatorDef(col), false, "chartsAfter");
+            const result = table.addColumn(window.__PUBLISHED__ ? window.__roDef(buildCustomColumnTabulatorDef(col)) : buildCustomColumnTabulatorDef(col), false, "chartsAfter");
             if (result && typeof result.then === "function") {
                 result.then(function() {
                     table.redraw(true);
@@ -8245,6 +8359,7 @@
 
         // メイン画面（非ポップアウト）側: 他のポップアウトウィンドウでの保存をlocalStorage経由で検知し、表示に反映する
         window.addEventListener("storage", function(e) {
+            if (window.__PUBLISHED__) return;
             if (e.key !== STORAGE_KEY_MULTI || document.body.classList.contains("popout-mode") || document.body.classList.contains("summary-popout-mode")) return;
             const raw = localStorage.getItem(STORAGE_KEY_MULTI);
             if (!raw) return;
@@ -8665,6 +8780,141 @@
             };
             reader.readAsArrayBuffer(file);
         });
+
+        // ===== 公開用HTMLの書き出し（閲覧専用・GitHubなどにアップして共有）=====
+        // 編集用アプリと同じHTMLに、データ（表・集計・ログ）を埋め込み、画像はGoogle Driveの公開リンクで表示する。
+        function publishCollectImages(nbIds) {
+            const items = [];
+            nbIds.forEach(function(nbId) {
+                const nb = appState.notebooks[nbId];
+                if (!nb) return;
+                const rows = nbId === appState.activeNotebookId ? table.getData() : (nb.data || []);
+                rows.forEach(function(d) {
+                    ["chartsBefore", "chartsAfter"].forEach(function(field) {
+                        const refs = d[field] || {};
+                        ["entry", "trade", "env", "risk"].forEach(function(slot) {
+                            if (refs[slot]) items.push({ key: refs[slot], nbId: nbId, rowData: d, field: field, slot: slot });
+                        });
+                    });
+                });
+            });
+            return items;
+        }
+        function publishJsonForScript(obj) {
+            return JSON.stringify(obj).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+        }
+        function publishBuildHtml(nbIds, imageKeys) {
+            if (!window.__PRISTINE_HTML__) throw new Error("元のHTMLを取得できませんでした");
+            const clone = JSON.parse(JSON.stringify(appState));
+            const map = clone.driveImageMap || {};
+            delete clone.driveImageMap;
+            Object.keys(clone.notebooks).forEach(function(id) {
+                if (nbIds.indexOf(id) === -1) delete clone.notebooks[id];
+                else delete clone.notebooks[id].googleDriveFolderId;
+            });
+            if (!clone.notebooks[clone.activeNotebookId]) clone.activeNotebookId = nbIds[0];
+            ["actionStrategy", "copingSheet"].forEach(function(k) {
+                if (clone[k] && clone[k].byNotebook) {
+                    Object.keys(clone[k].byNotebook).forEach(function(id) { if (nbIds.indexOf(id) === -1) delete clone[k].byNotebook[id]; });
+                }
+            });
+            const imageMap = {};
+            imageKeys.forEach(function(k) { if (map[k] && map[k].id) imageMap[k] = map[k].id; });
+            const snapshot = { exportedAt: new Date().toISOString(), appState: clone, imageMap: imageMap };
+            const slot = "<" + "script>window.__PUBLISHED__=true;window.__PUBLISHED_SNAPSHOT__=" + publishJsonForScript(snapshot) + ";<\/script>";
+            const mark = "<!" + "--PUBLISH_SNAPSHOT_SLOT--" + ">";   // ※HTMLのコメント開始記号をスクリプト内にそのまま書くとHTMLの解釈が狂うので、文字列を分けて書く
+            return window.__PRISTINE_HTML__.replace(mark, function() { return slot; });
+        }
+
+        function publishShowDialog() {
+            const esc = function(t) { return String(t).replace(/[&<>"]/g, function(c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+            const nbs = Object.values(appState.notebooks);
+            const ov = document.createElement("div");
+            ov.className = "csvimp-overlay";
+            ov.innerHTML = '<div class="csvimp-card" role="dialog" aria-modal="true">' +
+                "<h3>公開用HTMLを書き出す</h3>" +
+                '<div class="csvimp-block csvimp-muted">いまのデータを埋め込んだ、<b>閲覧専用</b>のHTMLを作ります。編集はできません。書き出した後に入力したデータは入らないので、更新するときはもう一度書き出してください。</div>' +
+                '<div class="csvimp-block"><b>公開するノート</b>' + nbs.map(function(nb) {
+                    return '<label class="csvimp-opt"><input type="checkbox" class="pub-nb" value="' + esc(nb.id) + '"' + (nb.id === appState.activeNotebookId ? " checked" : "") + ">" + esc(nb.name) + "</label>";
+                }).join("") + "</div>" +
+                '<div class="csvimp-block" id="pub-summary"></div>' +
+                '<div class="csvimp-block csvimp-warn"><b>公開される内容</b><br>・トレードの表（<b>収益・口座残高・初期資金などの金額も</b>）、集計、グラフ、ログ（感情＆根拠など）<br>・チャート画像（Google Driveで<b>「リンクを知っている全員が閲覧可」</b>に変わります）<br>・GitHubの公開リポジトリに置くと、URLを知る人は誰でも見られます</div>' +
+                '<label class="csvimp-opt"><input type="checkbox" id="pub-agree">上の内容を確認しました</label>' +
+                '<div class="csvimp-block" id="pub-progress"></div>' +
+                '<div class="csvimp-actions"><button class="btn btn-secondary" id="pub-cancel">閉じる</button><button class="btn btn-primary" id="pub-go" disabled>書き出す</button></div></div>';
+            document.body.appendChild(ov);
+            const close = function() { ov.remove(); };
+            const selected = function() { return Array.prototype.map.call(ov.querySelectorAll(".pub-nb:checked"), function(c) { return c.value; }); };
+            const refresh = function() {
+                const ids = selected();
+                const items = ids.length ? publishCollectImages(ids) : [];
+                const need = items.filter(function(it) { const m = appState.driveImageMap[it.key]; return !m || !m.id || !m.pub; });
+                document.getElementById("pub-summary").innerHTML = "チャート画像 <b>" + items.length + " 枚</b>" + (need.length ? "（Driveへのアップロード／公開設定が必要: <b>" + need.length + " 枚</b>。書き出すとGoogleの認証が出ます）" : "（すべてDriveで公開済み）");
+                document.getElementById("pub-go").disabled = !(ids.length && document.getElementById("pub-agree").checked);
+            };
+            ov.addEventListener("change", refresh);
+            refresh();
+            document.getElementById("pub-cancel").addEventListener("click", close);
+            ov.addEventListener("click", function(e) { if (e.target === ov) close(); });
+            document.getElementById("pub-go").addEventListener("click", function() {
+                const ids = selected();
+                const items = publishCollectImages(ids);
+                const need = items.filter(function(it) { const m = appState.driveImageMap[it.key]; return !m || !m.id || !m.pub; });
+                let tokenPromise = null;
+                if (need.length) {
+                    if (!getGoogleDriveClientId()) { alert("画像をDriveに公開するには、先にGoogle Drive設定でクライアントIDを登録してください。"); openGoogleDriveSettings(); return; }
+                    tokenPromise = requestGoogleDriveToken();   // ボタンを押した直後に認証を始める（ポップアップ対策）
+                    tokenPromise.catch(function() {});
+                }
+                publishRun(ids, items, need, tokenPromise, ov);
+            });
+        }
+
+        async function publishRun(nbIds, items, need, tokenPromise, ov) {
+            const go = document.getElementById("pub-go");
+            const prog = document.getElementById("pub-progress");
+            go.disabled = true;
+            const say = function(t, cls) { prog.innerHTML = '<span class="' + (cls || "csvimp-muted") + '">' + t + "</span>"; };
+            try {
+                saveAppState(); // 表の最新の状態をデータに反映する
+                if (tokenPromise) {
+                    say("Googleの認証を待っています…");
+                    await tokenPromise;
+                    let done = 0, missing = 0;
+                    for (const it of need) {
+                        say("画像をGoogle Driveへ送っています… " + (++done) + " / " + need.length);
+                        let entry = appState.driveImageMap[it.key];
+                        if (!entry || !entry.id) {
+                            const dataUrl = await mkIdbGet(it.key);
+                            if (!dataUrl) { missing++; continue; }
+                            const file = await uploadImageToGoogleDrive({ getData: function() { return it.rowData; } }, it.slot, dataUrl, it.nbId, it.field === "chartsAfter" ? "K" : "E");
+                            entry = { id: file.id, pub: false };
+                            appState.driveImageMap[it.key] = entry;
+                        }
+                        if (!entry.pub) { await makeDriveFilePublic(entry.id); entry.pub = true; }
+                    }
+                    saveAppState();
+                    if (missing) say("※ " + missing + " 枚は、この端末に画像データが無いためスキップしました。", "csvimp-warn");
+                }
+                say("HTMLを作っています…");
+                const html = publishBuildHtml(nbIds, items.map(function(it) { return it.key; }));
+                const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = "trade-note-public_" + new Date().toISOString().slice(0, 10) + ".html";
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(function() { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+                prog.innerHTML = '<span class="csvimp-ok" style="color:var(--accent-green);font-weight:600;">書き出しました（' + Math.round(blob.size / 1024).toLocaleString() + ' KB）。</span><br><span class="csvimp-muted">GitHubにアップするときは、ファイル名を <b>index.html</b> に変えると、URLが短くなります。</span>';
+                showToast("公開用HTMLを書き出しました");
+            } catch (err) {
+                console.error(err);
+                say(esc2(googleDriveErrorMessage(err)), "csvimp-err");
+            }
+            go.disabled = false;
+            function esc2(t) { return String(t).replace(/[&<>]/g, function(c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); }
+        }
+        document.getElementById("btn-publish-html").addEventListener("click", publishShowDialog);
 
         // Add Row Handler
         document.getElementById("btn-add-row").addEventListener("click", function() {
@@ -9199,6 +9449,18 @@
                 toast.classList.remove("show");
             }, 2500);
         }
+    </script>
+    <script>
+        // 起動: 編集用のときは、書き出し用に「まだ何も手が加わっていない元のHTML」を控えてから、アプリ本体を実行する
+        (function () {
+            if (!window.__PUBLISHED__) {
+                window.__PRISTINE_HTML__ = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            }
+            const src = document.getElementById("app-main").textContent;
+            const el = document.createElement("script");
+            el.text = src;
+            document.body.appendChild(el);
+        })();
     </script>
 </body>
 </html>
